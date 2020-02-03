@@ -14,8 +14,8 @@
     <plugins>
       <plugin>
         <groupId>io.sitoolkit.rdg</groupId>
-        <artifactId>rdg-maven-plugin</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <artifactId>sit-rdg-maven-plugin</artifactId>
+        <version>0.9-SNAPSHOT</version>
         <configuration/>
       </plugin>
     </plugins>
