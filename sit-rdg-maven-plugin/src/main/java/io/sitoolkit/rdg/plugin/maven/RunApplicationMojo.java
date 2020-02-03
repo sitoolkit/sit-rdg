@@ -34,7 +34,7 @@ public class RunApplicationMojo extends AbstractMojo {
     getLog().info("genData:" + genData);
     getLog().info("input:" + input);
     getLog().info("output:" + output);
-    Main.main(getArgsAsArray());
+    new Main().execute(getArgsAsArray());
   }
 
   private String[] getArgsAsArray() {
