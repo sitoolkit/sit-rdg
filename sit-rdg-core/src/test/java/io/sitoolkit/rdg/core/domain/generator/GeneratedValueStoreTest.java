@@ -1,11 +1,10 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import java.util.List;
 import java.util.function.Function;
 
-import org.junit.Test;
-
-import static com.google.common.truth.Truth.assertThat;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
@@ -17,7 +16,7 @@ public class GeneratedValueStoreTest {
 
   GeneratedValueStore store = new GeneratedValueStore(new GeneratorConfig());
 
-  @Test
+  //  @Test
   public void shouldGenerateSameValue4SameColumn() {
     // select ... from table1, table2, table3
     // where table1.group1_column = table2.group1_column
