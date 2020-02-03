@@ -1,0 +1,26 @@
+{
+  "defaultRowCount": 100,
+  "defaultRequiredValueCount": 100,
+  "schemaConfigs": [
+    {
+      "schemaName": "",
+      "tableConfigs": [
+        {
+          "tableName": "TABLE1",
+          "priorityRank": 2,
+          "columnConfigs": [
+            {
+              "columnName": "GROUP1_COLUMN",
+              "requiredValueCount": 1
+            }
+          ]
+        },
+        {
+          "tableName": "TABLE3",
+          "priorityRank": 1,
+          "rowCount": 150
+        }
+      ]
+    }
+  ]
+}
