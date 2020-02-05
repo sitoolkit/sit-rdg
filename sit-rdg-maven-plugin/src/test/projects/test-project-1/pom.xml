@@ -14,14 +14,8 @@
     <plugins>
       <plugin>
         <groupId>io.sitoolkit.rdg</groupId>
-<<<<<<< HEAD
         <artifactId>rdg-maven-plugin</artifactId>
         <version>${project.version}</version>
-=======
-        <artifactId>sit-rdg-maven-plugin</artifactId>
-        <version>0.9-SNAPSHOT</version>
->>>>>>> branch 'master' of https://github.com/sitoolkit/sit-rdg.git
-        <configuration/>
       </plugin>
     </plugins>
   </build>
