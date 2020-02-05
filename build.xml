@@ -11,7 +11,7 @@
     <os family="windows" />
   </condition>
 
-  <property name="version" value="0.9-SNAPSHOT" />
+  <property name="version" value="0.9" />
 
 
   <target name="deploy">

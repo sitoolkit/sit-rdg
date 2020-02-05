@@ -6,7 +6,7 @@
 
   <groupId>io.sitoolkit.rdg</groupId>
   <artifactId>rdg-maven-plugin-test</artifactId>
-  <version>0.9-SNAPSHOT</version>
+  <version>0.9</version>
   <packaging>jar</packaging>
   <name>Test RunApplicationMojo</name>
 
