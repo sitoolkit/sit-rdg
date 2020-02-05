@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:if="ant:if" xmlns:unless="ant:unless" name="sit-cv" basedir="."
+  default="deploy">
+
+
+  <condition property="os.windows" value="true" else="false">
+    <os family="windows" />
+  </condition>
+  
+  <condition property="mvn.cmd" value="${basedir}\mvnw.cmd" else="${basedir}\mvnw">
+    <os family="windows" />
+  </condition>
+
+  <property name="version" value="0.9-SNAPSHOT" />
+
+
+  <target name="deploy">
+
+    <exec executable="${mvn.cmd}" dir="${basedir}">
+      <arg line="clean test sonar:sonar -P analyze --fail-at-end" />
+    </exec>
+
+    <exec executable="${mvn.cmd}" dir="${basedir}">
+      <arg line="clean deploy -P release -Dmaven.test.skip=true" />
+    </exec>
+
+  </target>
+
+
+  <target name="set-version">
+
+    <exec executable="${mvn.cmd}" dir="${basedir}">
+      <arg line="versions:set -DnewVersion=${version} -DgenerateBackupPoms=false" />
+    </exec>
+
+    <exec executable="${mvn.cmd}"
+      dir="${basedir}/sit-rdg-maven-plugin/src/test/projects/test-project-1">
+        <arg line="versions:set -DnewVersion=${version} -DgenerateBackupPoms=false" />
+    </exec>
+
+  </target>
+
+</project>
