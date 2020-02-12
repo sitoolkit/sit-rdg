@@ -14,7 +14,7 @@ public class GeneratorConfigReader {
     Path configPath = path.resolve(CONFIG_NAME).toAbsolutePath().normalize();
     try {
       GeneratorConfig config = JsonUtils.json2object(configPath, GeneratorConfig.class);
-      log.warn("Succeeded to parse config json:{}", configPath);
+      log.debug("Succeeded to parse config json:{}", configPath);
       return config;
     } catch (Exception e) {
       if (configPath.toFile().exists()) {

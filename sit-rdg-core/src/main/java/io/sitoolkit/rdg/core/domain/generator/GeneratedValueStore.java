@@ -2,14 +2,10 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-
-import org.apache.commons.lang3.RandomUtils;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
@@ -26,46 +22,31 @@ public class GeneratedValueStore {
 
   private Map<RelationDef, Integer> requiredValueCountMap = new HashMap<>();
 
-  private Set<RandomValueRow> generatedRows = new HashSet<>();
-
-  public void clearGeneratedRowsCache() {
-    generatedRows.clear();
-  }
+  private ConsistentValueGenerator generator = new ConsistentValueGenerator();
 
   public GeneratedValueStore(GeneratorConfig setting) {
     this.setting = setting;
   }
 
-  public Optional<RandomValueRow> generateRow(List<ColumnDef> columns) {
+  public Optional<RandomValueRow> generateRow(List<ColumnDef> columns, int rowNum) {
 
-    for (; ; ) {
+    RandomValueRow valueRow = new RandomValueRow();
 
-      RandomValueRow valueRow = new RandomValueRow();
+    for (ColumnDef column : columns) {
 
-      for (ColumnDef column : columns) {
-        String value = generateIfAbsent(column);
-        valueRow.put(column, value);
+      // Relationが無い列の場合、乱数を生成してreturn
+      if (Objects.isNull(column.getRelations()) || column.getRelations().isEmpty()) {
+        valueRow.put(column, RandomValueUtils.generate(column));
+      } else {
+        valueRow.put(column, generateIfAbsent(generator, column, rowNum));
       }
-
-      if (!generatedRows.contains(valueRow)) {
-        generatedRows.add(valueRow);
-        return Optional.of(valueRow);
-      }
-
-      log.info(
-          "Duplicate primrary key:{} of {}",
-          valueRow.getPrimaryKeyValues(),
-          columns.stream().findAny().get().getTable().getFullyQualifiedName());
     }
+
+    return Optional.of(valueRow);
   }
 
-  public String generateIfAbsent(ColumnDef column) {
+  public String generateIfAbsent(ConsistentValueGenerator generator, ColumnDef column, int rowNum) {
     List<RelationDef> relations = column.getRelations();
-
-    // Relationが無い列の場合、乱数を生成してreturn
-    if (Objects.isNull(relations) || relations.isEmpty()) {
-      return RandomValueUtils.generate(column);
-    }
 
     // columnの全Relationに対し、乱数、および乱数Groupを生成してgeneratedValueMapに追加
     for (RelationDef relation : relations) {
@@ -85,26 +66,22 @@ public class GeneratedValueStore {
         List<ColumnDef> distinctColumns = relation.getDistinctColumns();
         String newValue = null;
         for (ColumnDef c : distinctColumns) {
-          newValue = Objects.isNull(newValue) ? RandomValueUtils.generate(c) : newValue;
+          newValue = Objects.isNull(newValue) ? generator.generate(c) : newValue;
           generatedValueGroup.setColumnValue(c, newValue);
           generatedValueGroup.generateEmptyColumnValue(relation);
         }
       }
     }
 
-    // 生成済みの乱数の中からランダムに値を取得してreturn
     RelationDef relation =
         relations
             .parallelStream()
-            .filter(r -> r.getDistinctColumns().contains(column))
+            .filter(rel -> rel.getDistinctColumns().contains(column))
             .findAny()
             .get();
     List<RandomValueGroup> randomValueGroups = generatedValueMap.get(relation);
-    RandomValueGroup randomValueGroup =
-        randomValueGroups.get(RandomUtils.nextInt(0, randomValueGroups.size()));
+    RandomValueGroup randomValueGroup = randomValueGroups.get(rowNum - 1);
 
-    String generatedValue = randomValueGroup.valueMap.get(column);
-
-    return generatedValue;
+    return randomValueGroup.valueMap.get(column);
   }
 }

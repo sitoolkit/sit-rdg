@@ -18,7 +18,9 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.CsvWriter;
 import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DataGenerator {
 
   public List<Path> generate(Path input, Path output) throws IOException {
@@ -40,6 +42,7 @@ public class DataGenerator {
       for (TableDef table : tables) {
         Integer rowCount = config.getRowCount(table);
         Path outPath = write(table, rowCount, output, store);
+        log.info("Generated csv {}", outPath.toAbsolutePath());
         outputs.add(outPath);
       }
     }
@@ -67,7 +70,7 @@ public class DataGenerator {
     writer.writeAppend(header);
     for (int row = 1; row <= rowCount; row++) {
 
-      Optional<RandomValueRow> generatedValueRow = store.generateRow(cols);
+      Optional<RandomValueRow> generatedValueRow = store.generateRow(cols, row);
 
       if (generatedValueRow.isPresent()) {
         List<Object> lineValues = generatedValueRow.get().getLineValues();
@@ -76,7 +79,7 @@ public class DataGenerator {
     }
     writer.close();
 
-    store.clearGeneratedRowsCache();
+    //    store.clearGeneratedRowsCache();
 
     return path;
   }

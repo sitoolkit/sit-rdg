@@ -1,9 +1,11 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
-import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.*;
 
 import java.util.List;
 import java.util.function.Function;
+
+import org.junit.Test;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
@@ -15,8 +17,9 @@ import io.sitoolkit.rdg.core.domain.schema.TableDef;
 public class GeneratedValueStoreTest {
 
   GeneratedValueStore store = new GeneratedValueStore(new GeneratorConfig());
+  ConsistentValueGenerator generator = new ConsistentValueGenerator();
 
-  //  @Test
+  @Test
   public void shouldGenerateSameValue4SameColumn() {
     // select ... from table1, table2, table3
     // where table1.group1_column = table2.group1_column
@@ -58,10 +61,10 @@ public class GeneratedValueStoreTest {
     group1columnInTable2.setRelations(List.of(table2relation));
     group2columnInTable3.setRelations(List.of(table3relation));
 
-    String group1firstValue = store.generateIfAbsent(group1columnInTable1);
-    String group2firstValue = store.generateIfAbsent(group2columnInTable1);
-    String group1sameValue = store.generateIfAbsent(group1columnInTable2);
-    String group2sameValue = store.generateIfAbsent(group2columnInTable3);
+    String group1firstValue = store.generateIfAbsent(generator, group1columnInTable1, 1);
+    String group2firstValue = store.generateIfAbsent(generator, group2columnInTable1, 1);
+    String group1sameValue = store.generateIfAbsent(generator, group1columnInTable2, 1);
+    String group2sameValue = store.generateIfAbsent(generator, group2columnInTable3, 1);
 
     assertThat(group1firstValue).isEqualTo(group1sameValue);
     assertThat(group2firstValue).isEqualTo(group2sameValue);
