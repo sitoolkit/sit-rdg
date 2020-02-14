@@ -1,5 +1,6 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
+import java.io.Closeable;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,7 +9,7 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-public class CsvWriter {
+public class CsvWriter implements Closeable {
 
   private CSVPrinter printer;
 
@@ -25,6 +26,7 @@ public class CsvWriter {
     printer.flush();
   }
 
+  @Override
   public void close() throws IOException {
     printer.close();
   }

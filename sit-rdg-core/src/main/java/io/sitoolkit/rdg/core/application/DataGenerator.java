@@ -64,20 +64,24 @@ public class DataGenerator {
       throws IOException {
 
     List<ColumnDef> cols = tableDef.getColumns();
+    List<ColumnDef> pks =
+        cols.stream().filter(ColumnDef::isPrimaryKey).collect(Collectors.toList());
     List<Object> header = cols.stream().map(ColumnDef::getName).collect(Collectors.toList());
 
-    CsvWriter writer = new CsvWriter(path);
-    writer.writeAppend(header);
-    for (int row = 1; row <= rowCount; row++) {
+    try (CsvWriter writer = new CsvWriter(path)) {
+      writer.writeAppend(header);
 
-      Optional<RandomValueRow> generatedValueRow = store.generateRow(cols, row);
+      for (int row = 1; row <= rowCount; row++) {
 
-      if (generatedValueRow.isPresent()) {
-        List<Object> lineValues = generatedValueRow.get().getLineValues();
-        writer.writeAppend(lineValues);
+        Optional<RandomValueRow> generatedValueRow = store.generateRow(cols, pks, row);
+
+        if (generatedValueRow.isPresent()) {
+          List<Object> lineValues = generatedValueRow.get().getLineValues();
+          writer.writeAppend(lineValues);
+        }
       }
+      writer.close();
     }
-    writer.close();
 
     //    store.clearGeneratedRowsCache();
 
