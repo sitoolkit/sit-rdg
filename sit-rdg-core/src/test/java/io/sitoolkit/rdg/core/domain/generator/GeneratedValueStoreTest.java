@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.junit.Test;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
+import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
 import io.sitoolkit.rdg.core.domain.schema.DataType;
@@ -17,7 +18,6 @@ import io.sitoolkit.rdg.core.domain.schema.TableDef;
 public class GeneratedValueStoreTest {
 
   GeneratedValueStore store = new GeneratedValueStore(new GeneratorConfig());
-  ConsistentValueGenerator generator = new ConsistentValueGenerator();
 
   @Test
   public void shouldGenerateSameValue4SameColumn() {
@@ -61,10 +61,19 @@ public class GeneratedValueStoreTest {
     group1columnInTable2.setRelations(List.of(table2relation));
     group2columnInTable3.setRelations(List.of(table3relation));
 
-    String group1firstValue = store.generateIfAbsent(generator, group1columnInTable1, 1);
-    String group2firstValue = store.generateIfAbsent(generator, group2columnInTable1, 1);
-    String group1sameValue = store.generateIfAbsent(generator, group1columnInTable2, 1);
-    String group2sameValue = store.generateIfAbsent(generator, group2columnInTable3, 1);
+    MultipleSequentialValue g1t1Sequence =
+        new MultipleSequentialValue(List.of(group1columnInTable1));
+    MultipleSequentialValue g2t1Sequence =
+        new MultipleSequentialValue(List.of(group2columnInTable1));
+    MultipleSequentialValue g1t2Sequence =
+        new MultipleSequentialValue(List.of(group1columnInTable2));
+    MultipleSequentialValue g2t3Sequence =
+        new MultipleSequentialValue(List.of(group2columnInTable3));
+
+    String group1firstValue = store.putIfAbsent(group1columnInTable1, 1, g1t1Sequence);
+    String group2firstValue = store.putIfAbsent(group2columnInTable1, 1, g2t1Sequence);
+    String group1sameValue = store.putIfAbsent(group1columnInTable2, 1, g1t2Sequence);
+    String group2sameValue = store.putIfAbsent(group2columnInTable3, 1, g2t3Sequence);
 
     assertThat(group1firstValue).isEqualTo(group1sameValue);
     assertThat(group2firstValue).isEqualTo(group2sameValue);

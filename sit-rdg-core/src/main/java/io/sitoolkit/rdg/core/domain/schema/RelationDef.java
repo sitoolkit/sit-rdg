@@ -43,8 +43,9 @@ public class RelationDef {
 
     // 一番小さい桁数に合わせる
     List<String> minDigits =
-        getDistinctColumns()
+        columnPairs
             .stream()
+            .flatMap(c -> c.getColumns().stream())
             .sorted(
                 Comparator.comparing(ColumnDef::getIntegerDigit)
                     .thenComparing(ColumnDef::getDecimalDigit))

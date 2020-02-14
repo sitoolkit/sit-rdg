@@ -7,7 +7,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
+import io.sitoolkit.rdg.core.domain.generator.sequence.AbstractSequence;
+import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import lombok.extern.slf4j.Slf4j;
@@ -22,30 +26,42 @@ public class GeneratedValueStore {
 
   private Map<RelationDef, Integer> requiredValueCountMap = new HashMap<>();
 
-  private ConsistentValueGenerator generator = new ConsistentValueGenerator();
+  private Map<List<ColumnDef>, AbstractSequence> registedSequence = new HashMap<>();
 
   public GeneratedValueStore(GeneratorConfig setting) {
     this.setting = setting;
   }
 
-  public Optional<RandomValueRow> generateRow(List<ColumnDef> columns, int rowNum) {
+  public Optional<RandomValueRow> generateRow(
+      List<ColumnDef> columns, List<ColumnDef> primaryKeys, int rowNum) {
 
     RandomValueRow valueRow = new RandomValueRow();
 
-    for (ColumnDef column : columns) {
+    MultipleSequentialValue leafSequence =
+        (MultipleSequentialValue)
+            registedSequence.computeIfAbsent(
+                primaryKeys, key -> new MultipleSequentialValue(primaryKeys));
 
-      // Relationが無い列の場合、乱数を生成してreturn
+    leafSequence.nextVal();
+
+    for (ColumnDef column : columns) {
       if (Objects.isNull(column.getRelations()) || column.getRelations().isEmpty()) {
-        valueRow.put(column, RandomValueUtils.generate(column));
+
+        if (column.isPrimaryKey()) {
+          valueRow.put(column, leafSequence.getSequenceByPkColumn(column).currentVal());
+
+        } else {
+          valueRow.put(column, RandomValueUtils.generate(column));
+        }
       } else {
-        valueRow.put(column, generateIfAbsent(generator, column, rowNum));
+        valueRow.put(column, putIfAbsent(column, rowNum, leafSequence));
       }
     }
 
     return Optional.of(valueRow);
   }
 
-  public String generateIfAbsent(ConsistentValueGenerator generator, ColumnDef column, int rowNum) {
+  public String putIfAbsent(ColumnDef column, int rowNum, MultipleSequentialValue sequence) {
     List<RelationDef> relations = column.getRelations();
 
     // columnの全Relationに対し、乱数、および乱数Groupを生成してgeneratedValueMapに追加
@@ -66,7 +82,20 @@ public class GeneratedValueStore {
         List<ColumnDef> distinctColumns = relation.getDistinctColumns();
         String newValue = null;
         for (ColumnDef c : distinctColumns) {
-          newValue = Objects.isNull(newValue) ? generator.generate(c) : newValue;
+          if (Objects.isNull(newValue)) {
+            if (sequence.containsPkColumn(c)) {
+              newValue = sequence.getSequenceByPkColumn(c).currentVal();
+            } else {
+              newValue = RandomValueUtils.generate(c);
+            }
+          }
+          if (StringUtils.startsWith(c.getFullyQualifiedName(), "KNY_KIKN")) {
+            log.info(
+                "value -> {} / {} ::: {}",
+                newValue,
+                c.getFullyQualifiedName(),
+                column.getFullyQualifiedName());
+          }
           generatedValueGroup.setColumnValue(c, newValue);
           generatedValueGroup.generateEmptyColumnValue(relation);
         }

@@ -34,28 +34,31 @@ public class ConsistentValueGenerator {
                 col, key -> new ConsistentCharsGenerator(col.getIntegerDigit(), '0', 'z'))
             .nextValue();
       case DATE:
-        return registedDate
-            .computeIfAbsent(col, key -> LocalDate.now().minusMonths(2L))
-            .plusDays(1L)
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate nextDate =
+            registedDate.computeIfAbsent(col, key -> LocalDate.now().minusMonths(2L)).plusDays(1L);
+        registedDate.put(col, nextDate);
+        return nextDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
       case MEANS_DATE:
         {
-          LocalDate nextDate =
+          LocalDate nextMeansDate =
               registedDate
                   .computeIfAbsent(col, key -> LocalDate.now().minusMonths(2L))
                   .plusDays(1L);
+          registedDate.put(col, nextMeansDate);
           if (8 == col.getIntegerDigit()) {
-            return nextDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            return nextMeansDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
           }
           if (6 == col.getIntegerDigit()) {
-            return nextDate.format(DateTimeFormatter.ofPattern("yyyyMM"));
+            return nextMeansDate.format(DateTimeFormatter.ofPattern("yyyyMM"));
           }
         }
       case TIMESTAMP:
-        return registedDateTime
-            .computeIfAbsent(col, key -> LocalDateTime.now().minusDays(10L))
-            .plusHours(1L)
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
+        LocalDateTime nextTime =
+            registedDateTime
+                .computeIfAbsent(col, key -> LocalDateTime.now().minusDays(10L))
+                .plusHours(1L);
+        registedDateTime.put(col, nextTime);
+        return nextTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
       default:
         return RandomValueUtils.generate(col);
     }
