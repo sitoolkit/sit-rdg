@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
-
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.sequence.AbstractSequence;
 import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
@@ -28,8 +26,11 @@ public class GeneratedValueStore {
 
   private Map<List<ColumnDef>, AbstractSequence> registedSequence = new HashMap<>();
 
+  private ColumnComparator comparator;
+
   public GeneratedValueStore(GeneratorConfig setting) {
     this.setting = setting;
+    comparator = new ColumnComparator(setting);
   }
 
   public Optional<RandomValueRow> generateRow(
@@ -74,13 +75,16 @@ public class GeneratedValueStore {
           requiredValueCountMap.computeIfAbsent(
               relation, key -> setting.getRequiredValueCount(key));
 
-      if (generatedValueGroups.size() < requiredValueCount) {
+      if (generatedValueGroups.size() < requiredValueCount
+          && generatedValueGroups.size() < rowNum) {
 
         RandomValueGroup generatedValueGroup = new RandomValueGroup();
         generatedValueGroups.add(generatedValueGroup);
 
         List<ColumnDef> distinctColumns = relation.getDistinctColumns();
+        distinctColumns.sort(comparator::compare);
         String newValue = null;
+
         for (ColumnDef c : distinctColumns) {
           if (Objects.isNull(newValue)) {
             if (sequence.containsPkColumn(c)) {
@@ -88,13 +92,6 @@ public class GeneratedValueStore {
             } else {
               newValue = RandomValueUtils.generate(c);
             }
-          }
-          if (StringUtils.startsWith(c.getFullyQualifiedName(), "KNY_KIKN")) {
-            log.info(
-                "value -> {} / {} ::: {}",
-                newValue,
-                c.getFullyQualifiedName(),
-                column.getFullyQualifiedName());
           }
           generatedValueGroup.setColumnValue(c, newValue);
           generatedValueGroup.generateEmptyColumnValue(relation);
