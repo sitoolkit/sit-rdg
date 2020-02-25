@@ -11,14 +11,14 @@ public class SequentialDate extends AbstractSequence {
 
   private LocalDate currentDate;
 
-  private String pattern;
+  private DateTimeFormatter formatter;
 
   public SequentialDate(LocalDate startDate, LocalDate endDate, String pattern) {
 
     this.startDate = startDate;
     this.endDate = endDate;
-    this.pattern = pattern;
 
+    formatter = DateTimeFormatter.ofPattern(pattern);
     currentDate = startDate;
   }
 
@@ -29,7 +29,7 @@ public class SequentialDate extends AbstractSequence {
 
   @Override
   public String currentVal() {
-    return currentDate.format(DateTimeFormatter.ofPattern(pattern));
+    return currentDate.format(formatter);
   }
 
   @Override
@@ -48,5 +48,10 @@ public class SequentialDate extends AbstractSequence {
   @Override
   public void initVal() {
     currentDate = startDate;
+  }
+
+  @Override
+  public void setVal(String value) {
+    currentDate = LocalDate.parse(value, formatter);
   }
 }

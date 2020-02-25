@@ -54,5 +54,8 @@ public class AbstractSequenceTest {
     public void initVal() {
       count = 0;
     }
+
+    @Override
+    public void setVal(String val) {}
   }
 }

@@ -116,4 +116,41 @@ public class MultipleSequentialValueTest {
     assertThat(multipleSeq.getSequenceByPkColumn(dateTimeColumn).currentVal())
         .isEqualTo(startDateTime.format(datetimeFormat));
   }
+
+  @Test
+  public void shouldBeIncrement4position() {
+
+    ColumnDef varcharColumn =
+        ColumnDef.builder()
+            .fullyQualifiedName("SC.TABLE.PK1")
+            .constraints(List.of(PRIMARY_KEY))
+            .dataType(DataType.VARCHAR2)
+            .args(List.of("1"))
+            .build();
+    ColumnDef numberColumn =
+        ColumnDef.builder()
+            .fullyQualifiedName("SC.TABLE.PK2")
+            .constraints(List.of(PRIMARY_KEY))
+            .dataType(DataType.NUMBER)
+            .args(List.of("1"))
+            .build();
+
+    MultipleSequentialValue multipleSeq =
+        new MultipleSequentialValue(new ArrayList<>(List.of(varcharColumn, numberColumn)));
+
+    assertThat(multipleSeq.getSequenceByPkColumn(varcharColumn).currentVal()).isEqualTo("0");
+    assertThat(multipleSeq.getSequenceByPkColumn(numberColumn).currentVal()).isEqualTo("0");
+    assertThat(multipleSeq.currentVal()).isEqualTo("0");
+
+    assertThat(multipleSeq.nextVal()).isEqualTo("1");
+    assertThat(multipleSeq.getSequenceByPkColumn(varcharColumn).currentVal()).isEqualTo("0");
+    assertThat(multipleSeq.getSequenceByPkColumn(numberColumn).currentVal()).isEqualTo("1");
+
+    multipleSeq.putIfPresent(varcharColumn, "A");
+    multipleSeq.putIfPresent(numberColumn, "9");
+
+    assertThat(multipleSeq.nextVal()).isEqualTo("0");
+    assertThat(multipleSeq.getSequenceByPkColumn(varcharColumn).currentVal()).isEqualTo("B");
+    assertThat(multipleSeq.getSequenceByPkColumn(numberColumn).currentVal()).isEqualTo("0");
+  }
 }

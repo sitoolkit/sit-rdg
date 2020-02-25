@@ -52,6 +52,11 @@ public class SequentialString extends AbstractSequence {
     Arrays.fill(this.valueChars, minCode);
   }
 
+  @Override
+  public void setVal(String value) {
+    valueChars = value.toCharArray();
+  }
+
   private void increment(int digit) {
     if (digit < 0) {
       return;

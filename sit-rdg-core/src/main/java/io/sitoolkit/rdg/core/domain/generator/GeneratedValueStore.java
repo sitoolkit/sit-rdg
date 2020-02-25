@@ -22,7 +22,7 @@ public class GeneratedValueStore {
   /** List<RandomValueGroup>: 乱数Group　RelationDefに対し生成した乱数の集合 */
   private Map<RelationDef, List<RandomValueGroup>> generatedValueMap = new HashMap<>();
 
-  private Map<RelationDef, Integer> requiredValueCountMap = new HashMap<>();
+  private Map<ColumnDef, Integer> requiredValueCountMap = new HashMap<>();
 
   private Map<List<ColumnDef>, AbstractSequence> registedSequence = new HashMap<>();
 
@@ -65,46 +65,50 @@ public class GeneratedValueStore {
   public String putIfAbsent(ColumnDef column, int rowNum, MultipleSequentialValue sequence) {
     List<RelationDef> relations = column.getRelations();
 
-    // columnの全Relationに対し、乱数、および乱数Groupを生成してgeneratedValueMapに追加
-    for (RelationDef relation : relations) {
-
-      List<RandomValueGroup> generatedValueGroups =
-          generatedValueMap.computeIfAbsent(relation, key -> new ArrayList<>());
-
-      Integer requiredValueCount =
-          requiredValueCountMap.computeIfAbsent(
-              relation, key -> setting.getRequiredValueCount(key));
-
-      if (generatedValueGroups.size() < requiredValueCount
-          && generatedValueGroups.size() < rowNum) {
-
-        RandomValueGroup generatedValueGroup = new RandomValueGroup();
-        generatedValueGroups.add(generatedValueGroup);
-
-        List<ColumnDef> distinctColumns = relation.getDistinctColumns();
-        distinctColumns.sort(comparator::compare);
-        String newValue = null;
-
-        for (ColumnDef c : distinctColumns) {
-          if (Objects.isNull(newValue)) {
-            if (sequence.containsPkColumn(c)) {
-              newValue = sequence.getSequenceByPkColumn(c).currentVal();
-            } else {
-              newValue = RandomValueUtils.generate(c);
-            }
-          }
-          generatedValueGroup.setColumnValue(c, newValue);
-          generatedValueGroup.generateEmptyColumnValue(relation);
-        }
-      }
-    }
-
     RelationDef relation =
         relations
             .parallelStream()
             .filter(rel -> rel.getDistinctColumns().contains(column))
             .findAny()
             .get();
+
+    List<RandomValueGroup> generatedValueGroups =
+        generatedValueMap.computeIfAbsent(relation, key -> new ArrayList<>());
+
+    int requiredValueCount =
+        requiredValueCountMap
+            .computeIfAbsent(column, key -> setting.getRequiredValueCount(key))
+            .intValue();
+
+    int originRowNum = (rowNum - 1) / requiredValueCount + 1;
+
+    if (generatedValueGroups.size() < originRowNum) {
+      List<ColumnDef> distinctColumns = relation.getDistinctColumns();
+      distinctColumns.sort(comparator::compare);
+      RandomValueGroup origin = new RandomValueGroup();
+      generatedValueGroups.add(origin);
+
+      for (ColumnDef c : distinctColumns) {
+        origin.setColumnValue(c, generateValue(sequence, column));
+      }
+    }
+
+    return pickupGeneratedValue(relation, column, originRowNum);
+  }
+
+  public String generateValue(MultipleSequentialValue sequence, ColumnDef column) {
+    if (column.isPrimaryKey()) {
+      if (sequence.containsPkColumn(column)) {
+        return sequence.getSequenceByPkColumn(column).currentVal();
+      } else {
+        return null;
+      }
+    }
+    return RandomValueUtils.generate(column);
+  }
+
+  public String pickupGeneratedValue(RelationDef relation, ColumnDef column, int rowNum) {
+
     List<RandomValueGroup> randomValueGroups = generatedValueMap.get(relation);
     RandomValueGroup randomValueGroup = randomValueGroups.get(rowNum - 1);
 

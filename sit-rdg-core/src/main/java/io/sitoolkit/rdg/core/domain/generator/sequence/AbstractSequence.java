@@ -22,4 +22,6 @@ public abstract class AbstractSequence {
   public abstract String nextVal();
 
   public abstract void initVal();
+
+  public abstract void setVal(String val);
 }

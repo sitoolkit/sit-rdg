@@ -13,7 +13,7 @@ import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 
 public class MultipleSequentialValue extends AbstractSequence {
 
-  private Map<ColumnDef, AbstractSequence> sequenceByPkColumn = new HashMap<>();;
+  private Map<ColumnDef, AbstractSequence> sequenceByPkColumn = new HashMap<>();
 
   private AbstractSequence leaf;
 
@@ -101,11 +101,20 @@ public class MultipleSequentialValue extends AbstractSequence {
     sequenceByPkColumn.values().forEach(seq -> seq.initVal());
   }
 
+  @Override
+  public void setVal(String value) {}
+
   public boolean containsPkColumn(ColumnDef col) {
     return sequenceByPkColumn.containsKey(col);
   }
 
-  public AbstractSequence getSequenceByPkColumn(ColumnDef col) {
-    return sequenceByPkColumn.get(col);
+  public AbstractSequence getSequenceByPkColumn(ColumnDef column) {
+    return sequenceByPkColumn.get(column);
+  }
+
+  public void putIfPresent(ColumnDef column, String value) {
+    if (sequenceByPkColumn.containsKey(column)) {
+      sequenceByPkColumn.get(column).setVal(value);
+    }
   }
 }
