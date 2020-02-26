@@ -12,12 +12,10 @@ import io.sitoolkit.rdg.core.domain.generator.sequence.AbstractSequence;
 import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class GeneratedValueStore {
 
-  GeneratorConfig setting;
+  private GeneratorConfig setting;
 
   /** List<RandomValueGroup>: 乱数Group　RelationDefに対し生成した乱数の集合 */
   private Map<RelationDef, List<RandomValueGroup>> generatedValueMap = new HashMap<>();
