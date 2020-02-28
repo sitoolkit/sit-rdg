@@ -27,22 +27,7 @@ public class MultipleSequentialValue extends AbstractSequence {
     for (ColumnDef key : pkColumns) {
       AbstractSequence currentSeq = null;
 
-      switch (key.getDataType()) {
-        case NUMBER:
-        case MEANS_DECIMAL:
-          currentSeq = new SequentialString(key.getIntegerDigit(), '0', '9');
-          break;
-        case CHAR:
-        case VARCHAR:
-        case VARCHAR2:
-        case MEANS_ID:
-          currentSeq = new SequentialString(key.getIntegerDigit(), '0', 'z');
-          break;
-        case DATE:
-          LocalDate today = LocalDate.now();
-          currentSeq =
-              new SequentialDate(today.minusMonths(7L), today.plusMonths(1L), "yyyy-MM-dd");
-          break;
+      switch (key.meansDataType()) {
         case MEANS_DATE:
           LocalDate mtoday = LocalDate.now();
 
@@ -54,6 +39,21 @@ public class MultipleSequentialValue extends AbstractSequence {
             currentSeq =
                 new SequentialDate(mtoday.minusMonths(7L), mtoday.plusMonths(1L), "yyyyMM");
           }
+          break;
+        case MEANS_DECIMAL:
+        case NUMBER:
+          currentSeq = new SequentialString(key.getIntegerDigit(), '0', '9');
+          break;
+        case MEANS_ID:
+        case CHAR:
+        case VARCHAR:
+        case VARCHAR2:
+          currentSeq = new SequentialString(key.getIntegerDigit(), '0', 'z');
+          break;
+        case DATE:
+          LocalDate today = LocalDate.now();
+          currentSeq =
+              new SequentialDate(today.minusMonths(7L), today.plusMonths(1L), "yyyy-MM-dd");
           break;
         case TIMESTAMP:
           LocalDateTime nowtime = LocalDate.now().atTime(0, 0, 0);
