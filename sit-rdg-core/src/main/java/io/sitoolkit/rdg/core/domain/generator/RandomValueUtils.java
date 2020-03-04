@@ -1,15 +1,17 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ThreadLocalRandom;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RandomValueUtils {
@@ -53,20 +55,24 @@ public class RandomValueUtils {
                 .format(DateTimeFormatter.ofPattern("yyyyMM"));
           }
         }
-      case MEANS_ID: {
-        int max = col.getIntegerDigit();
-        return RandomValueUtils.createRandomAlphabetic(max, max);
-      }
-      case MEANS_DECIMAL: {
-        // TODO: 仮置き
-        return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), 0);
-      }
-      case UNKNOWN: {
-        log.info("Unknown dataType:{}", col);
-      }
-      default: {
-        return "";
-      }
+      case MEANS_ID:
+        {
+          int max = col.getIntegerDigit();
+          return RandomValueUtils.createRandomAlphabetic(max, max);
+        }
+      case MEANS_DECIMAL:
+        {
+          // TODO: 仮置き
+          return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), 0);
+        }
+      case UNKNOWN:
+        {
+          log.info("Unknown dataType:{}", col);
+        }
+      default:
+        {
+          return "";
+        }
     }
   }
 

@@ -18,7 +18,9 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.CsvWriter;
 import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DataGenerator {
 
   public List<Path> generate(Path input, Path output) throws IOException {
@@ -40,6 +42,7 @@ public class DataGenerator {
       for (TableDef table : tables) {
         Integer rowCount = config.getRowCount(table);
         Path outPath = write(table, rowCount, output, store);
+        log.info("Generated csv {}", outPath.toAbsolutePath());
         outputs.add(outPath);
       }
     }
@@ -61,22 +64,26 @@ public class DataGenerator {
       throws IOException {
 
     List<ColumnDef> cols = tableDef.getColumns();
+    List<ColumnDef> pks =
+        cols.stream().filter(ColumnDef::isPrimaryKey).collect(Collectors.toList());
     List<Object> header = cols.stream().map(ColumnDef::getName).collect(Collectors.toList());
 
-    CsvWriter writer = new CsvWriter(path);
-    writer.writeAppend(header);
-    for (int row = 1; row <= rowCount; row++) {
+    try (CsvWriter writer = new CsvWriter(path)) {
+      writer.writeAppend(header);
 
-      Optional<RandomValueRow> generatedValueRow = store.generateRow(cols);
+      for (int row = 1; row <= rowCount; row++) {
 
-      if (generatedValueRow.isPresent()) {
-        List<Object> lineValues = generatedValueRow.get().getLineValues();
-        writer.writeAppend(lineValues);
+        Optional<RandomValueRow> generatedValueRow = store.generateRow(cols, pks, row);
+
+        if (generatedValueRow.isPresent()) {
+          List<Object> lineValues = generatedValueRow.get().getLineValues();
+          writer.writeAppend(lineValues);
+        }
       }
+      writer.close();
     }
-    writer.close();
 
-    store.clearGeneratedRowsCache();
+    //    store.clearGeneratedRowsCache();
 
     return path;
   }

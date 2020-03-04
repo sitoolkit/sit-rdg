@@ -23,7 +23,8 @@ public class RelationDef {
 
   @JsonIgnore
   public List<ColumnDef> getDistinctColumns() {
-    return columnPairs.stream()
+    return columnPairs
+        .stream()
         .flatMap(c -> c.getColumns().stream())
         .distinct()
         .collect(Collectors.toList());
@@ -42,7 +43,9 @@ public class RelationDef {
 
     // 一番小さい桁数に合わせる
     List<String> minDigits =
-        getDistinctColumns().stream()
+        columnPairs
+            .stream()
+            .flatMap(c -> c.getColumns().stream())
             .sorted(
                 Comparator.comparing(ColumnDef::getIntegerDigit)
                     .thenComparing(ColumnDef::getDecimalDigit))
@@ -51,12 +54,10 @@ public class RelationDef {
             .findFirst()
             .orElse(Collections.emptyList());
 
-    getDistinctColumns().forEach(c -> c.setArgs(minDigits));
+    columnPairs.stream().flatMap(c -> c.getColumns().stream()).forEach(c -> c.setArgs(minDigits));
   }
 
   public boolean containsAnyInPair(ColumnPair pair) {
-    return getDistinctColumns()
-        .parallelStream()
-        .anyMatch(col -> pair.getColumns().contains(col));
+    return getDistinctColumns().parallelStream().anyMatch(col -> pair.getColumns().contains(col));
   }
 }

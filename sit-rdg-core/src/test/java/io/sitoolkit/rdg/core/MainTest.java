@@ -1,5 +1,7 @@
 package io.sitoolkit.rdg.core;
 
+import static com.google.common.truth.Truth.*;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -9,8 +11,6 @@ import java.nio.file.StandardCopyOption;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static com.google.common.truth.Truth.assertThat;
 
 public class MainTest {
 
@@ -48,6 +48,7 @@ public class MainTest {
     assertThat(Files.exists(input.resolve("schema.json"))).isEqualTo(true);
     assertThat(Files.exists(output.resolve("UNKNOWN.CAMEL_CASE_TABLE.csv"))).isEqualTo(true);
     assertThat(Files.exists(output.resolve("UNKNOWN.SNAKE_CASE_TABLE.csv"))).isEqualTo(true);
+
     assertThat(Files.exists(output.resolve("UNKNOWN.DOUBLE_QUOTED_TABLE.csv"))).isEqualTo(true);
   }
 }

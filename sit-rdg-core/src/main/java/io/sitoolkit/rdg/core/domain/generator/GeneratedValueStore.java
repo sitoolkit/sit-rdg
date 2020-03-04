@@ -2,109 +2,114 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-
-import org.apache.commons.lang3.RandomUtils;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
+import io.sitoolkit.rdg.core.domain.generator.sequence.AbstractSequence;
+import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class GeneratedValueStore {
 
-  GeneratorConfig setting;
+  private GeneratorConfig setting;
 
   /** List<RandomValueGroup>: 乱数Group　RelationDefに対し生成した乱数の集合 */
   private Map<RelationDef, List<RandomValueGroup>> generatedValueMap = new HashMap<>();
 
-  private Map<RelationDef, Integer> requiredValueCountMap = new HashMap<>();
+  private Map<ColumnDef, Integer> requiredValueCountMap = new HashMap<>();
 
-  private Set<RandomValueRow> generatedRows = new HashSet<>();
+  private Map<List<ColumnDef>, AbstractSequence> registedSequence = new HashMap<>();
 
-  public void clearGeneratedRowsCache() {
-    generatedRows.clear();
-  }
+  private ColumnComparator comparator;
 
   public GeneratedValueStore(GeneratorConfig setting) {
     this.setting = setting;
+    comparator = new ColumnComparator(setting);
   }
 
-  public Optional<RandomValueRow> generateRow(List<ColumnDef> columns) {
+  public Optional<RandomValueRow> generateRow(
+      List<ColumnDef> columns, List<ColumnDef> primaryKeys, int rowNum) {
 
-    for (; ; ) {
+    RandomValueRow valueRow = new RandomValueRow();
 
-      RandomValueRow valueRow = new RandomValueRow();
+    MultipleSequentialValue leafSequence =
+        (MultipleSequentialValue)
+            registedSequence.computeIfAbsent(
+                primaryKeys, key -> new MultipleSequentialValue(primaryKeys));
 
-      for (ColumnDef column : columns) {
-        String value = generateIfAbsent(column);
-        valueRow.put(column, value);
+    leafSequence.nextVal();
+
+    for (ColumnDef column : columns) {
+      if (Objects.isNull(column.getRelations()) || column.getRelations().isEmpty()) {
+
+        if (column.isPrimaryKey()) {
+          valueRow.put(column, leafSequence.getSequenceByPkColumn(column).currentVal());
+
+        } else {
+          valueRow.put(column, RandomValueUtils.generate(column));
+        }
+      } else {
+        valueRow.put(column, putIfAbsent(column, rowNum, leafSequence));
       }
-
-      if (!generatedRows.contains(valueRow)) {
-        generatedRows.add(valueRow);
-        return Optional.of(valueRow);
-      }
-
-      log.info(
-          "Duplicate primrary key:{} of {}",
-          valueRow.getPrimaryKeyValues(),
-          columns.stream().findAny().get().getTable().getFullyQualifiedName());
     }
+
+    return Optional.of(valueRow);
   }
 
-  public String generateIfAbsent(ColumnDef column) {
+  public String putIfAbsent(ColumnDef column, int rowNum, MultipleSequentialValue sequence) {
     List<RelationDef> relations = column.getRelations();
 
-    // Relationが無い列の場合、乱数を生成してreturn
-    if (Objects.isNull(relations) || relations.isEmpty()) {
-      return RandomValueUtils.generate(column);
-    }
-
-    // columnの全Relationに対し、乱数、および乱数Groupを生成してgeneratedValueMapに追加
-    for (RelationDef relation : relations) {
-
-      List<RandomValueGroup> generatedValueGroups =
-          generatedValueMap.computeIfAbsent(relation, key -> new ArrayList<>());
-
-      Integer requiredValueCount =
-          requiredValueCountMap.computeIfAbsent(
-              relation, key -> setting.getRequiredValueCount(key));
-
-      if (generatedValueGroups.size() < requiredValueCount) {
-
-        RandomValueGroup generatedValueGroup = new RandomValueGroup();
-        generatedValueGroups.add(generatedValueGroup);
-
-        List<ColumnDef> distinctColumns = relation.getDistinctColumns();
-        String newValue = null;
-        for (ColumnDef c : distinctColumns) {
-          newValue = Objects.isNull(newValue) ? RandomValueUtils.generate(c) : newValue;
-          generatedValueGroup.setColumnValue(c, newValue);
-          generatedValueGroup.generateEmptyColumnValue(relation);
-        }
-      }
-    }
-
-    // 生成済みの乱数の中からランダムに値を取得してreturn
     RelationDef relation =
         relations
             .parallelStream()
-            .filter(r -> r.getDistinctColumns().contains(column))
+            .filter(rel -> rel.getDistinctColumns().contains(column))
             .findAny()
             .get();
+
+    List<RandomValueGroup> generatedValueGroups =
+        generatedValueMap.computeIfAbsent(relation, key -> new ArrayList<>());
+
+    int requiredValueCount =
+        requiredValueCountMap
+            .computeIfAbsent(column, key -> setting.getRequiredValueCount(key))
+            .intValue();
+
+    int originRowNum = (rowNum - 1) / requiredValueCount + 1;
+
+    if (generatedValueGroups.size() < originRowNum) {
+      List<ColumnDef> distinctColumns = relation.getDistinctColumns();
+      distinctColumns.sort(comparator::compare);
+      RandomValueGroup origin = new RandomValueGroup();
+      generatedValueGroups.add(origin);
+
+      for (ColumnDef c : distinctColumns) {
+        origin.setColumnValue(c, generateValue(sequence, column));
+      }
+    }
+
+    return pickupGeneratedValue(relation, column, originRowNum);
+  }
+
+  public String generateValue(MultipleSequentialValue sequence, ColumnDef column) {
+    if (column.isPrimaryKey()) {
+      if (sequence.containsPkColumn(column)) {
+        return sequence.getSequenceByPkColumn(column).currentVal();
+      } else {
+        return null;
+      }
+    }
+    return RandomValueUtils.generate(column);
+  }
+
+  public String pickupGeneratedValue(RelationDef relation, ColumnDef column, int rowNum) {
+
     List<RandomValueGroup> randomValueGroups = generatedValueMap.get(relation);
-    RandomValueGroup randomValueGroup =
-        randomValueGroups.get(RandomUtils.nextInt(0, randomValueGroups.size()));
+    RandomValueGroup randomValueGroup = randomValueGroups.get(rowNum - 1);
 
-    String generatedValue = randomValueGroup.valueMap.get(column);
-
-    return generatedValue;
+    return randomValueGroup.valueMap.get(column);
   }
 }
