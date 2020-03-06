@@ -17,10 +17,13 @@ public class RandomValueUtils {
   public static String generate(ColumnDef col) {
 
     switch (col.meansDataType()) {
+      case CHARACTER:
       case CHAR:
         {
           return RandomStringUtils.randomAlphabetic(col.getIntegerDigit());
         }
+      case CHARACTER_VARYING:
+      case TEXT:
       case VARCHAR:
       case VARCHAR2:
         {
@@ -28,10 +31,22 @@ public class RandomValueUtils {
           int max = col.getIntegerDigit();
           return RandomValueUtils.createRandomAlphabetic(min, max);
         }
+      case SMALLINT:
+      case INTEGER:
+      case BIGINT:
+      case DECIMAL:
+      case NUMERIC:
+      case REAL:
+      case DOUBLE_PRECISION:
       case NUMBER:
         {
           return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), col.getDecimalDigit());
         }
+      case TIME:
+      {
+        return RandomValueUtils.createRandomTime()
+            .format(DateTimeFormatter.ofPattern("hh:mm:ss.SSS"));
+      }
       case DATE:
         {
           return RandomValueUtils.createRandomDate()
