@@ -48,8 +48,22 @@ public class RandomValueUtilsTest {
   }
 
   @Test
+  public void tinyintTest() {
+    String generatedValue = generate("tinyint", DataType.TINYINT, "3");
+    log.info("generated: {}", generatedValue);
+    assertTrue(generatedValue.matches("[0-9]{3}"));
+  }
+
+  @Test
   public void integerTest() {
     String generatedValue = generate("integer", DataType.INTEGER, "3");
+    log.info("generated: {}", generatedValue);
+    assertTrue(generatedValue.matches("[0-9]{3}"));
+  }
+
+  @Test
+  public void mediumintTest() {
+    String generatedValue = generate("mediumint", DataType.MEDIUMINT, "3");
     log.info("generated: {}", generatedValue);
     assertTrue(generatedValue.matches("[0-9]{3}"));
   }
@@ -77,23 +91,30 @@ public class RandomValueUtilsTest {
 
   @Test
   public void realTest() {
-    String generatedValue = generate("real", DataType.REAL, "6");
+    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
     log.info("generated: {}", generatedValue);
-    assertTrue(generatedValue.matches("[0-9]{6}"));
+    assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
+  }
+
+  @Test
+  public void floatTest() {
+    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
+    log.info("generated: {}", generatedValue);
+    assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
   }
 
   @Test
   public void doublePrecisionTest() {
-    String generatedValue = generate("double precision", DataType.DOUBLE_PRECISION, "15");
+    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
     log.info("generated: {}", generatedValue);
-    assertTrue(generatedValue.matches("[0-9]{15}"));
+    assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
   }
 
   @Test
   public void numberTest() {
-    String generatedValue = generate("number", DataType.NUMBER, "8");
+    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
     log.info("generated: {}", generatedValue);
-    assertTrue(generatedValue.matches("[0-9]{8}"));
+    assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
   }
 
   @Test

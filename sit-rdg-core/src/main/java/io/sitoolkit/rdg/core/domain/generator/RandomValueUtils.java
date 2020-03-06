@@ -32,11 +32,17 @@ public class RandomValueUtils {
           return RandomValueUtils.createRandomAlphabetic(min, max);
         }
       case SMALLINT:
+      case TINYINT:
       case INTEGER:
+      case MEDIUMINT:
       case BIGINT:
+      {
+        return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), 0);
+      }
       case DECIMAL:
       case NUMERIC:
       case REAL:
+      case FLOAT:
       case DOUBLE_PRECISION:
       case NUMBER:
         {
