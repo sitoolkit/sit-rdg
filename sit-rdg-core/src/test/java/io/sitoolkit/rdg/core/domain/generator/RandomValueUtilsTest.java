@@ -91,28 +91,28 @@ public class RandomValueUtilsTest {
 
   @Test
   public void realTest() {
-    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
+    String generatedValue = generate("real", DataType.REAL, "5", "2");
     log.info("generated: {}", generatedValue);
     assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
   }
 
   @Test
   public void floatTest() {
-    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
+    String generatedValue = generate("float", DataType.FLOAT, "5", "2");
     log.info("generated: {}", generatedValue);
     assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
   }
 
   @Test
   public void doublePrecisionTest() {
-    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
+    String generatedValue = generate("doublePrecision", DataType.DOUBLE_PRECISION, "5", "2");
     log.info("generated: {}", generatedValue);
     assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
   }
 
   @Test
   public void numberTest() {
-    String generatedValue = generate("numeric", DataType.NUMERIC, "5", "2");
+    String generatedValue = generate("numeric", DataType.NUMBER, "5", "2");
     log.info("generated: {}", generatedValue);
     assertTrue(generatedValue.matches("[0-9]{3}|[0-9]{3}\\.([0-9]|[0-9]{2})"));
   }

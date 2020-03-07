@@ -17,7 +17,6 @@ public enum DataType {
   MEDIUMINT,
   BIGINT,
   FLOAT,
-  DOUBLE,
   DECIMAL,
   NUMERIC,
   REAL,
