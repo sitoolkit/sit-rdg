@@ -32,28 +32,38 @@ public class DataGenerator {
 
     TableComparator comparator = new TableComparator(config);
 
-    Set<SchemaDef> schemas = schemaInfo.getSchemas();
-    log.info("Schema count: {}", schemas.size());
+    List<SchemaDef> schemas = new ArrayList<>(schemaInfo.getSchemas());
+    int schemaSize = schemas.size();
 
     List<Path> outputs = new ArrayList<>();
-    for (SchemaDef schema : schemas) {
-      
+    for (int scmCnt = 0; scmCnt < schemaSize; scmCnt++) {
+
+      SchemaDef schema = schemas.get(scmCnt);
+      log.info("Schema count={}/{}, name={}",
+          scmCnt + 1, schemaSize, Optional.ofNullable(schema.getName()).orElse("UNKNOWN"));
+
       GeneratedValueStore store = new GeneratedValueStore(config);
 
       List<TableDef> tables =
           schema.getTables().stream().sorted(comparator::compare).collect(Collectors.toList());
-      int tableCount = tables.size();
+      int tableSize = tables.size();
 
-      log.info("Table count:{}", tableCount);
+      for (int tblCnt = 0; tblCnt < tableSize; tblCnt++) {
 
-      for (int i = 0; i < tableCount; i++) {
-        TableDef table = tables.get(0);
+        TableDef table = tables.get(tblCnt);
         Integer rowCount = config.getRowCount(table);
+
+        log.info("Generating csv: count={}/{}, table={}, rowCnt={}",
+            tblCnt + 1, tableSize, table.getFullyQualifiedName(), rowCount);
+
         Path outPath = write(table, rowCount, output, store);
-        log.info("Generated csv status={}/{}, table={}, byteSize={}, rowCnt={}, path={}",
-            i + 1, tableCount, table.getName(), outPath.toFile().length(), rowCount, outPath.toAbsolutePath());
+
+        log.info("Generated csv: table={}, byteSize={}, path={}",
+            table.getFullyQualifiedName(), outPath.toFile().length(), outPath.toAbsolutePath());
+
         outputs.add(outPath);
       }
+
     }
 
     return outputs;
