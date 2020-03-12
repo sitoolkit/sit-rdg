@@ -68,14 +68,17 @@ public class GeneratorConfig {
 
   @JsonIgnore
   public Integer getRowCount(TableDef tableDef) {
-    return getScale().apply(getRowCountMap().getOrDefault(tableDef.getFullyQualifiedName(), getDefaultRowCount()));
+
+    Integer rowCount = getRowCountMap()
+            .getOrDefault(tableDef.getFullyQualifiedName(), getDefaultRowCount());
+
+    return getScale().apply(rowCount);
   }
 
   @JsonIgnore
   public Integer getRequiredValueCount(ColumnDef col) {
 
-    Integer requiredValueCount =
-        getRequiredValueCountMap()
+    Integer requiredValueCount = getRequiredValueCountMap()
             .getOrDefault(col.getFullyQualifiedName(), getDefaultRequiredValueCount());
 
     return getScale().apply(requiredValueCount);
