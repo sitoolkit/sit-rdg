@@ -18,6 +18,7 @@ public class ScaleTest {
     Assert.assertEquals(20, scale.apply(100));
     Assert.assertEquals(1, scale.apply(4));
     Assert.assertEquals(1, scale.apply(9));
+    Assert.assertEquals(1, scale.apply(2));
     Assert.assertEquals(1, scale.apply(1));
   }
 }
