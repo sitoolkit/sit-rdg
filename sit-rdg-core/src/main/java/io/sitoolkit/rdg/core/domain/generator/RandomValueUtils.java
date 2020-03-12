@@ -19,51 +19,72 @@ public class RandomValueUtils {
   public static String generate(ColumnDef col) {
 
     switch (col.meansDataType()) {
+      case CHARACTER:
       case CHAR:
         {
           return RandomStringUtils.randomAlphabetic(col.getIntegerDigit());
         }
+      case CHARACTER_VARYING:
+      case TEXT:
       case VARCHAR:
       case VARCHAR2:
         {
           int min = 1;
           int max = col.getIntegerDigit();
-          return RandomValueUtils.createRandomAlphabetic(min, max);
+          return createRandomAlphabetic(min, max);
         }
+      case SMALLINT:
+      case TINYINT:
+      case INTEGER:
+      case MEDIUMINT:
+      case BIGINT:
+      {
+        return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), 0);
+      }
+      case DECIMAL:
+      case NUMERIC:
+      case REAL:
+      case FLOAT:
+      case DOUBLE_PRECISION:
       case NUMBER:
         {
-          return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), col.getDecimalDigit());
+          return createRandomNumeric(col.getIntegerDigit(), col.getDecimalDigit());
         }
+      case TIME:
+      {
+        return RandomValueUtils.createRandomTime()
+            .format(DateTimeFormatter.ofPattern("hh:mm:ss.SSS"));
+      }
       case DATE:
         {
-          return RandomValueUtils.createRandomDate()
+          return createRandomDate()
               .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         }
       case TIMESTAMP:
         {
-          return RandomValueUtils.createRandomDateTime()
+          return createRandomDateTime()
               .format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
         }
       case MEANS_DATE:
         {
           if (8 == col.getIntegerDigit()) {
-            return RandomValueUtils.createRandomDate()
+            return createRandomDate()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
           }
           if (6 == col.getIntegerDigit()) {
-            return RandomValueUtils.createRandomDate()
+            return createRandomDate()
                 .format(DateTimeFormatter.ofPattern("yyyyMM"));
           }
         }
       case MEANS_ID:
         {
           int max = col.getIntegerDigit();
-          return RandomValueUtils.createRandomAlphabetic(max, max);
+          return createRandomAlphabetic(max, max);
         }
       case MEANS_DECIMAL:
         {
           // TODO: 仮置き
-          return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), 0);
+          return createRandomNumeric(col.getIntegerDigit(), 0);
         }
       case UNKNOWN:
         {

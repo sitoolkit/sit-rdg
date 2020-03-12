@@ -17,6 +17,9 @@ import lombok.Getter;
 @Getter
 public class GeneratorConfig {
 
+  @JsonProperty("scale")
+  private String scaleStr;
+
   @JsonProperty("defaultRowCount")
   private Integer defaultRowCount;
 
@@ -43,6 +46,11 @@ public class GeneratorConfig {
 
   @JsonIgnore
   @Getter(lazy = true)
+  private final Scale scale =
+      Objects.isNull(scaleStr) ? Scale.createEqualScale() : new Scale(scaleStr);
+
+  @JsonIgnore
+  @Getter(lazy = true)
   private final Map<String, Integer> rowCountMap =
       schemaConfigs
           .stream()
@@ -60,18 +68,22 @@ public class GeneratorConfig {
 
   @JsonIgnore
   public Integer getRowCount(TableDef tableDef) {
-    return getRowCountMap().getOrDefault(tableDef.getFullyQualifiedName(), getDefaultRowCount());
+
+    Integer rowCount = getRowCountMap()
+            .getOrDefault(tableDef.getFullyQualifiedName(), getDefaultRowCount());
+
+    return getScale().apply(rowCount);
   }
 
   @JsonIgnore
   public Integer getRequiredValueCount(ColumnDef col) {
 
-    Integer requiredValueCount =
-        getRequiredValueCountMap()
+    Integer requiredValueCount = getRequiredValueCountMap()
             .getOrDefault(col.getFullyQualifiedName(), getDefaultRequiredValueCount());
 
-    return requiredValueCount;
+    return getScale().apply(requiredValueCount);
   }
+
   //  @JsonIgnore
   //  public Integer getRequiredValueCount(RelationDef relation) {
   //

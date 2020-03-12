@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.sitoolkit.rdg.core.domain.generator.GeneratedValueStore;
@@ -31,20 +32,38 @@ public class DataGenerator {
 
     TableComparator comparator = new TableComparator(config);
 
+    List<SchemaDef> schemas = new ArrayList<>(schemaInfo.getSchemas());
+    int schemaSize = schemas.size();
+
     List<Path> outputs = new ArrayList<>();
-    for (SchemaDef schema : schemaInfo.getSchemas()) {
+    for (int scmCnt = 0; scmCnt < schemaSize; scmCnt++) {
+
+      SchemaDef schema = schemas.get(scmCnt);
+      log.info("Schema count={}/{}, name={}",
+          scmCnt + 1, schemaSize, Optional.ofNullable(schema.getName()).orElse("UNKNOWN"));
 
       GeneratedValueStore store = new GeneratedValueStore(config);
 
       List<TableDef> tables =
           schema.getTables().stream().sorted(comparator::compare).collect(Collectors.toList());
+      int tableSize = tables.size();
 
-      for (TableDef table : tables) {
+      for (int tblCnt = 0; tblCnt < tableSize; tblCnt++) {
+
+        TableDef table = tables.get(tblCnt);
         Integer rowCount = config.getRowCount(table);
+
+        log.info("Generating csv: count={}/{}, table={}, rowCnt={}",
+            tblCnt + 1, tableSize, table.getFullyQualifiedName(), rowCount);
+
         Path outPath = write(table, rowCount, output, store);
-        log.info("Generated csv {}", outPath.toAbsolutePath());
+
+        log.info("Generated csv: table={}, byteSize={}, path={}",
+            table.getFullyQualifiedName(), outPath.toFile().length(), outPath.toAbsolutePath());
+
         outputs.add(outPath);
       }
+
     }
 
     return outputs;
