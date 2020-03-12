@@ -25,6 +25,10 @@ public class MainTest {
     Files.createDirectories(output);
 
     Files.copy(
+        resources.resolve("generator-config.json"),
+        input.resolve("generator-config.json"),
+        StandardCopyOption.REPLACE_EXISTING);
+    Files.copy(
         resources.resolve("multiple-create.sql"),
         input.resolve("multiple-create.sql"),
         StandardCopyOption.REPLACE_EXISTING);

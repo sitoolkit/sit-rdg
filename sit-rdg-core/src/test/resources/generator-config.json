@@ -1,4 +1,5 @@
 {
+  "scale": "/2",
   "defaultRowCount": 100,
   "defaultRequiredValueCount": 100,
   "schemaConfigs": [

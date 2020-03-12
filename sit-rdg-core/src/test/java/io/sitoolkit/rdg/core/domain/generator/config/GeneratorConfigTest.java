@@ -19,6 +19,11 @@ public class GeneratorConfigTest {
   @Test
   public void readJson() {
     GeneratorConfig setting = JsonUtils.json2object(configJson, GeneratorConfig.class);
+
+    Scale scale = setting.getScale();
+    System.out.println(scale.getScaleStr());
+    System.out.println("-----");
+
     setting.getSchemaConfigs().stream()
         .peek(s -> System.out.println(s.getName()))
         .flatMap(s -> s.getTableConfigs().stream())
