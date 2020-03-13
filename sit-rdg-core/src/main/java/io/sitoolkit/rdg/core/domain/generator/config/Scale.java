@@ -29,10 +29,7 @@ public class Scale {
       // Divide
       case "/":
       {
-        if (num == 1) {
-          return num;
-        }
-        return num / getValue();
+        return num < getValue() ? 1 : num / getValue();
       }
       default: return num;
     }
