@@ -2,7 +2,9 @@ package io.sitoolkit.rdg.core;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -11,9 +13,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import io.sitoolkit.rdg.core.application.DataGenerator;
 import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
+import io.sitoolkit.rdg.core.infrastructure.BufferedAsyncCsvWriter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -37,7 +41,30 @@ public class Main {
           .hasArg()
           .build();
 
-  static Options options = new Options().addOption(inputOpt).addOption(outputOpt);
+  static Option bufferSizeOpt =
+      Option.builder("b")
+          .argName("Buffre size of csv row count")
+          .desc("default is 1000")
+          .longOpt("bufferSize")
+          .required(false)
+          .hasArg()
+          .build();
+
+  static Option flushWaitAlertSecOpt =
+      Option.builder("fwa")
+          .argName("Threshold to alert of wait span for csv writing")
+          .desc("default is 10 (sec)")
+          .longOpt("flushWaitAlertSec")
+          .required(false)
+          .hasArg()
+          .build();
+
+  static Options options =
+      new Options()
+          .addOption(inputOpt)
+          .addOption(outputOpt)
+          .addOption(bufferSizeOpt)
+          .addOption(flushWaitAlertSecOpt);
 
   SchemaAnalyzer schemaAnalyzer = new SchemaAnalyzer();
 
@@ -71,10 +98,20 @@ public class Main {
               .toAbsolutePath()
               .normalize();
 
-      Path output =
-          Paths.get(cmd.getOptionValue(outputOpt.getLongOpt(), "output"))
-              .toAbsolutePath()
-              .normalize();
+      String output = cmd.getOptionValue(outputOpt.getLongOpt(), "output");
+      List<Path> outDirs =
+          Arrays.asList(output.split(","))
+              .stream()
+              .map(Path::of)
+              .map(Path::toAbsolutePath)
+              .map(Path::normalize)
+              .collect(Collectors.toList());
+
+      String bufferSize = cmd.getOptionValue(bufferSizeOpt.getLongOpt());
+      BufferedAsyncCsvWriter.bufferSize = NumberUtils.toInt(bufferSize, 1000);
+
+      String flushWaitAlertSec = cmd.getOptionValue(flushWaitAlertSecOpt.getLongOpt());
+      BufferedAsyncCsvWriter.flushWaitAlertSec = NumberUtils.toInt(flushWaitAlertSec, 10);
 
       if (cmd.getArgList().contains("read-sql")) {
         Path out = schemaAnalyzer.analyze(input);
@@ -82,7 +119,7 @@ public class Main {
       }
 
       if (cmd.getArgList().contains("gen-data")) {
-        List<Path> outputs = dataGenerator.generate(input, output);
+        List<Path> outputs = dataGenerator.generate(input, outDirs);
         outputs.forEach(out -> log.info("csv: {}", out));
       }
 

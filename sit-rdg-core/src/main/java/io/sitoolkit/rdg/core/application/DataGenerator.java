@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.sitoolkit.rdg.core.domain.generator.GeneratedValueStore;
@@ -17,14 +16,14 @@ import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
-import io.sitoolkit.rdg.core.infrastructure.CsvWriter;
+import io.sitoolkit.rdg.core.infrastructure.DataWriter;
 import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DataGenerator {
 
-  public List<Path> generate(Path input, Path output) throws IOException {
+  public List<Path> generate(Path input, List<Path> output) throws IOException {
 
     SchemaInfo schemaInfo = JsonUtils.json2object(input.resolve("schema.json"), SchemaInfo.class);
 
@@ -39,8 +38,11 @@ public class DataGenerator {
     for (int scmCnt = 0; scmCnt < schemaSize; scmCnt++) {
 
       SchemaDef schema = schemas.get(scmCnt);
-      log.info("Schema count={}/{}, name={}",
-          scmCnt + 1, schemaSize, Optional.ofNullable(schema.getName()).orElse("UNKNOWN"));
+      log.info(
+          "Schema count={}/{}, name={}",
+          scmCnt + 1,
+          schemaSize,
+          Optional.ofNullable(schema.getName()).orElse("UNKNOWN"));
 
       GeneratedValueStore store = new GeneratedValueStore(config);
 
@@ -53,33 +55,47 @@ public class DataGenerator {
         TableDef table = tables.get(tblCnt);
         Integer rowCount = config.getRowCount(table);
 
-        log.info("Generating csv: count={}/{}, table={}, rowCnt={}",
-            tblCnt + 1, tableSize, table.getFullyQualifiedName(), rowCount);
+        log.info(
+            "Generating csv: count={}/{}, table={}, rowCnt={}",
+            tblCnt + 1,
+            tableSize,
+            table.getFullyQualifiedName(),
+            rowCount);
 
-        Path outPath = write(table, rowCount, output, store);
+        List<Path> outPaths = write(table, rowCount, output, store);
 
-        log.info("Generated csv: table={}, byteSize={}, path={}",
-            table.getFullyQualifiedName(), outPath.toFile().length(), outPath.toAbsolutePath());
+        for (Path outPath : outPaths) {
+          log.info(
+              "Generated csv: table={}, byteSize={}, path={}",
+              table.getFullyQualifiedName(),
+              outPath.toFile().length(),
+              outPath.toAbsolutePath());
+        }
 
-        outputs.add(outPath);
+        outputs.addAll(outPaths);
       }
-
     }
 
     return outputs;
   }
 
-  public Path write(TableDef table, Integer rowCount, Path out, GeneratedValueStore store)
+  public List<Path> write(
+      TableDef table, Integer rowCount, List<Path> out, GeneratedValueStore store)
       throws IOException {
 
     String schemaName = table.getSchemaName().orElse("UNKNOWN");
     String tableName = table.getName();
     String csvName = String.join(".", schemaName, tableName, "csv");
 
-    return generate(table, rowCount, out.resolve(csvName), store);
+    return generate(table, rowCount, out, csvName, store);
   }
 
-  public Path generate(TableDef tableDef, Integer rowCount, Path path, GeneratedValueStore store)
+  public List<Path> generate(
+      TableDef tableDef,
+      Integer rowCount,
+      List<Path> outDir,
+      String fileName,
+      GeneratedValueStore store)
       throws IOException {
 
     List<ColumnDef> cols = tableDef.getColumns();
@@ -87,7 +103,9 @@ public class DataGenerator {
         cols.stream().filter(ColumnDef::isPrimaryKey).collect(Collectors.toList());
     List<Object> header = cols.stream().map(ColumnDef::getName).collect(Collectors.toList());
 
-    try (CsvWriter writer = new CsvWriter(path)) {
+    List<Path> outFiles = new ArrayList<>();
+
+    try (DataWriter writer = DataWriter.build(outDir, fileName)) {
       writer.writeAppend(header);
 
       for (int row = 1; row <= rowCount; row++) {
@@ -99,11 +117,12 @@ public class DataGenerator {
           writer.writeAppend(lineValues);
         }
       }
-      writer.close();
+
+      outFiles.addAll(writer.getFiles());
     }
 
     //    store.clearGeneratedRowsCache();
 
-    return path;
+    return outFiles;
   }
 }
