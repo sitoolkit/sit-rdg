@@ -37,7 +37,7 @@ public class MultipleSequentialValue extends AbstractSequence {
           }
           if (6 == key.getIntegerDigit()) {
             currentSeq =
-                new SequentialDate(mtoday.minusMonths(7L), mtoday.plusMonths(1L), "yyyyMM");
+                new SequentialMonthDate(mtoday.minusMonths(7L), mtoday.plusMonths(1L), "yyyyMM");
           }
           break;
         case MEANS_DECIMAL:
