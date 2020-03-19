@@ -20,7 +20,7 @@ public class CsvWriter implements DataWriter {
   }
 
   public CsvWriter(Path out) throws IOException {
-    this(out, CSVFormat.DEFAULT);
+    this(out, CSVFormat.DEFAULT.withRecordSeparator(System.lineSeparator()));
   }
 
   public void writeAppend(List<Object> line) throws IOException {
