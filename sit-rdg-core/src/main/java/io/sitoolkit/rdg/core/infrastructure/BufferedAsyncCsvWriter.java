@@ -42,7 +42,8 @@ public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
     writer.outFilePath = outFilePath;
 
     try {
-      writer.printer = new CSVPrinter(new FileWriter(outFilePath.toString()), CSVFormat.DEFAULT);
+      writer.printer = new CSVPrinter(new FileWriter(outFilePath.toString()),
+          CSVFormat.DEFAULT.withRecordSeparator(System.lineSeparator()));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
