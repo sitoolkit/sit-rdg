@@ -9,7 +9,7 @@ public class SequentialDate extends AbstractSequence {
 
   private LocalDate endDate;
 
-  private LocalDate currentDate;
+  protected LocalDate currentDate;
 
   private DateTimeFormatter formatter;
 
