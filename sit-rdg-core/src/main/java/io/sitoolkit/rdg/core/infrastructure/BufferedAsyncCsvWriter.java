@@ -55,9 +55,7 @@ public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
   public void writeAppend(List<Object> line) throws IOException {
     StopWatch stopWatch = StopWatch.createStarted();
 
-    while (flushing) {
-      // NOP
-    }
+    waitForFlushing();
 
     stopWatch.stop();
     if (stopWatch.getTime(TimeUnit.SECONDS) > flushWaitAlertSec) {
@@ -106,7 +104,10 @@ public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
 
   @Override
   public void close() throws IOException {
-    flush();
+    waitForFlushing();
+    if (!lines.isEmpty()) {
+      flush();
+    }
     executorService.shutdown();
     printer.close();
     log.info("Close");
@@ -115,5 +116,11 @@ public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
   @Override
   public List<Path> getFiles() {
     return List.of(outFilePath);
+  }
+
+  private void waitForFlushing() {
+    while(flushing) {
+      // NOP
+    }
   }
 }

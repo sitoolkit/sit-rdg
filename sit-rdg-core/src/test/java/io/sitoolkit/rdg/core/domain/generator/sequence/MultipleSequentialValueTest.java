@@ -23,6 +23,7 @@ public class MultipleSequentialValueTest {
 
     ColumnDef varcharColumn =
         ColumnDef.builder()
+            .name("PK1")
             .fullyQualifiedName("SC.TABLE.PK1")
             .constraints(List.of(PRIMARY_KEY))
             .dataType(DataType.VARCHAR2)
@@ -30,6 +31,7 @@ public class MultipleSequentialValueTest {
             .build();
     ColumnDef numberColumn =
         ColumnDef.builder()
+            .name("PK2")
             .fullyQualifiedName("SC.TABLE.PK2")
             .constraints(List.of(PRIMARY_KEY))
             .dataType(DataType.NUMBER)
@@ -122,6 +124,7 @@ public class MultipleSequentialValueTest {
 
     ColumnDef varcharColumn =
         ColumnDef.builder()
+            .name("PK1")
             .fullyQualifiedName("SC.TABLE.PK1")
             .constraints(List.of(PRIMARY_KEY))
             .dataType(DataType.VARCHAR2)
@@ -129,6 +132,7 @@ public class MultipleSequentialValueTest {
             .build();
     ColumnDef numberColumn =
         ColumnDef.builder()
+            .name("PK2")
             .fullyQualifiedName("SC.TABLE.PK2")
             .constraints(List.of(PRIMARY_KEY))
             .dataType(DataType.NUMBER)
