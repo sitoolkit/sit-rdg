@@ -16,11 +16,11 @@
 
   <target name="deploy">
 
-    <exec executable="${mvn.cmd}" dir="${basedir}">
+    <exec executable="${mvn.cmd}" dir="${basedir}" failonerror="true">
       <arg line="clean test sonar:sonar -P analyze --fail-at-end" />
     </exec>
 
-    <exec executable="${mvn.cmd}" dir="${basedir}">
+    <exec executable="${mvn.cmd}" dir="${basedir}" failonerror="true">
       <arg line="clean deploy -P release -Dmaven.test.skip=true" />
     </exec>
 
