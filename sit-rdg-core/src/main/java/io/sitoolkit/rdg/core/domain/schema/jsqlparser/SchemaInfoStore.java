@@ -7,24 +7,26 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.schema.Column;
-import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class SchemaInfoStore {
 
   // key: Schema name, value: Tables
-  private Map<String, SortedSet<TableDef>> tablesInSchemaMap = new HashMap<>();
+  // private Map<String, SortedSet<TableDef>> tablesInSchemaMap = new HashMap<>();
+
+  // key: Schema name
+  private Map<String, SchemaDef> schemaMap = new HashMap<>();
 
   // key: Column, value: relations
   private Map<ColumnDef, List<RelationDef>> relationsMap = new HashMap<>();
@@ -34,21 +36,31 @@ public class SchemaInfoStore {
 
   public Set<SchemaDef> getSchemas() {
 
-    return tablesInSchemaMap.entrySet().stream()
-        .map(
-            e -> {
-              String schemaName = e.getKey();
-              SortedSet<TableDef> tables = e.getValue();
-              return SchemaDef.builder().name(schemaName).tables(tables).build();
-            })
-        .collect(Collectors.toSet());
+    // return tablesInSchemaMap.entrySet().stream()
+    //     .map(
+    //         e -> {
+    //           String schemaName = e.getKey();
+    //           SortedSet<TableDef> tables = e.getValue();
+    //           return SchemaDef.builder().name(schemaName).tables(tables).build();
+    //         })
+    //     .collect(Collectors.toSet());
+
+    return new HashSet<>(schemaMap.values());
+  }
+
+  public SchemaDef getSchema(String schemaName) {
+    return schemaMap.get(schemaName);
   }
 
   public List<ColumnDef> getAllColumns() {
-    return tablesInSchemaMap.values().stream()
-        .flatMap(Set::stream)
-        .map(TableDef::getColumns)
-        .flatMap(List::stream)
+    // return tablesInSchemaMap.values().stream()
+    //     .flatMap(Set::stream)
+    //     .map(TableDef::getColumns)
+    //     .flatMap(List::stream)
+    //     .collect(Collectors.toList());
+
+    return schemaMap.values().stream()
+        .flatMap(schema -> schema.getColumns().stream())
         .collect(Collectors.toList());
   }
 
@@ -80,17 +92,45 @@ public class SchemaInfoStore {
 
   Optional<ColumnDef> getColumnDef(String fullyQualifiedName) {
 
-    return tablesInSchemaMap.values().stream()
-        .flatMap(Set::stream)
-        .map(TableDef::getColumns)
-        .flatMap(List::stream)
-        .filter(column -> StringUtils.equals(column.getFullyQualifiedName(), fullyQualifiedName))
+    // return tablesInSchemaMap.values().stream()
+    //     .flatMap(Set::stream)
+    //     .map(TableDef::getColumns)
+    //     .flatMap(List::stream)
+    //     .filter(column -> StringUtils.equals(column.getFullyQualifiedName(), fullyQualifiedName))
+    //     .findFirst();
+
+    return schemaMap.values().stream()
+        .map(schema -> schema.findColumnByQualifiedName(fullyQualifiedName))
+        .peek(System.out::println)
+        .filter(colOpt -> !colOpt.isEmpty())
+        .map(Optional::get)
         .findFirst();
   }
 
   void addTable(TableDef table) {
     String schema = table.getSchemaName().orElse("");
-    tablesInSchemaMap.computeIfAbsent(schema, k -> new TreeSet<>()).add(table);
+    schemaMap
+        .computeIfAbsent(
+            schema,
+            k ->
+                SchemaDef.builder()
+                    .name(schema)
+                    .tables(new TreeSet<>())
+                    .relations(new ArrayList<>())
+                    .build())
+        .getTables()
+        .add(table);
+    // tablesInSchemaMap.computeIfAbsent(schema, k -> new TreeSet<>()).add(table);
+  }
+
+  public Optional<TableDef> findTable(String schemaName, String tableName) {
+    SchemaDef schema = schemaMap.get(schemaName);
+
+    if (schema == null) {
+      return Optional.empty();
+    }
+
+    return schema.findTable(tableName);
   }
 
   void addRelations(List<RelationDef> relations) {

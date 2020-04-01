@@ -30,6 +30,7 @@ public class SchemaAnalyzer {
     try (Stream<Path> inFiles = Files.walk(inDir, FileVisitOption.FOLLOW_LINKS)) {
       inFiles
           .filter(SqlFileUtils::isSqlFile)
+          .sorted()
           .map(SqlFileUtils::readSql)
           .forEach(scriptReader::read);
     } catch (IOException e) {

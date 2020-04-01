@@ -1,7 +1,7 @@
 package io.sitoolkit.rdg.core.domain.schema;
 
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import lombok.EqualsAndHashCode;
@@ -21,7 +21,7 @@ public class ColumnPair {
   private SortedSet<ColumnDef> columns =
       new TreeSet<>(Comparator.comparing(ColumnDef::getFullyQualifiedName));
 
-  public ColumnPair(ColumnDef... cols) {
-    Arrays.stream(cols).forEach(columns::add);
+  public ColumnPair(ColumnDef left, ColumnDef right) {
+    List.of(left, right).stream().forEach(columns::add);
   }
 }

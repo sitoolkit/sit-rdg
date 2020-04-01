@@ -7,7 +7,6 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.StatementVisitorAdapter;
 import net.sf.jsqlparser.statement.Statements;
-import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.select.Select;
 
 /** SqlScriptReaderJsqlParserImpl */
@@ -25,17 +24,14 @@ public class SqlScriptReaderJsqlParserImpl implements SqlScriptReader {
     try {
       Statements stmts = CCJSqlParserUtil.parseStatements(sqlText);
 
+      stmts.accept(staticRelFinder);
+
       stmts.accept(
           new StatementVisitorAdapter() {
 
             @Override
             public void visit(Select select) {
               select.getSelectBody().accept(dynamicRelFinder);
-            }
-
-            @Override
-            public void visit(CreateTable createTable) {
-              staticRelFinder.visit(createTable);
             }
           });
 
