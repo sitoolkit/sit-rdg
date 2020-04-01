@@ -33,7 +33,7 @@ public class FromItemVisitorImpl extends FromItemVisitorAdapter {
 
   @Override
   public void visit(SubJoin subjoin) {
-    visit(subjoin.getJoin());
+    subjoin.getJoinList().stream().forEach(this::visit);
   }
 
   public void visit(Join join) {
