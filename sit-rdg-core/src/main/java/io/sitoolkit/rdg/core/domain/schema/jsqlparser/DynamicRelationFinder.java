@@ -1,16 +1,18 @@
 package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectVisitorAdapter;
 
-public class SelectVisitorImpl extends SelectVisitorAdapter {
+@Slf4j
+public class DynamicRelationFinder extends SelectVisitorAdapter {
 
   SchemaInfoStore store;
   FromItemVisitorImpl fromItemsVisitor;
   ExpressionVisitorImpl expressionVisitor;
 
-  public SelectVisitorImpl(SchemaInfoStore store) {
+  public DynamicRelationFinder(SchemaInfoStore store) {
     this.store = store;
     this.fromItemsVisitor = new FromItemVisitorImpl(store, this);
     this.expressionVisitor = fromItemsVisitor.expressionVisitor;
@@ -18,7 +20,7 @@ public class SelectVisitorImpl extends SelectVisitorAdapter {
 
   @Override
   public void visit(PlainSelect plainSelect) {
-
+    log.debug("Visit: {}", plainSelect);
     plainSelect.getFromItem().accept(fromItemsVisitor);
 
     if (Objects.nonNull(plainSelect.getJoins())) {

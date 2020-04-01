@@ -1,24 +1,32 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-
 import org.apache.commons.lang3.StringUtils;
 
-public class SqlUtils {
+public class SqlFileUtils {
 
-  public static String readSql(Path path) throws IOException {
+  public static boolean isSqlFile(Path filePath) {
+    return StringUtils.endsWith(filePath.getFileName().toString(), ".sql");
+  }
 
-    String sql =
-        Files.readAllLines(path, StandardCharsets.UTF_8).stream()
-            .filter(text -> SqlIgnoreLinePattern.chainAllPattern().test(text.toLowerCase()))
-            .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-            .toString();
+  public static String readSql(Path path) {
 
-    return camel2snake(sql);
+    try {
+      String sql =
+          Files.readAllLines(path, StandardCharsets.UTF_8).stream()
+              .filter(text -> SqlIgnoreLinePattern.chainAllPattern().test(text.toLowerCase()))
+              .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+              .toString();
+
+      return camel2snake(sql);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public static final String camel2snake(String camel) {

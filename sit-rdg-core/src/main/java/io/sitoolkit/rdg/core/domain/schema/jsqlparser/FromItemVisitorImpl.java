@@ -10,10 +10,10 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 public class FromItemVisitorImpl extends FromItemVisitorAdapter {
 
   SchemaInfoStore store;
-  SelectVisitorImpl selectVisitor;
+  DynamicRelationFinder selectVisitor;
   ExpressionVisitorImpl expressionVisitor;
 
-  public FromItemVisitorImpl(SchemaInfoStore store, SelectVisitorImpl selectVisitor) {
+  public FromItemVisitorImpl(SchemaInfoStore store, DynamicRelationFinder selectVisitor) {
     this.store = store;
     this.selectVisitor = selectVisitor;
     this.expressionVisitor = new ExpressionVisitorImpl(store, this);

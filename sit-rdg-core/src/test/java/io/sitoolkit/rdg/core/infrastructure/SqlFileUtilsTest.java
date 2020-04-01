@@ -3,7 +3,7 @@ package io.sitoolkit.rdg.core.infrastructure;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SqlUtilsTest {
+public class SqlFileUtilsTest {
 
   @Test
   public void test() {
@@ -16,7 +16,7 @@ public class SqlUtilsTest {
             + "CONSTRAINT \"UpperCamelTable\"_PKC PRIMARY KEY (\"Column1\")"
             + ")";
 
-    String result = SqlUtils.camel2snake(sql);
+    String result = SqlFileUtils.camel2snake(sql);
 
     String expect =
         "CREATE TABLE UPPER_CAMEL_TABLE ("

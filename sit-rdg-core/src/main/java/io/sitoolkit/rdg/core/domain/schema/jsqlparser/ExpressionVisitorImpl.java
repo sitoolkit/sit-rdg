@@ -21,7 +21,7 @@ public class ExpressionVisitorImpl extends ExpressionVisitorAdapter {
 
   SchemaInfoStore store;
   FromItemVisitorImpl fromItemVisitor;
-  SelectVisitorImpl selectVisitor;
+  DynamicRelationFinder selectVisitor;
 
   List<RelationDef> relations;
 
@@ -75,11 +75,11 @@ public class ExpressionVisitorImpl extends ExpressionVisitorAdapter {
         ColumnDef right = ColumnDef.shallowCopyExcludeRelations(rightColumnDef.get());
 
         if (left.equals(right)) {
-          log.info("Skipped equal columns because same:[ left:{}, right:{} ]", left, right);
+          log.debug("Skipped equal columns because same:[ left:{}, right:{} ]", left, right);
           return;
         }
 
-        log.info("Found equal columns:[ left:{}, right:{} ]", left, right);
+        log.debug("Found equal columns:[ left:{}, right:{} ]", left, right);
 
         if (inAndExpr) {
           ColumnPair pair = new ColumnPair(left, right);
@@ -89,7 +89,7 @@ public class ExpressionVisitorImpl extends ExpressionVisitorAdapter {
         }
 
       } else {
-        log.info(
+        log.debug(
             "Not found equal columns:[ left:{}, right:{} ]",
             leftColumn.getFullyQualifiedName(),
             rightColumn.getFullyQualifiedName());

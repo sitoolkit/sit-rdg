@@ -2,10 +2,13 @@ package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.SqlScriptReader;
-import java.nio.file.Path;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.StatementVisitorAdapter;
 import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.select.Select;
 
 /** SqlScriptReaderJsqlParserImpl */
 @Slf4j
@@ -14,17 +17,36 @@ public class SqlScriptReaderJsqlParserImpl implements SqlScriptReader {
   private SchemaInfoStore store = new SchemaInfoStore();
 
   @Override
-  public void read(Path sqlScriptFile) {
-    log.info("Read: {}", sqlScriptFile.toAbsolutePath());
-    List<Statements> statementsList = Converter.sqls2statements(List.of(sqlScriptFile));
+  public void read(String sqlText) {
 
-    StatementVisitorImpl statementVisitor = new StatementVisitorImpl(store);
-    statementVisitor.visit(statementsList);
+    DynamicRelationFinder dynamicRelFinder = new DynamicRelationFinder(store);
+    StaticRelationFinder staticRelFinder = new StaticRelationFinder(store);
+
+    try {
+      Statements stmts = CCJSqlParserUtil.parseStatements(sqlText);
+
+      stmts.accept(
+          new StatementVisitorAdapter() {
+
+            @Override
+            public void visit(Select select) {
+              select.getSelectBody().accept(dynamicRelFinder);
+            }
+
+            @Override
+            public void visit(CreateTable createTable) {
+              staticRelFinder.visit(createTable);
+            }
+          });
+
+    } catch (JSQLParserException e) {
+      log.error("Error on parsing", e);
+    }
   }
 
   @Override
   public SchemaInfo getSchemaInfo() {
-
+    store.mergeRelations();
     return new SchemaInfo(store.getSchemas());
   }
 }

@@ -4,6 +4,7 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.SqlScriptReader;
 import io.sitoolkit.rdg.core.domain.schema.jsqlparser.SqlScriptReaderJsqlParserImpl;
 import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
+import io.sitoolkit.rdg.core.infrastructure.SqlFileUtils;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitOption;
@@ -11,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class SchemaAnalyzer {
@@ -29,7 +29,8 @@ public class SchemaAnalyzer {
 
     try (Stream<Path> inFiles = Files.walk(inDir, FileVisitOption.FOLLOW_LINKS)) {
       inFiles
-          .filter(inFile -> StringUtils.endsWith(inFile.getFileName().toString(), ".sql"))
+          .filter(SqlFileUtils::isSqlFile)
+          .map(SqlFileUtils::readSql)
           .forEach(scriptReader::read);
     } catch (IOException e) {
       throw new UncheckedIOException(e);

@@ -4,8 +4,7 @@ import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ConstraintAttribute;
 import io.sitoolkit.rdg.core.domain.schema.DataType;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
-import io.sitoolkit.rdg.core.infrastructure.SqlUtils;
-import java.io.IOException;
+import io.sitoolkit.rdg.core.infrastructure.SqlFileUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,12 +96,7 @@ public class Converter {
   }
 
   public static Optional<Statements> sql2statements(Path sql) {
-    try {
-      return sql2statements(SqlUtils.readSql(sql));
-    } catch (IOException e) {
-      log.warn(e.getMessage());
-    }
-    return Optional.empty();
+    return sql2statements(SqlFileUtils.readSql(sql));
   }
 
   public static Optional<Statements> sql2statements(String sql) {
