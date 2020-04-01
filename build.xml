@@ -21,7 +21,7 @@
     </exec>
 
     <exec executable="${mvn.cmd}" dir="${basedir}" failonerror="true">
-      <arg line="clean deploy -P release -Dmaven.test.skip=true" />
+      <arg line="deploy -P release -Dmaven.test.skip=true" />
     </exec>
 
   </target>
