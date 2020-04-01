@@ -1,4 +1,4 @@
-package io.sitoolkit.rdg.core.domain.visitor;
+package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
@@ -84,8 +84,7 @@ public class SchemaInfoStore {
         .flatMap(Set::stream)
         .map(TableDef::getColumns)
         .flatMap(List::stream)
-        .filter(
-            column -> StringUtils.equals(column.getFullyQualifiedName(), fullyQualifiedName))
+        .filter(column -> StringUtils.equals(column.getFullyQualifiedName(), fullyQualifiedName))
         .findFirst();
   }
 
@@ -96,16 +95,19 @@ public class SchemaInfoStore {
 
   void addRelations(List<RelationDef> relations) {
 
-    List<ColumnDef> columns = relations.stream().map(RelationDef::getDistinctColumns)
-        .flatMap(List::stream).collect(Collectors.toList());
+    List<ColumnDef> columns =
+        relations.stream()
+            .map(RelationDef::getDistinctColumns)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
 
-    List<ColumnDef> allCols = getAllColumns().stream().filter(columns::contains)
-        .collect(Collectors.toList());
+    List<ColumnDef> allCols =
+        getAllColumns().stream().filter(columns::contains).collect(Collectors.toList());
 
     for (ColumnDef column : allCols) {
 
-      List<RelationDef> gotRelations = relationsMap
-          .computeIfAbsent(column, key -> new ArrayList<>(relations));
+      List<RelationDef> gotRelations =
+          relationsMap.computeIfAbsent(column, key -> new ArrayList<>(relations));
 
       for (RelationDef gotRelation : gotRelations) {
         List<ColumnDef> gotRelColumns = gotRelation.getDistinctColumns();
@@ -120,8 +122,8 @@ public class SchemaInfoStore {
 
   void mergeRelations() {
 
-    List<ColumnDef> relationColumns = getAllColumns().stream()
-        .filter(relationsMap::containsKey).collect(Collectors.toList());
+    List<ColumnDef> relationColumns =
+        getAllColumns().stream().filter(relationsMap::containsKey).collect(Collectors.toList());
 
     for (ColumnDef column : relationColumns) {
 
@@ -136,13 +138,13 @@ public class SchemaInfoStore {
               relation -> {
                 Set<ColumnPair> pairs = relation.getColumnPairs();
                 for (RelationDef relationDef : relationsInCol) {
-                  relationDef.addAllPairs(pairs.stream()
-                      .filter(relationDef::containsAnyInPair)
-                      .collect(Collectors.toList()));
+                  relationDef.addAllPairs(
+                      pairs.stream()
+                          .filter(relationDef::containsAnyInPair)
+                          .collect(Collectors.toList()));
                 }
               });
     }
-
   }
 
   void addRelationalColumns(ColumnDef col1, ColumnDef col2) {

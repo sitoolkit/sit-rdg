@@ -1,7 +1,6 @@
-package io.sitoolkit.rdg.core.domain.visitor;
+package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
 import java.util.Objects;
-
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
 import net.sf.jsqlparser.statement.select.Join;

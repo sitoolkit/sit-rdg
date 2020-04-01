@@ -1,6 +1,5 @@
-package io.sitoolkit.rdg.core.domain.visitor;
+package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
-import io.sitoolkit.rdg.core.domain.Converter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package io.sitoolkit.rdg.core.domain;
+package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ConstraintAttribute;

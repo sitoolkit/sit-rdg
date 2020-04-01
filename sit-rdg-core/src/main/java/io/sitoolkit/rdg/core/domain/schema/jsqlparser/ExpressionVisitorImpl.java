@@ -1,4 +1,4 @@
-package io.sitoolkit.rdg.core.domain.visitor;
+package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;

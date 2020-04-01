@@ -1,7 +1,6 @@
-package io.sitoolkit.rdg.core.domain.visitor;
+package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
 import java.util.Objects;
-
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectVisitorAdapter;
 

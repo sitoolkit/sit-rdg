@@ -1,13 +1,14 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +27,16 @@ public class JsonUtils {
     try {
       return mapper.writeValueAsString(source);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static Path object2jsonFile(Object source, Path filePath) {
+    try {
+      Files.writeString(filePath, object2json(source));
+      return filePath;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -34,7 +44,7 @@ public class JsonUtils {
     try {
       return mapper.readValue(json.toFile(), type);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 }
