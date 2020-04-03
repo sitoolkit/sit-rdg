@@ -16,6 +16,7 @@ import net.sf.jsqlparser.statement.alter.Alter;
 import net.sf.jsqlparser.statement.alter.AlterExpression;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.ForeignKeyIndex;
+import org.apache.commons.lang3.StringUtils;
 
 /** StaticRelationFinder */
 @AllArgsConstructor
@@ -52,8 +53,8 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
   }
 
   public void readAndStoreFk(Table table, ForeignKeyIndex fk) {
-    // TODO schema resolution
-    Optional<TableDef> mainTableOpt = store.findTable("", fk.getTable().getName());
+    String schemaName = StringUtils.defaultString(table.getName());
+    Optional<TableDef> mainTableOpt = store.findTable(schemaName, fk.getTable().getName());
 
     if (!mainTableOpt.isPresent()) {
       return;
@@ -77,7 +78,6 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
     RelationDef relation = new RelationDef();
     relation.addAllPairs(pairs);
 
-    // TODO schema resolution
-    store.getSchema("").getRelations().add(relation);
+    store.getSchema(schemaName).getRelations().add(relation);
   }
 }
