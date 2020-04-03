@@ -9,13 +9,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.time.StopWatch;
-
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
@@ -26,9 +24,9 @@ public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
 
   private List<List<Object>> lines = new CopyOnWriteArrayList<>();
 
-  public static int bufferSize = 1000;
+  private int bufferSize;
 
-  public static int flushWaitAlertSec = 10;
+  private int flushWaitAlertSec;
 
   @Getter private int totalRows = 0;
 
@@ -38,12 +36,16 @@ public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
 
   public static BufferedAsyncCsvWriter build(Path outFilePath) {
     BufferedAsyncCsvWriter writer = new BufferedAsyncCsvWriter();
+    writer.bufferSize = RuntimeOptions.getInstance().getBufferSize();
+    writer.flushWaitAlertSec = RuntimeOptions.getInstance().getFlushWaitAlertSec();
 
     writer.outFilePath = outFilePath;
 
     try {
-      writer.printer = new CSVPrinter(new FileWriter(outFilePath.toString()),
-          CSVFormat.DEFAULT.withRecordSeparator(System.lineSeparator()));
+      writer.printer =
+          new CSVPrinter(
+              new FileWriter(outFilePath.toString()),
+              CSVFormat.DEFAULT.withRecordSeparator(System.lineSeparator()));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -119,7 +121,7 @@ public class BufferedAsyncCsvWriter implements DataWriter, Runnable {
   }
 
   private void waitForFlushing() {
-    while(flushing) {
+    while (flushing) {
       // NOP
     }
   }

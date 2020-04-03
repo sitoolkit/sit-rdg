@@ -1,11 +1,14 @@
 package io.sitoolkit.rdg.core;
 
+import io.sitoolkit.rdg.core.application.DataGenerator;
+import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
+import io.sitoolkit.rdg.core.infrastructure.RuntimeOptions;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -14,11 +17,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.math.NumberUtils;
-
-import io.sitoolkit.rdg.core.application.DataGenerator;
-import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
-import io.sitoolkit.rdg.core.infrastructure.BufferedAsyncCsvWriter;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Main {
@@ -82,6 +80,7 @@ public class Main {
     CommandLine cmd;
     try {
       cmd = parser.parse(options, args);
+
       return execute(cmd);
     } catch (ParseException e) {
       formatter.printHelp("options", options);
@@ -100,18 +99,17 @@ public class Main {
 
       String output = cmd.getOptionValue(outputOpt.getLongOpt(), "output");
       List<Path> outDirs =
-          Arrays.asList(output.split(","))
-              .stream()
+          Arrays.asList(output.split(",")).stream()
               .map(Path::of)
               .map(Path::toAbsolutePath)
               .map(Path::normalize)
               .collect(Collectors.toList());
 
       String bufferSize = cmd.getOptionValue(bufferSizeOpt.getLongOpt());
-      BufferedAsyncCsvWriter.bufferSize = NumberUtils.toInt(bufferSize, 1000);
+      RuntimeOptions.getInstance().setBufferSize(NumberUtils.toInt(bufferSize, 1000));
 
       String flushWaitAlertSec = cmd.getOptionValue(flushWaitAlertSecOpt.getLongOpt());
-      BufferedAsyncCsvWriter.flushWaitAlertSec = NumberUtils.toInt(flushWaitAlertSec, 10);
+      RuntimeOptions.getInstance().setFlushWaitAlertSec(NumberUtils.toInt(flushWaitAlertSec, 10));
 
       if (cmd.getArgList().contains("read-sql")) {
         Path out = schemaAnalyzer.analyze(input);
@@ -126,7 +124,7 @@ public class Main {
       return 0;
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Error: ", e);
       return 1;
     }
   }
