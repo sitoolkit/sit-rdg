@@ -1,12 +1,5 @@
 package io.sitoolkit.rdg.core.application;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import io.sitoolkit.rdg.core.domain.generator.GeneratedValueStore;
 import io.sitoolkit.rdg.core.domain.generator.RandomValueRow;
 import io.sitoolkit.rdg.core.domain.generator.TableComparator;
@@ -17,7 +10,12 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.DataWriter;
-import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,7 +23,7 @@ public class DataGenerator {
 
   public List<Path> generate(Path input, List<Path> output) throws IOException {
 
-    SchemaInfo schemaInfo = JsonUtils.json2object(input.resolve("schema.json"), SchemaInfo.class);
+    SchemaInfo schemaInfo = SchemaInfo.read(input);
 
     GeneratorConfig config = new GeneratorConfigReader().read(input);
 

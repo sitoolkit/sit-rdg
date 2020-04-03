@@ -43,6 +43,8 @@ public class SqlScriptReaderJsqlParserImpl implements SqlScriptReader {
   @Override
   public SchemaInfo getSchemaInfo() {
     store.mergeRelations();
-    return new SchemaInfo(store.getSchemas());
+    SchemaInfo schemaInfo = new SchemaInfo(store.getSchemas());
+    schemaInfo.afterDeserialize();
+    return schemaInfo;
   }
 }

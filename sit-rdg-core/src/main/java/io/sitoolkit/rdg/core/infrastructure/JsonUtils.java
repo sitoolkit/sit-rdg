@@ -11,7 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
 
@@ -32,6 +34,7 @@ public class JsonUtils {
   }
 
   public static Path object2jsonFile(Object source, Path filePath) {
+    log.info("Write: {}", filePath.normalize().toAbsolutePath());
     try {
       Files.writeString(filePath, object2json(source));
       return filePath;
@@ -41,6 +44,7 @@ public class JsonUtils {
   }
 
   public static <T> T json2object(Path json, Class<T> type) {
+    log.info("Read: {}", json.normalize().toAbsolutePath());
     try {
       return mapper.readValue(json.toFile(), type);
     } catch (IOException e) {

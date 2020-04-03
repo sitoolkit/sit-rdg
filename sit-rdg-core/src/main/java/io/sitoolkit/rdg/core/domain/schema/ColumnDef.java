@@ -1,22 +1,20 @@
 package io.sitoolkit.rdg.core.domain.schema;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Builder
@@ -45,8 +43,7 @@ public class ColumnDef implements Comparable<ColumnDef> {
   @JsonProperty("constraints")
   private List<ConstraintAttribute> constraints;
 
-  @JsonProperty("relations")
-  private List<RelationDef> relations;
+  @Builder.Default @JsonIgnore private List<RelationDef> relations = new ArrayList<>();
 
   public static ColumnDef shallowCopyExcludeRelations(ColumnDef columnDef) {
     ColumnDef newColumn = new ColumnDef();

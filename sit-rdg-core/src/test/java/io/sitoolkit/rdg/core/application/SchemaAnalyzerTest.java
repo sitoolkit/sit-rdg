@@ -67,36 +67,65 @@ public class SchemaAnalyzerTest {
   @Test
   public void testReadStaticRelations() throws Exception {
     Path input = workingDir.resolve("create-table-with-foreign-key.sql");
-    SchemaInfo answer = analyzer.read(input);
+    SchemaInfo schemaInfo = analyzer.read(input);
+    assertReadStaticRelations(schemaInfo);
+  }
 
-    SchemaDef schema = answer.findByName("").orElseThrow();
+  @Test
+  public void testAnalyzeStaticRelations() {
+    Path input = workingDir.resolve("create-table-with-foreign-key.sql");
+    Path output = analyzer.analyze(input);
+    SchemaInfo schemaInfo = SchemaInfo.read(output.getParent());
+    assertReadStaticRelations(schemaInfo);
+  }
+
+  void assertReadStaticRelations(SchemaInfo schemaInfo) {
+    SchemaDef schema = schemaInfo.findByName("").orElseThrow();
     List<RelationDef> relations = schema.getRelations();
 
     assertThat(relations.size(), is(2));
 
     ColumnPair pair_1_2 = relations.get(0).getColumnPairs().iterator().next();
 
-    assertThat(pair_1_2.getColumns().first().getName(), is("COL_1_1"));
-    assertThat(pair_1_2.getColumns().last().getName(), is("COL_2_1"));
+    assertThat(pair_1_2.getLeft().getName(), is("COL_1_1"));
+    assertThat(pair_1_2.getRight().getName(), is("COL_2_1"));
 
     ColumnPair pair_1_3 = relations.get(1).getColumnPairs().iterator().next();
 
-    assertThat(pair_1_3.getColumns().first().getName(), is("COL_1_1"));
-    assertThat(pair_1_3.getColumns().last().getName(), is("COL_3_1"));
+    assertThat(pair_1_3.getLeft().getName(), is("COL_1_1"));
+    assertThat(pair_1_3.getRight().getName(), is("COL_3_1"));
+
+    ColumnDef col_1_1 = schema.findColumnByQualifiedName("TAB_1.COL_1_1").orElseThrow();
+    assertThat(col_1_1.getRelations().get(0), is(relations.get(0)));
+    ColumnDef col_2_1 = schema.findColumnByQualifiedName("TAB_2.COL_2_1").orElseThrow();
+    assertThat(col_2_1.getRelations().get(0), is(relations.get(0)));
+
+    ColumnDef col_3_1 = schema.findColumnByQualifiedName("TAB_3.COL_3_1").orElseThrow();
+    assertThat(col_3_1.getRelations().get(0), is(equalTo(relations.get(1))));
   }
 
   @Test
   public void testReadAllSchemas() throws IOException {
     Path input = workingDir.resolve("multiple-schemas-create.sql");
+    SchemaInfo schemaInfo = analyzer.read(input);
+    assertReadAllSchemas(schemaInfo);
+  }
 
-    SchemaInfo answer = analyzer.read(input);
+  @Test
+  public void testAnalyzeAllSchemas() {
+    Path input = workingDir.resolve("multiple-schemas-create.sql");
+    Path output = analyzer.analyze(input);
+    SchemaInfo schemaInfo = SchemaInfo.read(output.getParent());
+    assertReadAllSchemas(schemaInfo);
+  }
 
-    SchemaDef schema1 = answer.findByName("SCHEMA1").orElseThrow();
+  void assertReadAllSchemas(SchemaInfo schemaInfo) {
+    SchemaDef schema1 = schemaInfo.findByName("SCHEMA1").orElseThrow();
     TableDef table1_1 = schema1.findTable("TABLE1").orElseThrow();
     assertThat(table1_1.getColumns().get(0).getName(), is("COLUMN1"));
     assertThat(table1_1.getColumns().get(1).getName(), is("COLUMN2"));
 
-    SchemaDef schema2 = answer.findByName("SCHEMA2").orElseThrow();
+    SchemaDef schema2 = schemaInfo.findByName("SCHEMA2").orElseThrow();
     TableDef table1_2 = schema2.findTable("TABLE1").orElseThrow();
     assertThat(table1_2.getColumns().get(0).getName(), is("COLUMNA"));
     assertThat(table1_2.getColumns().get(1).getName(), is("COLUMNB"));

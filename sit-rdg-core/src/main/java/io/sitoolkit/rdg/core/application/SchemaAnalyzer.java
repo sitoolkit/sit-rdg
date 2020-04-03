@@ -3,7 +3,6 @@ package io.sitoolkit.rdg.core.application;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.SqlScriptReader;
 import io.sitoolkit.rdg.core.domain.schema.jsqlparser.SqlScriptReaderJsqlParserImpl;
-import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
 import io.sitoolkit.rdg.core.infrastructure.SqlFileUtils;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -16,11 +15,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SchemaAnalyzer {
 
-  public Path analyze(Path inDir) {
+  public Path analyze(Path inDirOrFile) {
 
-    SchemaInfo schemaInfo = read(inDir);
+    SchemaInfo schemaInfo = read(inDirOrFile);
 
-    return JsonUtils.object2jsonFile(schemaInfo, inDir.resolve("schema.json"));
+    Path outDir = inDirOrFile.toFile().isFile() ? inDirOrFile.getParent() : inDirOrFile;
+
+    return schemaInfo.write(outDir);
   }
 
   public SchemaInfo read(Path inDir) {

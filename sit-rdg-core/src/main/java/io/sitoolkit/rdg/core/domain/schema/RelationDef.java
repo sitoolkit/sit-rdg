@@ -1,5 +1,6 @@
 package io.sitoolkit.rdg.core.domain.schema;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,13 +9,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@ToString
 @EqualsAndHashCode
 @NoArgsConstructor
 public class RelationDef {
@@ -23,8 +23,7 @@ public class RelationDef {
 
   @JsonIgnore
   public List<ColumnDef> getDistinctColumns() {
-    return columnPairs
-        .stream()
+    return columnPairs.stream()
         .flatMap(c -> c.getColumns().stream())
         .distinct()
         .collect(Collectors.toList());
@@ -43,8 +42,7 @@ public class RelationDef {
 
     // 一番小さい桁数に合わせる
     List<String> minDigits =
-        columnPairs
-            .stream()
+        columnPairs.stream()
             .flatMap(c -> c.getColumns().stream())
             .sorted(
                 Comparator.comparing(ColumnDef::getIntegerDigit)
