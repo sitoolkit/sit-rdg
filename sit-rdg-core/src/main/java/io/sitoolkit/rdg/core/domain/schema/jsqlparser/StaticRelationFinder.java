@@ -53,7 +53,7 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
   }
 
   public void readAndStoreFk(Table table, ForeignKeyIndex fk) {
-    String schemaName = StringUtils.defaultString(table.getName());
+    String schemaName = StringUtils.defaultString(table.getSchemaName());
     Optional<TableDef> mainTableOpt = store.findTable(schemaName, fk.getTable().getName());
 
     if (!mainTableOpt.isPresent()) {
