@@ -44,8 +44,7 @@ public class GeneratorConfig {
 
   @JsonIgnore
   @Getter(lazy = true)
-  private final Scale scale =
-      Objects.isNull(scaleStr) ? Scale.createEqualScale() : new Scale(scaleStr);
+  private final Scale scale = Scale.parse(scaleStr);
 
   @JsonIgnore
   @Getter(lazy = true)

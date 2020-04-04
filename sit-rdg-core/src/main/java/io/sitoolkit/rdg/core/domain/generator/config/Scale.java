@@ -1,37 +1,33 @@
 package io.sitoolkit.rdg.core.domain.generator.config;
 
-import org.apache.commons.lang3.StringUtils;
-
+import lombok.AccessLevel;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class Scale {
 
-  @Getter
-  private String scaleStr;
+  @Getter(AccessLevel.PACKAGE)
+  private double value = 1;
 
-  @Getter(lazy = true)
-  private final String mark = StringUtils.substring(scaleStr, 0, 1);
-
-  @Getter(lazy = true)
-  private final int value = Integer.parseInt(StringUtils.substring(scaleStr, 1));
-
-  public Scale(String scaleStr) {
-    this.scaleStr = scaleStr;
-  }
-
-  public static Scale createEqualScale() {
-    return new Scale("/1");
-  }
+  private Scale() {}
 
   public int apply(int num) {
+    return (int) Math.round(num * value);
+  }
 
-    switch (getMark()) {
-      // Divide
-      case "/":
-      {
-        return num < getValue() ? 1 : num / getValue();
-      }
-      default: return num;
+  public static Scale parse(String scaleStr) {
+    Scale scale = new Scale();
+
+    if (StringUtils.isEmpty(scaleStr)) {
+      return scale;
     }
+
+    double numerator = NumberUtils.toDouble(StringUtils.substringBefore(scaleStr, "/"), 1);
+    double denominator = NumberUtils.toDouble(StringUtils.substringAfter(scaleStr, "/"), 1);
+
+    scale.value = numerator / denominator;
+
+    return scale;
   }
 }

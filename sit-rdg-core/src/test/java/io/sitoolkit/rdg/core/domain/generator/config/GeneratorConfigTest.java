@@ -1,10 +1,8 @@
 package io.sitoolkit.rdg.core.domain.generator.config;
 
-import java.nio.file.Path;
-
-import org.junit.Test;
-
 import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
+import java.nio.file.Path;
+import org.junit.Test;
 
 public class GeneratorConfigTest {
 
@@ -21,7 +19,7 @@ public class GeneratorConfigTest {
     GeneratorConfig setting = JsonUtils.json2object(configJson, GeneratorConfig.class);
 
     Scale scale = setting.getScale();
-    System.out.println(scale.getScaleStr());
+    // System.out.println(scale.getScaleStr());
     System.out.println("-----");
 
     setting.getSchemaConfigs().stream()
