@@ -11,6 +11,7 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.DataWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,8 +79,7 @@ public class DataGenerator {
   }
 
   public List<Path> write(
-      TableDef table, Integer rowCount, List<Path> out, GeneratedValueStore store)
-      throws IOException {
+      TableDef table, Integer rowCount, List<Path> out, GeneratedValueStore store) {
 
     String schemaName = table.getSchemaName().orElse("UNKNOWN");
     String tableName = table.getName();
@@ -90,11 +90,10 @@ public class DataGenerator {
 
   public List<Path> generate(
       TableDef tableDef,
-      Integer rowCount,
+      int rowCount,
       List<Path> outDir,
       String fileName,
-      GeneratedValueStore store)
-      throws IOException {
+      GeneratedValueStore store) {
 
     List<ColumnDef> cols = tableDef.getColumns();
     List<ColumnDef> pks =
@@ -117,6 +116,8 @@ public class DataGenerator {
       }
 
       outFiles.addAll(writer.getFiles());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
 
     //    store.clearGeneratedRowsCache();

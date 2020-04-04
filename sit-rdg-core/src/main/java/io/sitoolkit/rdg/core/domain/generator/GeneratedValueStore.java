@@ -1,5 +1,11 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
+import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
+import io.sitoolkit.rdg.core.domain.generator.config.ValueGenerator;
+import io.sitoolkit.rdg.core.domain.generator.sequence.AbstractSequence;
+import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
+import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,15 +13,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
-import io.sitoolkit.rdg.core.domain.generator.sequence.AbstractSequence;
-import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
-import io.sitoolkit.rdg.core.domain.schema.RelationDef;
-
 public class GeneratedValueStore {
 
-  private GeneratorConfig setting;
+  private GeneratorConfig config;
 
   /** List<RandomValueGroup>: 乱数Group　RelationDefに対し生成した乱数の集合 */
   private Map<RelationDef, List<RandomValueGroup>> generatedValueMap = new HashMap<>();
@@ -26,9 +26,9 @@ public class GeneratedValueStore {
 
   private ColumnComparator comparator;
 
-  public GeneratedValueStore(GeneratorConfig setting) {
-    this.setting = setting;
-    comparator = new ColumnComparator(setting);
+  public GeneratedValueStore(GeneratorConfig config) {
+    this.config = config;
+    comparator = new ColumnComparator(config);
   }
 
   public Optional<RandomValueRow> generateRow(
@@ -50,7 +50,8 @@ public class GeneratedValueStore {
           valueRow.put(column, leafSequence.getSequenceByPkColumn(column).currentVal());
 
         } else {
-          valueRow.put(column, RandomValueUtils.generate(column));
+          ValueGenerator generator = config.findValueGenerator(column);
+          valueRow.put(column, generator.generate(column));
         }
       } else {
         valueRow.put(column, putIfAbsent(column, rowNum, leafSequence));
@@ -75,7 +76,7 @@ public class GeneratedValueStore {
 
     int requiredValueCount =
         requiredValueCountMap
-            .computeIfAbsent(column, key -> setting.getRequiredValueCount(key))
+            .computeIfAbsent(column, key -> config.getRequiredValueCount(key))
             .intValue();
 
     int originRowNum = (rowNum - 1) / requiredValueCount + 1;
