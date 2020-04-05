@@ -2,6 +2,7 @@ package io.sitoolkit.rdg.core;
 
 import io.sitoolkit.rdg.core.application.DataGenerator;
 import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
+import io.sitoolkit.rdg.core.infrastructure.ResourceUtils;
 import io.sitoolkit.rdg.core.infrastructure.RuntimeOptions;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,8 +24,8 @@ public class Main {
 
   static Option inputOpt =
       Option.builder("i")
-          .argName("Input directory path")
-          .desc("default is input")
+          .argName("InputDirectory")
+          .desc("Path of input directory (default ./input)")
           .longOpt("input")
           .required(false)
           .hasArg()
@@ -32,8 +33,8 @@ public class Main {
 
   static Option outputOpt =
       Option.builder("o")
-          .argName("Output directroy path")
-          .desc("default is output")
+          .argName("OutputDirectory")
+          .desc("Path of Output directroy (default ./output)")
           .longOpt("output")
           .required(false)
           .hasArg()
@@ -41,18 +42,18 @@ public class Main {
 
   static Option bufferSizeOpt =
       Option.builder("b")
-          .argName("Buffre size of csv row count")
-          .desc("default is 1000")
-          .longOpt("bufferSize")
+          .argName("BuffreSize")
+          .desc("Buffre size of csv row count (default 1000)")
+          .longOpt("buffer-size")
           .required(false)
           .hasArg()
           .build();
 
   static Option flushWaitAlertSecOpt =
-      Option.builder("fwa")
-          .argName("Threshold to alert of wait span for csv writing")
-          .desc("default is 10 (sec)")
-          .longOpt("flushWaitAlertSec")
+      Option.builder("fat")
+          .argName("FlushAlertTheshold")
+          .desc("Threshold to alert of wait span for csv writing (default 10 (sec))")
+          .longOpt("flush-alert-threahold")
           .required(false)
           .hasArg()
           .build();
@@ -75,7 +76,10 @@ public class Main {
   public int execute(String[] args) {
 
     CommandLineParser parser = new DefaultParser();
-    HelpFormatter formatter = new HelpFormatter();
+
+    if (args.length == 0) {
+      printHelp();
+    }
 
     CommandLine cmd;
     try {
@@ -83,7 +87,8 @@ public class Main {
 
       return execute(cmd);
     } catch (ParseException e) {
-      formatter.printHelp("options", options);
+      log.error("Error:", e);
+      printHelp();
       return 1;
     }
   }
@@ -127,5 +132,18 @@ public class Main {
       log.error("Error: ", e);
       return 1;
     }
+  }
+
+  void printHelp() {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.setWidth(-1);
+
+    String jarFileName =
+        Path.of(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+            .getFileName()
+            .toString();
+
+    String header = ResourceUtils.res2str("help.txt");
+    formatter.printHelp("java -jar " + jarFileName + " [COMMAND...]", header, options, "", true);
   }
 }
