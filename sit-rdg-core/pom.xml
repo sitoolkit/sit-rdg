@@ -38,19 +38,19 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.10.1</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.10.1</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.10.1</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
@@ -64,14 +64,6 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.9</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.10</version>
-      <scope>provided</scope>
-    </dependency>
-
 
     <dependency>
       <groupId>com.google.truth</groupId>
@@ -95,4 +87,35 @@
     <version>1.0.0-beta.1-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <jackson.version>2.10.1</jackson.version>
+  </properties>
+
+  <build>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>io.sitoolkit.rdg.core.Main</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+  </build>
 </project>
