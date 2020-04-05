@@ -100,7 +100,7 @@ mvn sit-rdg:run
 ## generator-config.json
 
 
-```json
+```js
 {
   "scale": "1/10",
   "defaultRowCount": 100,
@@ -140,7 +140,7 @@ mvn sit-rdg:run
 
 Spec: sequence is to generate sequencial value per generation.
 
-```json
+```js
 {
   "type": "sequence",
   "start": 0,  // start value of sequence (default 0)
@@ -154,7 +154,7 @@ Spec: sequence is to generate sequencial value per generation.
 
 Spec: range is to generate values between specified range.
 
-```json
+```js
 {
   "type": "range",
   "ranges": [
