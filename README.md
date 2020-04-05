@@ -76,7 +76,7 @@ Put pom.xml in your workspace and execute mvn command.
 
   <groupId>your-group-id</groupId>
   <artifactId>your-artifact-id</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0-beta.1-SNAPSHOT</version>
 
   <build>
 

@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:if="ant:if" xmlns:unless="ant:unless" name="sit-cv" basedir="."
-  default="deploy">
+<project xmlns:if="ant:if" 
+  xmlns:unless="ant:unless" name="sit-cv" basedir="." default="deploy">
 
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${maven.plugin.classpath}"/>
 
   <condition property="os.windows" value="true" else="false">
     <os family="windows" />
   </condition>
-  
+
   <condition property="mvn.cmd" value="${basedir}\mvnw.cmd" else="${basedir}\mvnw">
     <os family="windows" />
   </condition>
-
-  <property name="version" value="1.0.0-beta.1-SNAPSHOT" />
 
 
   <target name="deploy">
@@ -29,14 +28,39 @@
 
   <target name="set-version">
 
-    <exec executable="${mvn.cmd}" dir="${basedir}">
+    <property name="version" value="1.0.0-beta.1-SNAPSHOT" />
+
+    <!-- <exec executable="${mvn.cmd}" dir="${basedir}">
       <arg line="versions:set -DnewVersion=${version} -DgenerateBackupPoms=false" />
     </exec>
 
-    <exec executable="${mvn.cmd}"
-      dir="${basedir}/sit-rdg-maven-plugin/src/test/projects/test-project-1">
-        <arg line="versions:set -DnewVersion=${version} -DgenerateBackupPoms=false" />
-    </exec>
+    <exec executable="${mvn.cmd}" dir="${basedir}/sit-rdg-maven-plugin/src/test/projects/test-project-1">
+      <arg line="versions:set -DnewVersion=${version} -DgenerateBackupPoms=false" />
+    </exec> -->
+
+    <if>
+      <not>
+        <matches string="${version}" pattern="^.*-SNAPSHOT$" />
+      </not>
+      <then>
+
+        <replaceregexp file="${basedir}/README.md" flags="g">
+          <regexp pattern="sit-rdg-core-[^j]*jar"/>
+          <substitution expression="sit-rdg-core-${version}.jar"/>
+        </replaceregexp>
+
+        <replaceregexp file="${basedir}/README.md" flags="g">
+          <regexp pattern="sit-rdg-core/[^\/]*\/"/>
+          <substitution expression="sit-rdg-core/${version}/"/>
+        </replaceregexp>
+
+        <replaceregexp file="${basedir}/README.md" flags="g">
+          <regexp pattern="&lt;version&gt;.*&lt;\/version&gt;"/>
+          <substitution expression="&lt;version&gt;${version}&lt;\/version&gt;"/>
+        </replaceregexp>
+
+      </then>
+    </if>
 
   </target>
 
