@@ -8,10 +8,10 @@ public class RelationDefTest {
 
   @Test
   public void testHashCode() {
-    ColumnDef one = new ColumnDef(null, "COLUMN_1", null, null, null, null, null);
-    ColumnDef two = new ColumnDef(null, "COLUMN_2", null, null, null, null, null);
-    ColumnDef three = new ColumnDef(null, "COLUMN_3", null, null, null, null, null);
-    ColumnDef four = new ColumnDef(null, "COLUMN_4", null, null, null, null, null);
+    ColumnDef one = ColumnDef.builder().name("COLUMN_1").build();
+    ColumnDef two = ColumnDef.builder().name("COLUMN_2").build();
+    ColumnDef three = ColumnDef.builder().name("COLUMN_3").build();
+    ColumnDef four = ColumnDef.builder().name("COLUMN_4").build();
     RelationDef nodataRelation1 = new RelationDef();
     RelationDef nodataRelation2 = new RelationDef();
     RelationDef onePairRelation1 = new RelationDef();

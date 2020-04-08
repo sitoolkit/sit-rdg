@@ -8,6 +8,7 @@ import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfigReader;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.DataType;
+import io.sitoolkit.rdg.core.domain.schema.DataTypeName;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.TestResourceUtils;
 import java.io.IOException;
@@ -31,8 +32,7 @@ public class DataGeneratorTest {
         List.of(
             ColumnDef.builder()
                 .name("col_default")
-                .dataType(DataType.CHAR)
-                .args(List.of("3"))
+                .dataType(DataType.builder().name(DataTypeName.CHAR).size(3).build())
                 .build(),
             ColumnDef.builder().name("col_seq").build(),
             ColumnDef.builder().name("col_choice").build(),

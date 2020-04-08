@@ -7,12 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,14 +31,14 @@ public class ColumnDef implements Comparable<ColumnDef> {
   @JsonProperty("fullyQualifiedName")
   private String fullyQualifiedName;
 
-  @JsonProperty("dataType")
   private DataType dataType;
 
-  @JsonProperty("argumentsStringList")
-  private List<String> args;
+  // @JsonProperty("argumentsStringList")
+  // private List<String> args;
 
   @JsonProperty("constraints")
-  private List<ConstraintAttribute> constraints;
+  @Builder.Default
+  private List<ConstraintAttribute> constraints = new ArrayList<>();
 
   @Builder.Default @JsonIgnore private List<RelationDef> relations = new ArrayList<>();
 
@@ -50,12 +47,13 @@ public class ColumnDef implements Comparable<ColumnDef> {
     newColumn.setTable(columnDef.getTable());
     newColumn.setFullyQualifiedName(columnDef.getFullyQualifiedName());
     newColumn.setName(columnDef.getName());
-    newColumn.setArgs(columnDef.getArgs());
+    // newColumn.setArgs(columnDef.getArgs());
     newColumn.setDataType(columnDef.getDataType());
     newColumn.setConstraints(columnDef.getConstraints());
     return newColumn;
   }
 
+  @JsonIgnore
   public String getFullyQualifiedName() {
     if (Objects.isNull(fullyQualifiedName) || Objects.nonNull(table)) {
       StringJoiner joiner = new StringJoiner(".");
@@ -72,54 +70,57 @@ public class ColumnDef implements Comparable<ColumnDef> {
     return fullyQualifiedName;
   }
 
-  @JsonIgnore
-  @Getter(lazy = true)
-  private final Integer integerDigit = calcIntegerDigit();
+  // @JsonIgnore
+  // @Getter(lazy = true)
+  // private final Integer integerDigit = calcIntegerDigit();
 
-  private int calcIntegerDigit() {
-    if (Objects.nonNull(args) && args.size() > 0) {
-      Integer integerDigit = Integer.parseInt(args.get(0));
-      Integer decimalDigit = getDecimalDigit();
-      if (decimalDigit == 0) {
-        return integerDigit;
-      }
-      return integerDigit - decimalDigit;
-    }
-    return 0;
-  }
+  // private int calcIntegerDigit() {
+  //   if (Objects.nonNull(args) && args.size() > 0) {
+  //     Integer integerDigit = Integer.parseInt(args.get(0));
+  //     Integer decimalDigit = getDecimalDigit();
+  //     if (decimalDigit == 0) {
+  //       return integerDigit;
+  //     }
+  //     return integerDigit - decimalDigit;
+  //   }
+  //   return 0;
+  // }
 
-  @JsonIgnore
-  @Getter(lazy = true)
-  private final Integer decimalDigit = calcDecimalDigit();
+  // @JsonIgnore
+  // @Getter(lazy = true)
+  // private final Integer decimalDigit = calcDecimalDigit();
 
-  private int calcDecimalDigit() {
-    if (Objects.nonNull(args) && args.size() > 1) {
-      return Integer.parseInt(args.get(1));
-    }
-    return 0;
-  }
+  // private int calcDecimalDigit() {
+  //   if (Objects.nonNull(args) && args.size() > 1) {
+  //     return Integer.parseInt(args.get(1));
+  //   }
+  //   return 0;
+  // }
 
-  @JsonIgnore
-  public DataType meansDataType() {
-    if (Stream.of(DataType.CHAR, DataType.VARCHAR, DataType.VARCHAR2)
-            .anyMatch(Predicate.isEqual(getDataType()))
-        && StringUtils.endsWithAny(getName().toUpperCase(), "DATE", "YM")) {
-      return DataType.MEANS_DATE;
-    }
-    if (Stream.of(DataType.VARCHAR, DataType.VARCHAR2).anyMatch(Predicate.isEqual(getDataType()))
-        && StringUtils.endsWithAny(getName().toUpperCase(), "ID")) {
-      return DataType.MEANS_ID;
-    }
-    if (Stream.of(DataType.VARCHAR, DataType.VARCHAR2).anyMatch(Predicate.isEqual(getDataType()))
-        && StringUtils.endsWithAny(getName().toUpperCase(), "AMT", "INCOME")) {
-      return DataType.MEANS_DECIMAL;
-    }
-    if (Stream.of(DataType.VARCHAR, DataType.VARCHAR2).anyMatch(Predicate.isEqual(getDataType()))
-        && StringUtils.endsWithAny(getName().toUpperCase(), "CODE")) {
-      return DataType.NUMBER;
-    }
-    return getDataType();
-  }
+  // @JsonIgnore
+  // public DataTypeName meansDataType() {
+  //   if (Stream.of(DataTypeName.CHAR, DataTypeName.VARCHAR, DataTypeName.VARCHAR2)
+  //           .anyMatch(Predicate.isEqual(getDataType()))
+  //       && StringUtils.endsWithAny(getName().toUpperCase(), "DATE", "YM")) {
+  //     return DataTypeName.MEANS_DATE;
+  //   }
+  //   if (Stream.of(DataTypeName.VARCHAR,
+  // DataTypeName.VARCHAR2).anyMatch(Predicate.isEqual(getDataType()))
+  //       && StringUtils.endsWithAny(getName().toUpperCase(), "ID")) {
+  //     return DataTypeName.MEANS_ID;
+  //   }
+  //   if (Stream.of(DataTypeName.VARCHAR,
+  // DataTypeName.VARCHAR2).anyMatch(Predicate.isEqual(getDataType()))
+  //       && StringUtils.endsWithAny(getName().toUpperCase(), "AMT", "INCOME")) {
+  //     return DataTypeName.MEANS_DECIMAL;
+  //   }
+  //   if (Stream.of(DataTypeName.VARCHAR,
+  // DataTypeName.VARCHAR2).anyMatch(Predicate.isEqual(getDataType()))
+  //       && StringUtils.endsWithAny(getName().toUpperCase(), "CODE")) {
+  //     return DataTypeName.NUMBER;
+  //   }
+  //   return getDataType();
+  // }
 
   @JsonIgnore
   public boolean isPrimaryKey() {

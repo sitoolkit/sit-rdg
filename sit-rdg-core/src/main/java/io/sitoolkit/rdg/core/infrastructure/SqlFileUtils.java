@@ -22,7 +22,7 @@ public class SqlFileUtils {
     log.info("Read: {}", path.toAbsolutePath().normalize());
 
     try {
-      return Files.readString(path, StandardCharsets.UTF_8).replace("\"", "").toLowerCase();
+      return Files.readString(path, StandardCharsets.UTF_8).replace("\"", "");
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

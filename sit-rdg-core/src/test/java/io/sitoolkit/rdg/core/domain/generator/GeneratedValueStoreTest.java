@@ -2,19 +2,17 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import static com.google.common.truth.Truth.*;
 
-import java.util.List;
-import java.util.function.Function;
-
-import org.junit.Test;
-
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.sequence.MultipleSequentialValue;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
-import io.sitoolkit.rdg.core.domain.schema.ConstraintAttribute;
 import io.sitoolkit.rdg.core.domain.schema.DataType;
+import io.sitoolkit.rdg.core.domain.schema.DataTypeName;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
+import java.util.List;
+import java.util.function.Function;
+import org.junit.Test;
 
 public class GeneratedValueStoreTest {
 
@@ -82,14 +80,11 @@ public class GeneratedValueStoreTest {
 
   private Function<String, ColumnDef> createColumnAbout(TableDef table) {
     return columnName -> {
-      return new ColumnDef(
-          table,
-          columnName,
-          null,
-          DataType.NUMBER,
-          List.of("2"),
-          List.of(ConstraintAttribute.PRIMARY_KEY),
-          null);
+      return ColumnDef.builder()
+          .table(table)
+          .name(columnName)
+          .dataType(DataType.builder().name(DataTypeName.DECIMAL).size(2).build())
+          .build();
     };
   }
 }

@@ -28,7 +28,7 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
   @Override
   public void visit(CreateTable createTable) {
     log.debug("Visit: {}", createTable);
-    store.addTable(Converter.createTable2tableDef(createTable));
+    store.addTable(JsqlParserConverter.convert(createTable));
 
     if (createTable.getIndexes() == null) {
       return;

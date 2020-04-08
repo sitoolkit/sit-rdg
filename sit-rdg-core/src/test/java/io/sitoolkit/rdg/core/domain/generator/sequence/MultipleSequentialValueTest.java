@@ -3,6 +3,9 @@ package io.sitoolkit.rdg.core.domain.generator.sequence;
 import static com.google.common.truth.Truth.*;
 import static io.sitoolkit.rdg.core.domain.schema.ConstraintAttribute.*;
 
+import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.schema.DataType;
+import io.sitoolkit.rdg.core.domain.schema.DataTypeName;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -10,11 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-
 import org.junit.Test;
-
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
-import io.sitoolkit.rdg.core.domain.schema.DataType;
 
 public class MultipleSequentialValueTest {
 
@@ -26,16 +25,14 @@ public class MultipleSequentialValueTest {
             .name("PK1")
             .fullyQualifiedName("SC.TABLE.PK1")
             .constraints(List.of(PRIMARY_KEY))
-            .dataType(DataType.VARCHAR2)
-            .args(List.of("1"))
+            .dataType(DataType.builder().name(DataTypeName.VARCHAR).size(1).build())
             .build();
     ColumnDef numberColumn =
         ColumnDef.builder()
             .name("PK2")
             .fullyQualifiedName("SC.TABLE.PK2")
             .constraints(List.of(PRIMARY_KEY))
-            .dataType(DataType.NUMBER)
-            .args(List.of("1"))
+            .dataType(DataType.builder().name(DataTypeName.DECIMAL).size(1).build())
             .build();
 
     MultipleSequentialValue multipleSeq =
@@ -68,15 +65,13 @@ public class MultipleSequentialValueTest {
         ColumnDef.builder()
             .fullyQualifiedName("SC.TABLE.PK1")
             .constraints(List.of(PRIMARY_KEY))
-            .dataType(DataType.DATE)
-            .args(List.of("1"))
+            .dataType(DataType.builder().name(DataTypeName.DATE).size(1).build())
             .build();
     ColumnDef dateTimeColumn =
         ColumnDef.builder()
             .fullyQualifiedName("SC.TABLE.PK2")
             .constraints(List.of(PRIMARY_KEY))
-            .dataType(DataType.TIMESTAMP)
-            .args(List.of("1"))
+            .dataType(DataType.builder().name(DataTypeName.TIMESTAMP).size(1).build())
             .build();
 
     MultipleSequentialValue multipleSeq =
@@ -127,16 +122,14 @@ public class MultipleSequentialValueTest {
             .name("PK1")
             .fullyQualifiedName("SC.TABLE.PK1")
             .constraints(List.of(PRIMARY_KEY))
-            .dataType(DataType.VARCHAR2)
-            .args(List.of("1"))
+            .dataType(DataType.builder().name(DataTypeName.VARCHAR).size(1).build())
             .build();
     ColumnDef numberColumn =
         ColumnDef.builder()
             .name("PK2")
             .fullyQualifiedName("SC.TABLE.PK2")
             .constraints(List.of(PRIMARY_KEY))
-            .dataType(DataType.NUMBER)
-            .args(List.of("1"))
+            .dataType(DataType.builder().name(DataTypeName.DECIMAL).size(1).build())
             .build();
 
     MultipleSequentialValue multipleSeq =

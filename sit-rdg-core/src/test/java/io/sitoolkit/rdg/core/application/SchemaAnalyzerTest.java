@@ -87,20 +87,20 @@ public class SchemaAnalyzerTest {
 
     ColumnPair pair_1_2 = relations.get(0).getColumnPairs().iterator().next();
 
-    assertThat(pair_1_2.getLeft().getName(), is("COL_1_1"));
-    assertThat(pair_1_2.getRight().getName(), is("COL_2_1"));
+    assertThat(pair_1_2.getLeft().getName(), is("col_1_1"));
+    assertThat(pair_1_2.getRight().getName(), is("col_2_1"));
 
     ColumnPair pair_1_3 = relations.get(1).getColumnPairs().iterator().next();
 
-    assertThat(pair_1_3.getLeft().getName(), is("COL_1_1"));
-    assertThat(pair_1_3.getRight().getName(), is("COL_3_1"));
+    assertThat(pair_1_3.getLeft().getName(), is("col_1_1"));
+    assertThat(pair_1_3.getRight().getName(), is("col_3_1"));
 
-    ColumnDef col_1_1 = schema.findColumnByQualifiedName("TAB_1.COL_1_1").orElseThrow();
+    ColumnDef col_1_1 = schema.findColumnByQualifiedName("tab_1.col_1_1").orElseThrow();
     assertThat(col_1_1.getRelations().get(0), is(relations.get(0)));
-    ColumnDef col_2_1 = schema.findColumnByQualifiedName("TAB_2.COL_2_1").orElseThrow();
+    ColumnDef col_2_1 = schema.findColumnByQualifiedName("tab_2.col_2_1").orElseThrow();
     assertThat(col_2_1.getRelations().get(0), is(relations.get(0)));
 
-    ColumnDef col_3_1 = schema.findColumnByQualifiedName("TAB_3.COL_3_1").orElseThrow();
+    ColumnDef col_3_1 = schema.findColumnByQualifiedName("tab_3.col_3_1").orElseThrow();
     assertThat(col_3_1.getRelations().get(0), is(equalTo(relations.get(1))));
   }
 
@@ -121,12 +121,12 @@ public class SchemaAnalyzerTest {
 
   void assertReadAllSchemas(SchemaInfo schemaInfo) {
     SchemaDef schema1 = schemaInfo.findByName("SCHEMA1").orElseThrow();
-    TableDef table1_1 = schema1.findTable("TABLE1").orElseThrow();
+    TableDef table1_1 = schema1.findTable("tabLE1").orElseThrow();
     assertThat(table1_1.getColumns().get(0).getName(), is("COLUMN1"));
     assertThat(table1_1.getColumns().get(1).getName(), is("COLUMN2"));
 
     SchemaDef schema2 = schemaInfo.findByName("SCHEMA2").orElseThrow();
-    TableDef table1_2 = schema2.findTable("TABLE1").orElseThrow();
+    TableDef table1_2 = schema2.findTable("tabLE1").orElseThrow();
     assertThat(table1_2.getColumns().get(0).getName(), is("COLUMNA"));
     assertThat(table1_2.getColumns().get(1).getName(), is("COLUMNB"));
   }

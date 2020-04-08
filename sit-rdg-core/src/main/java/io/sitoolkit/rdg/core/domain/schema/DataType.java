@@ -1,40 +1,23 @@
 package io.sitoolkit.rdg.core.domain.schema;
 
-import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import org.apache.commons.lang3.StringUtils;
+@AllArgsConstructor
+@Builder
+@NoArgsConstructor
+@Data
+public class DataType {
 
-public enum DataType {
-  CHARACTER,
-  CHAR,
-  CHARACTER_VARYING,
-  TEXT,
-  VARCHAR,
-  VARCHAR2,
-  SMALLINT,
-  TINYINT,
-  INTEGER,
-  MEDIUMINT,
-  BIGINT,
-  FLOAT,
-  DECIMAL,
-  NUMERIC,
-  REAL,
-  DOUBLE_PRECISION,
-  NUMBER,
-  TIME,
-  DATE,
-  TIMESTAMP,
-  MEANS_DATE,
-  MEANS_ID,
-  MEANS_DECIMAL,
-  UNKNOWN;
+  private DataTypeName name;
 
-  public static DataType parse(Object object) {
-    return Stream.of(values())
-        .filter(v -> StringUtils.equals(
-            v.name(), object.toString().toUpperCase().replace(" ", "_")))
-        .findFirst()
-        .orElse(UNKNOWN);
-  }
+  private int size;
+
+  private int integerDigit;
+
+  private int decimalDigit;
+
+  private String unit;
 }

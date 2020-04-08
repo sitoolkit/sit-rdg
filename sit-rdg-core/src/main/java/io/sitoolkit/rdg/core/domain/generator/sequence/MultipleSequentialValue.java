@@ -1,15 +1,13 @@
 package io.sitoolkit.rdg.core.domain.generator.sequence;
 
+import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
-
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 
 public class MultipleSequentialValue extends AbstractSequence {
 
@@ -19,7 +17,7 @@ public class MultipleSequentialValue extends AbstractSequence {
 
   public MultipleSequentialValue(List<ColumnDef> pkColumns) {
 
-    if (0 == pkColumns.size()) {
+    if (pkColumns.isEmpty()) {
       return;
     }
     AbstractSequence parentSeq = null;
@@ -27,28 +25,13 @@ public class MultipleSequentialValue extends AbstractSequence {
     for (ColumnDef key : pkColumns) {
       AbstractSequence currentSeq = null;
 
-      switch (key.meansDataType()) {
-        case MEANS_DATE:
-          LocalDate mtoday = LocalDate.now();
-
-          if (8 == key.getIntegerDigit()) {
-            currentSeq =
-                new SequentialDate(mtoday.minusMonths(7L), mtoday.plusMonths(1L), "yyyyMMdd");
-          }
-          if (6 == key.getIntegerDigit()) {
-            currentSeq =
-                new SequentialMonthDate(mtoday.minusMonths(7L), mtoday.plusMonths(1L), "yyyyMM");
-          }
+      switch (key.getDataType().getName()) {
+        case DECIMAL:
+          currentSeq = new SequentialString(key.getDataType().getIntegerDigit(), '0', '9');
           break;
-        case MEANS_DECIMAL:
-        case NUMBER:
-          currentSeq = new SequentialString(key.getIntegerDigit(), '0', '9');
-          break;
-        case MEANS_ID:
         case CHAR:
         case VARCHAR:
-        case VARCHAR2:
-          currentSeq = new SequentialString(key.getIntegerDigit(), '0', 'z');
+          currentSeq = new SequentialString(key.getDataType().getIntegerDigit(), '0', 'z');
           break;
         case DATE:
           LocalDate today = LocalDate.now();
@@ -102,7 +85,9 @@ public class MultipleSequentialValue extends AbstractSequence {
   }
 
   @Override
-  public void setVal(String value) {}
+  public void setVal(String value) {
+    // NOP
+  }
 
   public boolean containsPkColumn(ColumnDef col) {
     return sequenceByPkColumn.containsKey(col);

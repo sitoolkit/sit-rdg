@@ -1,147 +1,77 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
+import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.schema.DataType;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ThreadLocalRandom;
-
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RandomValueUtils {
 
-  public static String generate(ColumnDef col) {
+  private static final DateTimeFormatter TIME_FORMATTER =
+      DateTimeFormatter.ofPattern("hh:mm:ss.SSS");
 
-    switch (col.meansDataType()) {
-      case CHARACTER:
+  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS");
+
+  public static String generate(ColumnDef col) {
+    return generate(col.getDataType());
+  }
+
+  public static String generate(DataType dataType) {
+
+    switch (dataType.getName()) {
       case CHAR:
-        {
-          return RandomStringUtils.randomAlphabetic(col.getIntegerDigit());
-        }
-      case CHARACTER_VARYING:
-      case TEXT:
-      case VARCHAR:
-      case VARCHAR2:
-        {
-          int min = 1;
-          int max = col.getIntegerDigit();
-          return createRandomAlphabetic(min, max);
-        }
-      case SMALLINT:
-      case TINYINT:
-      case INTEGER:
-      case MEDIUMINT:
-      case BIGINT:
-      {
-        return RandomValueUtils.createRandomNumeric(col.getIntegerDigit(), 0);
-      }
-      case DECIMAL:
-      case NUMERIC:
-      case REAL:
-      case FLOAT:
-      case DOUBLE_PRECISION:
-      case NUMBER:
-        {
-          return createRandomNumeric(col.getIntegerDigit(), col.getDecimalDigit());
-        }
-      case TIME:
-      {
-        return RandomValueUtils.createRandomTime()
-            .format(DateTimeFormatter.ofPattern("hh:mm:ss.SSS"));
-      }
+        return RandomStringUtils.randomAlphabetic(dataType.getSize());
       case DATE:
-        {
-          return createRandomDate()
-              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        }
+        return generateRandomDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+      case DECIMAL:
+        return generateRandomDecimal(dataType.getIntegerDigit(), dataType.getDecimalDigit())
+            .toString();
+      case FLOAT:
+        return Double.toString(ThreadLocalRandom.current().nextDouble(100));
+      case INTEGER:
+        return Integer.toString(ThreadLocalRandom.current().nextInt(100));
+      case TIME:
+        return generateRandomTime().format(TIME_FORMATTER);
       case TIMESTAMP:
-        {
-          return createRandomDateTime()
-              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS"));
-        }
-      case MEANS_DATE:
-        {
-          if (8 == col.getIntegerDigit()) {
-            return createRandomDate()
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-          }
-          if (6 == col.getIntegerDigit()) {
-            return createRandomDate()
-                .format(DateTimeFormatter.ofPattern("yyyyMM"));
-          }
-        }
-      case MEANS_ID:
-        {
-          int max = col.getIntegerDigit();
-          return createRandomAlphabetic(max, max);
-        }
-      case MEANS_DECIMAL:
-        {
-          // TODO: 仮置き
-          return createRandomNumeric(col.getIntegerDigit(), 0);
-        }
-      case UNKNOWN:
-        {
-          log.info("Unknown dataType:{}", col);
-        }
+        return generateRandomDateTime().format(TIMESTAMP_FORMATTER);
+      case VARCHAR:
+        return generateRandomAlphabetic(1, dataType.getSize());
       default:
-        {
-          return "";
-        }
+        return RandomStringUtils.randomAlphabetic(1);
     }
   }
 
-  public static String createRandomAlphabetic(int rangeFrom, int rangeTo) {
+  public static String generateRandomAlphabetic(int rangeFrom, int rangeTo) {
     int range = ThreadLocalRandom.current().nextInt(rangeFrom, rangeTo + 1);
     return RandomStringUtils.randomAlphabetic(range);
   }
 
-  public static String createRandomNumeric(Integer integerDigit, Integer decimalDigit) {
-    String integer = createRandomNumeric(integerDigit, false);
-    String decimal = createRandomNumeric(decimalDigit, true);
-    if (decimal.isEmpty()) {
-      return integer;
-    }
-    return String.format("%s.%s", integer, decimal);
+  public static BigDecimal generateRandomDecimal(int integerDigit, int decimalDigit) {
+    double bound = Math.pow(10, integerDigit);
+    double dval = ThreadLocalRandom.current().nextDouble(bound);
+    BigDecimal value = BigDecimal.valueOf(dval);
+    return value.setScale(decimalDigit, RoundingMode.HALF_DOWN);
   }
 
-  public static String createRandomNumeric(Integer digit, boolean startsWithZero) {
-    if (startsWithZero) {
-      return StringUtils.stripEnd(RandomStringUtils.randomNumeric(digit), "0");
-    } else {
-      int first = ThreadLocalRandom.current().nextInt(8) + 1;
-      String after = RandomStringUtils.randomNumeric(digit - 1);
-      return first + after;
-    }
+  public static LocalDate generateRandomDate() {
+    return LocalDate.now().minusDays(ThreadLocalRandom.current().nextInt(100));
   }
 
-  public static LocalDate createRandomDate() {
-    LocalDate now = LocalDate.now();
-    return createRandomDate(now.minusYears(ThreadLocalRandom.current().nextInt(31)), now);
+  public static LocalTime generateRandomTime() {
+    return LocalTime.now().minusSeconds(ThreadLocalRandom.current().nextInt(100));
   }
 
-  public static LocalDate createRandomDate(LocalDate from, LocalDate to) {
-    long days = from.until(to, ChronoUnit.DAYS);
-    long randomDays = ThreadLocalRandom.current().nextLong(days + 1);
-    return from.plusDays(randomDays);
-  }
-
-  public static LocalTime createRandomTime() {
-    LocalTime max = LocalTime.MAX;
-    int hour = ThreadLocalRandom.current().nextInt(max.getHour() + 1);
-    int minute = ThreadLocalRandom.current().nextInt(max.getMinute() + 1);
-    int second = ThreadLocalRandom.current().nextInt(max.getSecond() + 1);
-    int nanoOfSecond = ThreadLocalRandom.current().nextInt(max.getNano() + 1);
-    return LocalTime.of(hour, minute, second, nanoOfSecond);
-  }
-
-  public static LocalDateTime createRandomDateTime() {
-    return LocalDateTime.of(createRandomDate(), createRandomTime());
+  public static LocalDateTime generateRandomDateTime() {
+    return LocalDateTime.now().minusSeconds(ThreadLocalRandom.current().nextInt(10000));
   }
 }

@@ -19,21 +19,21 @@ sit-rdg analyzes DDL and DML script file and resolve DB schema from them, i.e. t
 
 ```
 - workspace
-    sit-rdg-xxx.jar
-    pom.xml
+    sit-rdg-xxx.jar          |
+    pom.xml                  |-- 1.
 
   - input
-      create-table_1.sql
-      create-table_2.sql
-      select-some.sql
+      create-table_1.sql     |
+      create-table_2.sql     |
+      select-some.sql        |-- 2.
         :
 
       schema.json  
       generator-config.json
 
   - output
-      table_1.csv
-      table_2.csv
+      table_1.csv            |
+      table_2.csv            |-- 4.
         :
 ```
 
@@ -46,7 +46,7 @@ You can specify the behavior of sit-rdg in detail using following 2 files.
   * Specification of data generation
 
 
-You can execute sit-rtg with the followind 2 ways.
+You can execute sit-rtg with the following 2 ways.
 
 * Java Command
 * Maven Plugin
@@ -80,6 +80,8 @@ Put pom.xml in your workspace and execute mvn command.
 
   <build>
 
+    <defaultGoal>sit-rdg:run</defaultGoal>
+
     <plugins>
       <plugin>
         <groupId>io.sitoolkit.rdg</groupId>
@@ -94,10 +96,11 @@ Put pom.xml in your workspace and execute mvn command.
 ```
 
 ```
-mvn sit-rdg:run
+mvn
 ```
 
 ## generator-config.json
+
 
 
 ```js
@@ -114,7 +117,7 @@ mvn sit-rdg:run
           "priorityRank": 1,
           "columnConfigs": [
             {
-              "columnName": "GROUP1_COLUMN",
+              "columnName": "COLUMN_1",
               "requiredValueCount": 1,
 
             　// See -Data Generation Specification-
