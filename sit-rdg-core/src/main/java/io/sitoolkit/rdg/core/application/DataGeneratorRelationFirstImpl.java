@@ -10,6 +10,7 @@ import io.sitoolkit.rdg.core.domain.schema.TableSorter;
 import io.sitoolkit.rdg.core.infrastructure.DataWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,10 @@ public class DataGeneratorRelationFirstImpl implements DataGenerator {
     List<TableDef> sortedDenendentTables = TableSorter.sortByDependency(dependentTables);
 
     outFiles.addAll(generate(sortedDenendentTables, config, outDirs, depGen));
+
+    for (Path outDir : outDirs) {
+      writeOrderFile(outFiles, outDir);
+    }
 
     return outFiles;
   }
@@ -89,5 +94,21 @@ public class DataGeneratorRelationFirstImpl implements DataGenerator {
 
   List<Object> toHeader(TableDef table) {
     return table.getColumns().stream().map(ColumnDef::getName).collect(Collectors.toList());
+  }
+
+  void writeOrderFile(List<Path> outFiles, Path outDir) {
+    String orderString =
+        outFiles.stream()
+            .map(Path::getFileName)
+            .map(Path::toString)
+            .map(fileName -> fileName.replace(".csv", ""))
+            .collect(Collectors.joining(System.lineSeparator()));
+    Path orderFile = outDir.resolve("order.txt");
+    try {
+      Files.writeString(orderFile, orderString);
+      log.info("Write: {}", orderFile);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 }
