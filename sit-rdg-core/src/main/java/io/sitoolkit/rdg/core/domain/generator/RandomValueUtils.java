@@ -60,7 +60,7 @@ public class RandomValueUtils {
     double bound = Math.pow(10, integerDigit);
     double dval = ThreadLocalRandom.current().nextDouble(bound);
     BigDecimal value = BigDecimal.valueOf(dval);
-    return value.setScale(decimalDigit, RoundingMode.HALF_DOWN);
+    return value.setScale(decimalDigit, RoundingMode.DOWN);
   }
 
   public static LocalDate generateRandomDate() {

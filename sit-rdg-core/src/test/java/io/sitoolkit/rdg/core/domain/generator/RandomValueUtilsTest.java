@@ -37,6 +37,7 @@ public class RandomValueUtilsTest {
         new Object[][] {
           {DataTypeName.CHAR, "3", ".{3}"},
           {DataTypeName.DATE, "", DATE_PATTERN},
+          {DataTypeName.DECIMAL, "2,0", "\\d{1,2}"},
           {DataTypeName.DECIMAL, "6,4", "\\d{1,2}\\.?\\d{0,4}"},
           {DataTypeName.FLOAT, "", "\\d*\\.\\d*"},
           {DataTypeName.TIME, "", TIME_PATTERN},
@@ -50,7 +51,7 @@ public class RandomValueUtilsTest {
     DataType dataType = DataType.builder().name(dataTypeName).build();
     dataTypeName.resolve(Arrays.asList(dataTypeArgs.split(",")), dataType);
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
       String actual = RandomValueUtils.generate(dataType);
 
       log.debug("Generate value {} for {}({})", actual, dataTypeName, dataTypeArgs);
