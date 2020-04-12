@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 public enum DataTypeName {
   CHAR(ArgsResolverCharImpl.instance, "CHARACTER", "CHARACTER_VARYING"),
   VARCHAR(ArgsResolverCharImpl.instance, "TEXT", "VARCHAR2"),
-  INTEGER("SMALLINT", "TINYINT", "NEDIUMINT", "BIGINT"),
+  INTEGER("SMALLINT", "TINYINT", "NEDIUMINT", "BIGINT", "INT"),
   FLOAT("REAL", "DOUBLE PRECISION"),
   DECIMAL(ArgsResolverDecimalImpl.instance, "NUMERIC", "NUMBER"),
   TIME,

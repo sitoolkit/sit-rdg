@@ -3,20 +3,44 @@ package io.sitoolkit.rdg.core.application;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
-import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.CsvData;
 import io.sitoolkit.rdg.core.infrastructure.CsvUtils;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DataRelationChecker {
+
+  public CheckResult check(Path inDir, Path outDir) {
+
+    List<Path> dataFiles = new ArrayList<>();
+
+    try (Stream<Path> files = Files.walk(outDir, FileVisitOption.FOLLOW_LINKS)) {
+      files
+          .filter(CsvUtils::isCsvFile)
+          .map(Path::toFile)
+          .sorted(Comparator.comparing(File::lastModified))
+          .map(File::toPath)
+          .forEach(dataFiles::add);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    return check(inDir, dataFiles);
+  }
 
   public CheckResult check(Path inDir, List<Path> dataFiles) {
 
@@ -49,17 +73,17 @@ public class DataRelationChecker {
   }
 
   boolean check(RelationDef relation, CsvData mainData, CsvData subData) {
-    List<String> mainCols = tab2cols(relation.getLeftTable());
-    List<String> subCols = tab2cols(relation.getRightTable());
+    List<String> mainCols = cols2names(relation.getLeftColumns());
+    List<String> subCols = cols2names(relation.getRightColumns());
 
     return mainData.containsAll(mainCols, subData, subCols);
   }
 
-  List<String> tab2cols(TableDef table) {
-    return table.getColumns().stream().map(ColumnDef::getName).collect(Collectors.toList());
+  List<String> cols2names(List<ColumnDef> columns) {
+    return columns.stream().map(ColumnDef::getName).collect(Collectors.toList());
   }
 
-  static class CheckResult {
+  public static class CheckResult {
     @Getter List<String> chekedFileNames = new ArrayList<>();
 
     @Getter List<String> errorList = new ArrayList<>();

@@ -3,8 +3,10 @@ package io.sitoolkit.rdg.core.infrastructure;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVRecord;
 
+@Slf4j
 @AllArgsConstructor
 public class CsvData {
 
@@ -17,9 +19,14 @@ public class CsvData {
   }
 
   public boolean containsAll(List<String> myCols, CsvData another, List<String> anotherCols) {
+
+    log.debug("Comparing {} vs {}", myCols, anotherCols);
+
     List<String> myRecords = CsvUtils.selectCols(records, myCols);
 
     List<String> anotherRecords = CsvUtils.selectCols(another.records, anotherCols);
+
+    log.debug("Comparing {} vs {}", myRecords, anotherRecords);
 
     return myRecords.containsAll(anotherRecords);
   }
