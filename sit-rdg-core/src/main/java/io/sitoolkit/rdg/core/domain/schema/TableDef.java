@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,15 +94,25 @@ public class TableDef implements Comparable<TableDef> {
   @JsonIgnore
   public List<RelationDef> getMainRelations() {
     return getRelations().stream()
-        .filter(relation -> relation.getLeftTable().equals(this))
+        .filter(
+            relation ->
+                !relation.getRightTable().equals(this) && relation.getLeftTable().equals(this))
         .collect(Collectors.toList());
   }
 
   @JsonIgnore
   public List<RelationDef> getSubRelations() {
     return getRelations().stream()
-        .filter(relation -> relation.getRightTable().equals(this))
+        .filter(
+            relation ->
+                relation.getRightTable().equals(this) && !relation.getLeftTable().equals(this))
+        .sorted(Comparator.comparing(RelationDef::getSize).reversed())
         .collect(Collectors.toList());
+  }
+
+  @JsonIgnore
+  public List<RelationDef> getSelfRelations() {
+    return getRelations().stream().filter(RelationDef::isSelfRelation).collect(Collectors.toList());
   }
 
   @JsonIgnore

@@ -54,6 +54,14 @@ public class RowDataGenerator {
     return rowData;
   }
 
+  public static RowData replicateForSub(RowData rowData, RelationDef relation) {
+    RowData replica = new RowData();
+    for (ColumnPair pair : relation.getColumnPairs()) {
+      replica.put(pair.getRight(), rowData.get(pair.getLeft()));
+    }
+    return replica;
+  }
+
   public static RowData filter(RowData rowData, RelationDef relation) {
     RowData filterd = new RowData();
     for (ColumnPair pair : relation.getColumnPairs()) {
@@ -91,5 +99,24 @@ public class RowDataGenerator {
     }
 
     return newRowData;
+  }
+
+  public static RowData generateAndFill(
+      RowData rowData, RelationDef relation, GeneratorConfig config) {
+    RowData appended = new RowData();
+
+    for (ColumnPair pair : relation.getColumnPairs()) {
+      if (rowData.contains(pair.getLeft())) {
+        appended.put(pair.getRight(), rowData.get(pair.getLeft()));
+        continue;
+      }
+
+      ValueGenerator generator = config.findValueGenerator(pair.getLeft());
+      String value = generator.generate(pair.getLeft());
+      rowData.put(pair.getLeft(), value);
+      appended.put(pair.getRight(), value);
+    }
+
+    return appended;
   }
 }

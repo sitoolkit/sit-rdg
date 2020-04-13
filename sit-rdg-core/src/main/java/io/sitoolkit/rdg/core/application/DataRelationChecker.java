@@ -6,6 +6,7 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.CsvData;
 import io.sitoolkit.rdg.core.infrastructure.CsvUtils;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitOption;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +61,9 @@ public class DataRelationChecker {
     Map<String, CsvData> csvDataMap = new HashMap<>();
 
     dataFiles.stream()
+        .map(Path::toFile)
+        .sorted(Comparator.comparing(File::lastModified))
+        .map(File::toPath)
         .peek(checkResult::addFile)
         .map(CsvUtils::read)
         .forEach(csvData -> csvDataMap.put(csvData.getFileName().replace(".csv", ""), csvData));
@@ -120,6 +125,8 @@ public class DataRelationChecker {
       Set<TableDef> okTables = rels2tab(okRelations);
       Set<TableDef> ngTables = rels2tab(ngRelations);
 
+      message.add("");
+
       message.add("OK: " + okTables.size() + " tables, " + okRelations.size());
       message.add("NG: " + ngTables.size() + " tables, " + ngRelations.size());
 
@@ -130,7 +137,7 @@ public class DataRelationChecker {
 
       message.add("");
 
-      message.add("NG Tables: " + tabs2str(okTables));
+      message.add("NG Tables: " + tabs2str(ngTables));
       message.add("NG Relations: " + rels2str(ngRelations));
 
       return message.stream().collect(Collectors.joining(System.lineSeparator()));

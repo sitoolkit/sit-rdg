@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -35,11 +36,11 @@ public class CsvUtils {
     }
   }
 
-  public static List<String> selectCols(List<CSVRecord> records, List<String> cols) {
-    List<String> result = new ArrayList<>();
+  public static List<List<String>> selectCols(List<CSVRecord> records, List<String> cols) {
+    List<List<String>> result = new ArrayList<>();
 
     for (CSVRecord record : records) {
-      cols.stream().map(record::get).forEach(result::add);
+      result.add(cols.stream().map(record::get).collect(Collectors.toList()));
     }
 
     return result;

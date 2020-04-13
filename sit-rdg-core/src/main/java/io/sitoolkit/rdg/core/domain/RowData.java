@@ -6,25 +6,35 @@ import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import lombok.Getter;
 import lombok.ToString;
 
 @ToString
 public class RowData {
 
-  @Getter private Map<String, String> valueMap = new HashMap<>();
+  private Map<String, String> valueMap = new HashMap<>();
 
   public void put(ColumnDef column, String value) {
-    valueMap.put(column.getFullyQualifiedName(), value);
+    put(column.getFullyQualifiedName(), value);
+  }
+
+  private void put(String column, String value) {
+    String replacedValue = valueMap.put(column, value);
+
+    if (replacedValue != null) {
+      throw new IllegalStateException("Value of " + column + " already exists");
+    }
+  }
+
+  public void putAll(RowData rowData) {
+    for (Entry<String, String> entry : rowData.valueMap.entrySet()) {
+      put(entry.getKey(), entry.getValue());
+    }
   }
 
   public boolean contains(ColumnDef column) {
     return valueMap.containsKey(column.getFullyQualifiedName());
-  }
-
-  public void putAll(RowData group) {
-    this.valueMap.putAll(group.getValueMap());
   }
 
   public void putAllMainToSub(RowData rowData, RelationDef relation) {
@@ -47,13 +57,13 @@ public class RowData {
     return order.stream().map(this::get).collect(Collectors.toList());
   }
 
-  public boolean containsSub(RelationDef relation) {
+  public boolean containsAsSub(RelationDef relation) {
     for (ColumnDef column : relation.getRightColumns()) {
-      if (contains(column)) {
-        return true;
+      if (!contains(column)) {
+        return false;
       }
     }
 
-    return false;
+    return true;
   }
 }

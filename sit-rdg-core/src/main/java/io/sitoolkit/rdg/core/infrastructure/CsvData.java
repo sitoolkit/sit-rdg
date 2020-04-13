@@ -22,12 +22,18 @@ public class CsvData {
 
     log.debug("Comparing {} vs {}", myCols, anotherCols);
 
-    List<String> myRecords = CsvUtils.selectCols(records, myCols);
+    List<List<String>> myRecords = CsvUtils.selectCols(records, myCols);
+    List<List<String>> anotherRecords = CsvUtils.selectCols(another.records, anotherCols);
 
-    List<String> anotherRecords = CsvUtils.selectCols(another.records, anotherCols);
+    boolean containsAll = true;
 
-    log.debug("Comparing {} vs {}", myRecords, anotherRecords);
+    for (List<String> anotherRecord : anotherRecords) {
+      if (!myRecords.contains(anotherRecord)) {
+        log.error("No parent data: {} = {}", anotherCols, anotherRecord);
+        containsAll = false;
+      }
+    }
 
-    return myRecords.containsAll(anotherRecords);
+    return containsAll;
   }
 }

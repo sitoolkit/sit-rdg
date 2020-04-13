@@ -85,6 +85,16 @@ public class RelationDef {
     return columnPairs.iterator().next().getRight().getTable();
   }
 
+  @JsonIgnore
+  public int getSize() {
+    return getLeftColumns().size();
+  }
+
+  @JsonIgnore
+  public boolean isSelfRelation() {
+    return getRightTable().equals(getLeftTable());
+  }
+
   // TOTO lazy getter
   @JsonIgnore
   public Optional<RelationDef> getParent() {
