@@ -30,7 +30,7 @@ public class ComplexRelationTest {
 
     assertThat("exit code is 0", exitCode, is(0));
 
-    CheckResult result = checker.check(inDir, outDir);
+    CheckResult result = checker.checkDir(inDir, outDir);
 
     assertThat(
         "genereated files and order",

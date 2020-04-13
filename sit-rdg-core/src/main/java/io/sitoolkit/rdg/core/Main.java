@@ -2,6 +2,8 @@ package io.sitoolkit.rdg.core;
 
 import io.sitoolkit.rdg.core.application.DataGenerator;
 import io.sitoolkit.rdg.core.application.DataGeneratorRelationFirstImpl;
+import io.sitoolkit.rdg.core.application.DataRelationChecker;
+import io.sitoolkit.rdg.core.application.DataRelationChecker.CheckResult;
 import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
 import io.sitoolkit.rdg.core.infrastructure.ResourceUtils;
 import io.sitoolkit.rdg.core.infrastructure.RuntimeOptions;
@@ -70,6 +72,8 @@ public class Main {
 
   DataGenerator dataGenerator = new DataGeneratorRelationFirstImpl();
 
+  DataRelationChecker dataRelationChecker = new DataRelationChecker();
+
   public static void main(String[] args) {
     System.exit(new Main().execute(args));
   }
@@ -125,6 +129,14 @@ public class Main {
       if (cmd.getArgList().contains("gen-data")) {
         List<Path> outputs = dataGenerator.generate(input, outDirs);
         outputs.forEach(out -> log.info("csv: {}", out));
+      }
+
+      if (cmd.getArgList().contains("check")) {
+        CheckResult result = dataRelationChecker.checkDirs(input, outDirs);
+        if (result.hasError()) {
+          log.error(result.getErrorMessage());
+          return 1;
+        }
       }
 
       return 0;

@@ -48,7 +48,7 @@ public class DataGeneratorRelationFirstImplTest {
     //         List.of("col_2_1", "col_2_2"), tab_3_data, List.of("col_3_1", "col_3_2")),
     //     is(true));
 
-    CheckResult result = checker.check(inDir, outFiles);
+    CheckResult result = checker.checkFiles(inDir, outFiles);
 
     assertThat(
         "genereated files and order",
