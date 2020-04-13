@@ -19,7 +19,7 @@ class IndependentRowDataGenFunc implements Function<TableDef, RowData> {
     RowData rowData = RowDataGenerator.generate(table, config);
 
     for (RelationDef relation : table.getRelations()) {
-      // RowData relatedRowData = RowDataGenerator.filter(rowData, relation);
+
       RowData relatedRowData = RowDataGenerator.replicateForSub(rowData, relation);
       dataStore.put(relation, relatedRowData);
     }

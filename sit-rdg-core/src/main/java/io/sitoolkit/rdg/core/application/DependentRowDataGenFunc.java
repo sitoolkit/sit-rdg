@@ -31,10 +31,8 @@ class DependentRowDataGenFunc implements Function<TableDef, RowData> {
       }
 
       RowData storedData = dataStore.get(relation);
-      // rowData.putAllMainToSub(storedData, relation);
       rowData.putAll(storedData);
-
-      log.trace("Get data from stored: {}", storedData);
+      log.trace("Get and add data from store: {}", storedData);
     }
 
     for (RelationDef relation : table.getSelfRelations()) {
@@ -45,8 +43,9 @@ class DependentRowDataGenFunc implements Function<TableDef, RowData> {
         continue;
       }
 
-      rowData.putAll(RowDataGenerator.generate(relation, config));
-      log.trace("Generationg data: {}", rowData);
+      RowData generatedData = RowDataGenerator.generateForSelfRelation(rowData, relation, config);
+      log.trace("Generate self relation data: {}", generatedData);
+      rowData.putAll(generatedData);
     }
 
     for (RelationDef relation : table.getMainRelations()) {
@@ -54,37 +53,8 @@ class DependentRowDataGenFunc implements Function<TableDef, RowData> {
       log.trace("Generating main relational data for {}", relation);
 
       RowData relatedData = RowDataGenerator.generateAndFill(rowData, relation, config);
+      log.trace("Generating main relational data: {}", relatedData);
       dataStore.put(relation, relatedData);
-      // rowData.putAll(relatedData);
-
-      // if (table.equals(relation.getLeftTable())) {
-
-      // Optional<RelationDef> parentOpt = relation.getParent();
-
-      // if (parentOpt.isPresent()) {
-      //   RowData storedData = dataStore.get(parentOpt.get());
-      //   RowData newRelatedData =
-      //       RowDataGenerator.takeOverGenerate(storedData, parentOpt.get(), relation, config);
-      //   dataStore.put(relation, newRelatedData);
-      //   rowData.putAll(newRelatedData);
-
-      //   log.trace("Get data from store: {}, append data: {}", storedData, newRelatedData);
-
-      // } else {
-
-      //   RowData relatedData = RowDataGenerator.generate(relation, config);
-      //   dataStore.put(relation, relatedData);
-      //   rowData.putAll(relatedData);
-
-      //   log.trace("Generate data: {}", relatedData);
-      // }
-
-      // } else {
-      //   RowData storedData = dataStore.get(relation);
-      //   rowData.putAllMainToSub(storedData, relation);
-
-      //   log.trace("Get data from stored: {}", storedData);
-      // }
     }
 
     RowDataGenerator.fill(rowData, table, config);

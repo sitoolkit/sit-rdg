@@ -41,12 +41,48 @@ public class RowDataGenerator {
     return rowData;
   }
 
-  public static RowData generate(RelationDef relation, GeneratorConfig config) {
+  public static RowData generateForSelfRelation(
+      RowData rowData, RelationDef relation, GeneratorConfig config) {
+    RowData newData = new RowData();
+
+    for (ColumnPair pair : relation.getColumnPairs()) {
+      ColumnDef left = pair.getLeft();
+      ColumnDef right = pair.getRight();
+      String leftValue = rowData.get(left);
+      String rightValue = rowData.get(right);
+
+      if (leftValue == null) {
+
+        if (rightValue == null) {
+          ValueGenerator generator = config.findValueGenerator(left);
+          leftValue = generator.generate(left);
+          newData.put(left, leftValue);
+          newData.put(right, leftValue);
+        } else {
+          newData.put(left, rightValue);
+        }
+
+      } else {
+
+        if (rightValue == null) {
+          newData.put(right, leftValue);
+        }
+      }
+    }
+
+    return newData;
+  }
+
+  // void hoge(RowData rowData, ColumnDef column, GeneratorConfig config) {
+
+  // }
+
+  public static RowData generateForSub(RelationDef relation, GeneratorConfig config) {
     RowData rowData = new RowData();
 
     for (ColumnPair pair : relation.getColumnPairs()) {
       // TODO for primary key column
-      ColumnDef column = pair.getLeft();
+      ColumnDef column = pair.getRight();
       ValueGenerator generator = config.findValueGenerator(column);
       rowData.put(column, generator.generate(column));
     }

@@ -44,14 +44,41 @@ public class ComplexRelationTest {
 
   @Test
   public void testSelfJoinWithParent() throws IOException {
-    Path rootDir = Path.of("target/selfjoin");
+    Path rootDir = Path.of("target/self-join-parent");
 
     FileUtils.deleteDirectory(rootDir.toFile());
 
-    Path inDir = rootDir.resolve("target/main/in");
-    Path outDir = rootDir.resolve("target/main/out");
+    Path inDir = rootDir.resolve("in");
+    Path outDir = rootDir.resolve("out");
 
     TestResourceUtils.copy(this, "self-join-with-parent.sql", inDir);
+
+    int exitCode =
+        main.execute(
+            new String[] {"read-sql", "gen-data", "-i", inDir.toString(), "-o", outDir.toString()});
+
+    assertThat("exit code is 0", exitCode, is(0));
+
+    CheckResult result = checker.checkDir(inDir, outDir);
+
+    assertThat(
+        "genereated files and order",
+        result.getChekedFileNames(),
+        is(List.of("tab_1.csv", "tab_2.csv")));
+
+    assertThat("relation check error", result.getErrorList(), is(Collections.emptyList()));
+  }
+
+  @Test
+  public void testSelfJoinWithChild() throws IOException {
+    Path rootDir = Path.of("target/self-join-child");
+
+    FileUtils.deleteDirectory(rootDir.toFile());
+
+    Path inDir = rootDir.resolve("in");
+    Path outDir = rootDir.resolve("out");
+
+    TestResourceUtils.copy(this, "self-join-with-child.sql", inDir);
 
     int exitCode =
         main.execute(
