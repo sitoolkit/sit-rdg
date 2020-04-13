@@ -91,18 +91,17 @@ public class TableDef implements Comparable<TableDef> {
   }
 
   @JsonIgnore
-  public List<RelationDef> getSortedRelations() {
-    List<RelationDef> result = new ArrayList<>();
+  public List<RelationDef> getMainRelations() {
+    return getRelations().stream()
+        .filter(relation -> relation.getLeftTable().equals(this))
+        .collect(Collectors.toList());
+  }
 
-    for (RelationDef rel : getRelations()) {
-      if (rel.getLeftTable().equals(this)) {
-        result.add(rel);
-      } else {
-        result.add(0, rel);
-      }
-    }
-
-    return result;
+  @JsonIgnore
+  public List<RelationDef> getSubRelations() {
+    return getRelations().stream()
+        .filter(relation -> relation.getRightTable().equals(this))
+        .collect(Collectors.toList());
   }
 
   @JsonIgnore

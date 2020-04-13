@@ -27,7 +27,7 @@ public class RowData {
     this.valueMap.putAll(group.getValueMap());
   }
 
-  public void putAllWithMainToSub(RowData rowData, RelationDef relation) {
+  public void putAllMainToSub(RowData rowData, RelationDef relation) {
     for (ColumnPair pair : relation.getColumnPairs()) {
       put(pair.getRight(), rowData.get(pair.getLeft()));
     }
@@ -45,5 +45,15 @@ public class RowData {
 
   public List<Object> toList(List<ColumnDef> order) {
     return order.stream().map(this::get).collect(Collectors.toList());
+  }
+
+  public boolean containsSub(RelationDef relation) {
+    for (ColumnDef column : relation.getRightColumns()) {
+      if (contains(column)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
