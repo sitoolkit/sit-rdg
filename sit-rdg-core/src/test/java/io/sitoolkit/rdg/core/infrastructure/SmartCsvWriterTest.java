@@ -8,9 +8,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
-
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 public class SmartCsvWriterTest {
@@ -19,14 +18,11 @@ public class SmartCsvWriterTest {
   public void test() throws IOException {
     Path rootOutDir = Path.of("target/scwout");
 
-    if (rootOutDir.toFile().exists()) {
-      Files.walk(rootOutDir)
-          .sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .forEach(File::delete);
-    }
+    FileUtils.deleteDirectory(rootOutDir.toFile());
 
     List<Path> outDirPaths = List.of(rootOutDir.resolve("out1"), rootOutDir.resolve("out2"));
+
+    outDirPaths.stream().map(Path::toFile).forEach(File::mkdirs);
 
     String outFileName = "scwOut.csv";
     int totalRows = 10000;
@@ -42,8 +38,7 @@ public class SmartCsvWriterTest {
     }
 
     int actualTotalRows =
-        outDirPaths
-            .stream()
+        outDirPaths.stream()
             .mapToInt(
                 outDirPath -> {
                   try {

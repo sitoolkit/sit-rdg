@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j
 public class DataGeneratorTablePriorityImpl implements DataGenerator {
 

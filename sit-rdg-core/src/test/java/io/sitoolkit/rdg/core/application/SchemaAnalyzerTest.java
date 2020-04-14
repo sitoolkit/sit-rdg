@@ -11,24 +11,28 @@ import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.infrastructure.TestResourceUtils;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 @Slf4j
 public class SchemaAnalyzerTest {
 
   SchemaAnalyzer analyzer = new SchemaAnalyzer();
-  Path workingDir;
+  Path workDir;
+
+  @Rule public TestName testName = new TestName();
 
   @Before
-  public void setup() throws URISyntaxException {
-    workingDir = Paths.get(SchemaAnalyzer.class.getClassLoader().getResource(".").toURI());
+  public void setup() throws IOException {
+    workDir = Path.of("target", testName.getMethodName());
+    FileUtils.deleteDirectory(workDir.toFile());
   }
 
   // @Test
@@ -65,14 +69,14 @@ public class SchemaAnalyzerTest {
 
   @Test
   public void testReadStaticRelations() throws Exception {
-    Path input = TestResourceUtils.res2path(this, "create-table-with-foreign-key.sql");
+    Path input = TestResourceUtils.copy(this, "create-table-with-foreign-key.sql", workDir);
     SchemaInfo schemaInfo = analyzer.read(input);
     assertReadStaticRelations(schemaInfo);
   }
 
   @Test
   public void testAnalyzeStaticRelations() {
-    Path input = TestResourceUtils.res2path(this, "create-table-with-foreign-key.sql");
+    Path input = TestResourceUtils.copy(this, "create-table-with-foreign-key.sql", workDir);
     Path output = analyzer.analyze(input);
     SchemaInfo schemaInfo = SchemaInfo.read(output.getParent());
     assertReadStaticRelations(schemaInfo);
@@ -124,14 +128,14 @@ public class SchemaAnalyzerTest {
 
   @Test
   public void testReadAllSchemas() throws IOException {
-    Path input = workingDir.resolve("multiple-schemas-create.sql");
+    Path input = TestResourceUtils.copy(this, "multiple-schemas-create.sql", workDir);
     SchemaInfo schemaInfo = analyzer.read(input);
     assertReadAllSchemas(schemaInfo);
   }
 
   @Test
   public void testAnalyzeAllSchemas() {
-    Path input = workingDir.resolve("multiple-schemas-create.sql");
+    Path input = TestResourceUtils.copy(this, "multiple-schemas-create.sql", workDir);
     Path output = analyzer.analyze(input);
     SchemaInfo schemaInfo = SchemaInfo.read(output.getParent());
     assertReadAllSchemas(schemaInfo);
