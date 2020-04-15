@@ -110,8 +110,6 @@ public class SchemaAnalyzerTest {
     RelationDef rel_1_2 = relations.get(0);
     RelationDef rel_2_3 = relations.get(1);
 
-    assertThat(rel_2_3.getParent().orElseThrow(), is(rel_1_2));
-
     ColumnPair pair_1_2 = rel_1_2.getColumnPairs().iterator().next();
 
     assertThat(pair_1_2.getLeft().getName(), is("col_1_1"));

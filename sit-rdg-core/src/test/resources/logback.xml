@@ -12,6 +12,8 @@
 
   <logger name="io.sitoolkit.rdg.core.domain.schema.TableSorter" level="TRACE"/>
 
+  <logger name="io.sitoolkit.rdg.core.domain.generator" level="TRACE"/>
+
   <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>

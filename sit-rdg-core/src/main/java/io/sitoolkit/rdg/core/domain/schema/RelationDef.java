@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -50,21 +49,6 @@ public class RelationDef {
     return getDistinctColumns().parallelStream().anyMatch(col -> pair.getColumns().contains(col));
   }
 
-  // public boolean belongsTo(TableDef table) {
-  //   for (ColumnPair pair : getColumnPairs()) {
-  //     TableDef mainTable = pair.getLeft().getTable();
-  //     if (mainTable.equals(table)) {
-  //       return true;
-  //     }
-  //     for (RelationDef relation : mainTable.getRelations()) {
-  //       if (relation.belongsTo(table)) {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
-
   @JsonIgnore
   public List<ColumnDef> getLeftColumns() {
     return columnPairs.stream().map(ColumnPair::getLeft).collect(Collectors.toList());
@@ -93,45 +77,5 @@ public class RelationDef {
   @JsonIgnore
   public boolean isSelfRelation() {
     return getRightTable().equals(getLeftTable());
-  }
-
-  // TOTO lazy getter
-  @JsonIgnore
-  public Optional<RelationDef> getParent() {
-    return getLeftTable().getRelations().stream().filter(this::isChildOf).findFirst();
-  }
-
-  @JsonIgnore
-  public boolean isChildOf(RelationDef parent) {
-    if (parent.columnPairs.size() != columnPairs.size() - 1) {
-      return false;
-    }
-
-    for (ColumnPair parentPair : parent.columnPairs) {
-      for (ColumnPair pair : columnPairs) {
-        if (parentPair.getRight().equals(pair.getLeft())) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  @JsonIgnore
-  public boolean isParentOf(RelationDef child) {
-    if (child.columnPairs.size() != columnPairs.size() + 1) {
-      return false;
-    }
-
-    for (ColumnPair childPair : child.columnPairs) {
-      for (ColumnPair pair : columnPairs) {
-        if (childPair.getLeft().equals(pair.getRight())) {
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 }

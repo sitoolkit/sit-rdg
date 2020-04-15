@@ -1,4 +1,4 @@
-package io.sitoolkit.rdg.core.domain;
+package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
@@ -22,7 +22,7 @@ public class RowData {
   private void put(String column, String value) {
     String replacedValue = valueMap.put(column, value);
 
-    if (replacedValue != null) {
+    if (replacedValue != null && !replacedValue.equals(value)) {
       throw new IllegalStateException("Value of " + column + " already exists");
     }
   }

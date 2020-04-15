@@ -1,6 +1,6 @@
 package io.sitoolkit.rdg.core.application;
 
-import io.sitoolkit.rdg.core.domain.RowData;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
 import io.sitoolkit.rdg.core.domain.generator.RowDataGenerator;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;

@@ -1,6 +1,5 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
-import io.sitoolkit.rdg.core.domain.RowData;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.ValueGenerator;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
@@ -151,6 +150,24 @@ public class RowDataGenerator {
       String value = generator.generate(pair.getLeft());
       rowData.put(pair.getLeft(), value);
       appended.put(pair.getRight(), value);
+    }
+
+    return appended;
+  }
+
+  public static RowData append(RowData rowData, RelationDef relation, GeneratorConfig config) {
+    RowData appended = new RowData();
+
+    for (ColumnPair pair : relation.getColumnPairs()) {
+      ColumnDef main = pair.getLeft();
+      if (rowData.contains(main)) {
+        appended.put(main, rowData.get(main));
+        continue;
+      }
+
+      ValueGenerator generator = config.findValueGenerator(main);
+      String value = generator.generate(main);
+      appended.put(main, value);
     }
 
     return appended;

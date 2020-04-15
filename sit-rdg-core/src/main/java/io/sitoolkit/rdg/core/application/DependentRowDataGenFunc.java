@@ -1,6 +1,6 @@
 package io.sitoolkit.rdg.core.application;
 
-import io.sitoolkit.rdg.core.domain.RowData;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
 import io.sitoolkit.rdg.core.domain.generator.RowDataGenerator;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
@@ -52,9 +52,14 @@ class DependentRowDataGenFunc implements Function<TableDef, RowData> {
 
       log.trace("Generating main relational data for {}", relation);
 
-      RowData relatedData = RowDataGenerator.generateAndFill(rowData, relation, config);
-      log.trace("Generating main relational data: {}", relatedData);
-      dataStore.put(relation, relatedData);
+      RowData mainData = RowDataGenerator.append(rowData, relation, config);
+      // TODO check unique constraint
+      rowData.putAll(mainData);
+      RowData subData = RowDataGenerator.replicateForSub(mainData, relation);
+
+      log.trace("Generating main relational data: {}", subData);
+
+      dataStore.put(relation, subData);
     }
 
     RowDataGenerator.fill(rowData, table, config);

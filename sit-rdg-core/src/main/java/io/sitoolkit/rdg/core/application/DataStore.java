@@ -1,6 +1,6 @@
 package io.sitoolkit.rdg.core.application;
 
-import io.sitoolkit.rdg.core.domain.RowData;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import java.util.ArrayList;
 import java.util.HashMap;

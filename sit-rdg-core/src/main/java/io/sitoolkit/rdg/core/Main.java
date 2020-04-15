@@ -1,7 +1,7 @@
 package io.sitoolkit.rdg.core;
 
 import io.sitoolkit.rdg.core.application.DataGenerator;
-import io.sitoolkit.rdg.core.application.DataGeneratorRelationFirstImpl;
+import io.sitoolkit.rdg.core.application.DataGeneratorOptimizedImpl;
 import io.sitoolkit.rdg.core.application.DataRelationChecker;
 import io.sitoolkit.rdg.core.application.DataRelationChecker.CheckResult;
 import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
@@ -70,7 +70,7 @@ public class Main {
 
   SchemaAnalyzer schemaAnalyzer = new SchemaAnalyzer();
 
-  DataGenerator dataGenerator = new DataGeneratorRelationFirstImpl();
+  DataGenerator dataGenerator = new DataGeneratorOptimizedImpl();
 
   DataRelationChecker dataRelationChecker = new DataRelationChecker();
 
