@@ -6,11 +6,43 @@ import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
+import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RowDataGenerator {
+
+  public static RowData generate(
+      TableDef table, UniqueDataStore dataStore, GeneratorConfig config) {
+
+    RowData rowData = new RowData();
+
+    int size = table.getUniqueConstraints().size();
+
+    for (int i = 0; i < size; i++) {
+      UniqueConstraintDef unique = table.getUniqueConstraints().get(i);
+
+      RowData uniqueData = new RowData();
+
+      for (ColumnDef column : unique.getColumns()) {
+        ValueGenerator generator = config.findValueGenerator(column);
+        String generatedValue = generator.generate(column);
+        uniqueData.put(column, generatedValue);
+      }
+
+      if (dataStore.contains(unique, uniqueData)) {
+        i -= 1;
+      } else {
+        rowData.putAll(uniqueData);
+        dataStore.put(unique, uniqueData);
+      }
+    }
+
+    fill(rowData, table, config);
+
+    return rowData;
+  }
 
   public static RowData generate(TableDef table, GeneratorConfig config) {
     RowData rowData = new RowData();

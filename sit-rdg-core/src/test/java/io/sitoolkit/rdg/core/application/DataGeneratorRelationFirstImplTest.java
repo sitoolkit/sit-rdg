@@ -3,7 +3,7 @@ package io.sitoolkit.rdg.core.application;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import io.sitoolkit.rdg.core.application.DataRelationChecker.CheckResult;
+import io.sitoolkit.rdg.core.domain.check.CheckResult;
 import io.sitoolkit.rdg.core.infrastructure.TestResourceUtils;
 import java.io.IOException;
 import java.nio.file.Path;

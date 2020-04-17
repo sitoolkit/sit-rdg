@@ -38,6 +38,6 @@ public class RowDataStore {
   }
 
   int nextInt() {
-    return ThreadLocalRandom.current().nextInt(datas.size() - 1);
+    return ThreadLocalRandom.current().nextInt(datas.size());
   }
 }

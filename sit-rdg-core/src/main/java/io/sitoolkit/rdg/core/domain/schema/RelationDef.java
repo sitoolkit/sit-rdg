@@ -1,6 +1,7 @@
 package io.sitoolkit.rdg.core.domain.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -77,5 +78,15 @@ public class RelationDef {
   @JsonIgnore
   public boolean isSelfRelation() {
     return getRightTable().equals(getLeftTable());
+  }
+
+  public List<UniqueConstraintDef> getRightUniqueConstraints() {
+    List<UniqueConstraintDef> rightUniques = new ArrayList<>();
+    for (UniqueConstraintDef unique : getRightTable().getUniqueConstraints()) {
+      if (unique.isRelated(getRightColumns())) {
+        rightUniques.add(unique);
+      }
+    }
+    return rightUniques;
   }
 }

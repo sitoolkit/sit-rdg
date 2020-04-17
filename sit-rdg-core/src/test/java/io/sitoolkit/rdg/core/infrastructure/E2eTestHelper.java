@@ -5,14 +5,14 @@ import static org.junit.Assert.assertThat;
 
 import io.sitoolkit.rdg.core.application.DataGenerator;
 import io.sitoolkit.rdg.core.application.DataRelationChecker;
-import io.sitoolkit.rdg.core.application.DataRelationChecker.CheckResult;
+import io.sitoolkit.rdg.core.domain.check.CheckResult;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 
-public class DataGeneratorTestHelper {
+public class E2eTestHelper {
 
   static DataRelationChecker checker = new DataRelationChecker();
 

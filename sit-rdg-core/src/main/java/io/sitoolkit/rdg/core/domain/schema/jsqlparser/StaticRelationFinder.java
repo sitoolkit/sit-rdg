@@ -5,9 +5,9 @@ import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
+import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +15,11 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.StatementVisitorAdapter;
 import net.sf.jsqlparser.statement.alter.Alter;
 import net.sf.jsqlparser.statement.alter.AlterExpression;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.ForeignKeyIndex;
+import net.sf.jsqlparser.statement.create.table.Index;
+import net.sf.jsqlparser.statement.create.table.NamedConstraint;
 import org.apache.commons.lang3.StringUtils;
 
 /** StaticRelationFinder */
@@ -34,26 +37,38 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
     schemaInfo.add(
         createTable.getTable().getSchemaName(), JsqlParserConverter.convert(createTable));
 
+    analyzeSinglePk(createTable);
+
     if (createTable.getIndexes() == null) {
       return;
     }
 
-    createTable.getIndexes().stream()
-        .filter(ForeignKeyIndex.class::isInstance)
-        .map(ForeignKeyIndex.class::cast)
-        .forEach(fk -> analyzeFk(createTable.getTable(), fk));
+    for (Index index : createTable.getIndexes()) {
+
+      if (index instanceof ForeignKeyIndex) {
+        analyzeFk(createTable.getTable(), (ForeignKeyIndex) index);
+      } else if (index instanceof NamedConstraint) {
+        analyzeNamedConstraint(createTable.getTable(), (NamedConstraint) index);
+      }
+    }
   }
 
   @Override
   public void visit(Alter alter) {
     log.debug("Visit: {}", alter);
 
-    alter.getAlterExpressions().stream()
-        .map(AlterExpression::getIndex)
-        .filter(Objects::nonNull)
-        .filter(ForeignKeyIndex.class::isInstance)
-        .map(ForeignKeyIndex.class::cast)
-        .forEach(fk -> analyzeFk(alter.getTable(), fk));
+    for (AlterExpression alterExp : alter.getAlterExpressions()) {
+      if (alterExp.getIndex() instanceof ForeignKeyIndex) {
+        analyzeFk(alter.getTable(), (ForeignKeyIndex) alterExp.getIndex());
+      } else if (alterExp.getIndex() instanceof NamedConstraint) {
+        analyzeNamedConstraint(alter.getTable(), (NamedConstraint) alterExp.getIndex());
+      }
+
+      List<String> ukColumns = alterExp.getUkColumns();
+      if (ukColumns != null) {
+        registerUnique(alter.getTable().getSchemaName(), alter.getTable().getName(), ukColumns);
+      }
+    }
   }
 
   public void analyzeFk(Table table, ForeignKeyIndex fk) {
@@ -89,5 +104,41 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
     relation.addAllPairs(pairs);
 
     schemaInfo.findByName(schemaName).orElseThrow().getRelations().add(relation);
+  }
+
+  void analyzeNamedConstraint(Table table, NamedConstraint constraint) {
+    log.debug("Analyze: {}", constraint);
+
+    if (StringUtils.equalsAny(constraint.getType().toLowerCase(), "primary key", "unique")) {
+
+      registerUnique(table.getSchemaName(), table.getName(), constraint.getColumnsNames());
+    }
+  }
+
+  void analyzeSinglePk(CreateTable createTable) {
+    for (ColumnDefinition colDef : createTable.getColumnDefinitions()) {
+
+      if (colDef.getColumnSpecStrings() == null) {
+        continue;
+      }
+
+      for (String spec : colDef.getColumnSpecStrings()) {
+        if ("primary".equalsIgnoreCase(spec)) {
+
+          registerUnique(
+              createTable.getTable().getSchemaName(),
+              createTable.getTable().getName(),
+              List.of(colDef.getColumnName()));
+        }
+      }
+    }
+  }
+
+  void registerUnique(String schemaName, String tableName, List<String> columnNames) {
+    TableDef tableDef = schemaInfo.findTable(schemaName, tableName).orElseThrow();
+    UniqueConstraintDef unique = new UniqueConstraintDef();
+    unique.setTable(tableDef);
+    unique.setColumnNames(columnNames);
+    tableDef.getUniqueConstraints().add(unique);
   }
 }

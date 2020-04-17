@@ -1,5 +1,7 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,12 +20,14 @@ public class CsvData {
     return containsAll(List.of(myCol), another, List.of(anotherCol));
   }
 
+  @SuppressWarnings("unchecked")
   public boolean containsAll(List<String> myCols, CsvData another, List<String> anotherCols) {
 
     log.debug("Comparing {} vs {}", myCols, anotherCols);
 
-    List<List<String>> myRecords = CsvUtils.selectCols(records, myCols);
-    List<List<String>> anotherRecords = CsvUtils.selectCols(another.records, anotherCols);
+    List<List<String>> myRecords = CsvUtils.selectCols(records, myCols, ArrayList.class);
+    List<List<String>> anotherRecords =
+        CsvUtils.selectCols(another.records, anotherCols, ArrayList.class);
 
     boolean containsAll = true;
 
@@ -35,5 +39,10 @@ public class CsvData {
     }
 
     return containsAll;
+  }
+
+  @SuppressWarnings("unchecked")
+  public boolean isUnique(List<String> cols) {
+    return CsvUtils.selectCols(records, cols, HashSet.class).size() == records.size();
   }
 }

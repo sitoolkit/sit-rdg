@@ -2,10 +2,11 @@ package io.sitoolkit.rdg.core.infrastructure;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -36,13 +37,23 @@ public class CsvUtils {
     }
   }
 
-  public static List<List<String>> selectCols(List<CSVRecord> records, List<String> cols) {
-    List<List<String>> result = new ArrayList<>();
+  public static <T extends Collection<List<String>>> T selectCols(
+      List<CSVRecord> records, List<String> cols, Class<T> type) {
 
-    for (CSVRecord record : records) {
-      result.add(cols.stream().map(record::get).collect(Collectors.toList()));
+    try {
+      T result = type.getDeclaredConstructor().newInstance();
+      for (CSVRecord record : records) {
+        result.add(cols.stream().map(record::get).collect(Collectors.toList()));
+      }
+
+      return result;
+    } catch (InstantiationException
+        | IllegalAccessException
+        | IllegalArgumentException
+        | InvocationTargetException
+        | NoSuchMethodException
+        | SecurityException e) {
+      throw new IllegalArgumentException(e);
     }
-
-    return result;
   }
 }

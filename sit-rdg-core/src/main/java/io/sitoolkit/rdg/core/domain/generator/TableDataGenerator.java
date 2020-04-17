@@ -17,6 +17,8 @@ public abstract class TableDataGenerator {
 
   protected final GeneratorConfig config;
 
+  protected UniqueDataStore uniqueDataStore = new UniqueDataStore();
+
   public List<Object> generateLine() {
     RowData rowData = generate();
     return rowData.toList(table.getColumns());

@@ -42,6 +42,9 @@ public class TableDef implements Comparable<TableDef> {
 
   @Builder.Default @JsonManagedReference private List<ColumnDef> columns = new ArrayList<>();
 
+  @Builder.Default @JsonManagedReference
+  private List<UniqueConstraintDef> uniqueConstraints = new ArrayList<>();
+
   @JsonIgnore
   public boolean isDependent() {
 

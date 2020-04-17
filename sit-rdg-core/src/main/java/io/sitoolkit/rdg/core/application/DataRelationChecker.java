@@ -1,9 +1,11 @@
 package io.sitoolkit.rdg.core.application;
 
+import io.sitoolkit.rdg.core.domain.check.CheckResult;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
+import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
 import io.sitoolkit.rdg.core.infrastructure.CsvData;
 import io.sitoolkit.rdg.core.infrastructure.CsvUtils;
 import java.io.File;
@@ -18,10 +20,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -79,11 +79,24 @@ public class DataRelationChecker {
 
       if (result) {
         log.info("OK " + relation);
-        checkResult.okRelations.add(relation);
+        checkResult.getOkRelations().add(relation);
       } else {
         log.info("NG " + relation);
-        checkResult.ngRelations.add(relation);
-        checkResult.errorList.add("NG " + relation);
+        checkResult.getNgRelations().add(relation);
+      }
+    }
+
+    for (TableDef table : schemaInfo.getAllTables()) {
+      for (UniqueConstraintDef unique : table.getUniqueConstraints()) {
+        boolean result = csvDataMap.get(table.getName()).isUnique(unique.getColumnNames());
+
+        if (result) {
+          log.info("OK " + unique);
+          checkResult.getOkUniques().add(unique);
+        } else {
+          log.info("NG " + unique);
+          checkResult.getNgUniques().add(unique);
+        }
       }
     }
 
@@ -99,65 +112,5 @@ public class DataRelationChecker {
 
   List<String> cols2names(List<ColumnDef> columns) {
     return columns.stream().map(ColumnDef::getName).collect(Collectors.toList());
-  }
-
-  public static class CheckResult {
-    @Getter List<String> chekedFileNames = new ArrayList<>();
-
-    @Getter List<String> errorList = new ArrayList<>();
-
-    List<RelationDef> ngRelations = new ArrayList<>();
-
-    List<RelationDef> okRelations = new ArrayList<>();
-
-    Path addFile(Path file) {
-      chekedFileNames.add(file.getFileName().toString());
-      return file;
-    }
-
-    public boolean hasError() {
-      return !errorList.isEmpty();
-    }
-
-    public String getErrorMessage() {
-      List<String> message = new ArrayList<>();
-
-      Set<TableDef> okTables = rels2tab(okRelations);
-      Set<TableDef> ngTables = rels2tab(ngRelations);
-
-      message.add("");
-
-      message.add("OK: " + okTables.size() + " tables, " + okRelations.size());
-      message.add("NG: " + ngTables.size() + " tables, " + ngRelations.size());
-
-      message.add("");
-
-      message.add("OK Tables: " + tabs2str(okTables));
-      message.add("OK Relations: " + rels2str(okRelations));
-
-      message.add("");
-
-      message.add("NG Tables: " + tabs2str(ngTables));
-      message.add("NG Relations: " + rels2str(ngRelations));
-
-      return message.stream().collect(Collectors.joining(System.lineSeparator()));
-    }
-
-    Set<TableDef> rels2tab(List<RelationDef> rels) {
-      return rels.stream()
-          .map(RelationDef::getTables)
-          .flatMap(Collection::stream)
-          .collect(Collectors.toSet());
-    }
-
-    String tabs2str(Collection<TableDef> tables) {
-      return tables.stream().map(TableDef::getName).collect(Collectors.joining(","));
-    }
-
-    String rels2str(Collection<RelationDef> relations) {
-      return relations.stream()
-          .map(RelationDef::toString)
-          .collect(Collectors.joining(System.lineSeparator()));
-    }
   }
 }

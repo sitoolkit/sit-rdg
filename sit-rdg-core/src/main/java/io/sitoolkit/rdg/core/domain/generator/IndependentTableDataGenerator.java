@@ -10,7 +10,7 @@ public class IndependentTableDataGenerator extends TableDataGenerator {
   }
 
   public RowData generate() {
-    RowData rowData = RowDataGenerator.generate(table, config);
+    RowData rowData = RowDataGenerator.generate(table, uniqueDataStore, config);
 
     for (RelationDataGenerator generator : generators) {
       generator.generateAndFill(rowData);

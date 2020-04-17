@@ -31,7 +31,7 @@ public class SchemaAnalyzerTest {
 
   @Before
   public void setup() throws IOException {
-    workDir = Path.of("target", testName.getMethodName());
+    workDir = Path.of("target", getClass().getSimpleName(), testName.getMethodName());
     FileUtils.deleteDirectory(workDir.toFile());
   }
 
@@ -149,5 +149,32 @@ public class SchemaAnalyzerTest {
     TableDef table1_2 = schema2.findTable("tabLE1").orElseThrow();
     assertThat(table1_2.getColumns().get(0).getName(), is("COLUMNA"));
     assertThat(table1_2.getColumns().get(1).getName(), is("COLUMNB"));
+  }
+
+  @Test
+  public void testUniqueConstraint() {
+    Path input = TestResourceUtils.copy(this, "unique-constraint.sql", workDir);
+    SchemaInfo schemaInfo = analyzer.read(input);
+    assertUniqueConstraint(schemaInfo);
+    schemaInfo.write(input.getParent());
+  }
+
+  void assertUniqueConstraint(SchemaInfo schemaInfo) {
+
+    TableDef tab_1 = schemaInfo.findTable("", "tab_1").orElseThrow();
+    assertThat(tab_1.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_1_1")));
+
+    TableDef tab_2 = schemaInfo.findTable("", "tab_2").orElseThrow();
+    assertThat(tab_2.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_2_1")));
+
+    TableDef tab_3 = schemaInfo.findTable("", "tab_3").orElseThrow();
+    assertThat(tab_3.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_3_1")));
+
+    TableDef tab_4 = schemaInfo.findTable("", "tab_4").orElseThrow();
+    assertThat(tab_4.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_4_1")));
+
+    TableDef tab_5 = schemaInfo.findTable("", "tab_5").orElseThrow();
+    assertThat(tab_5.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_5_1")));
+    assertThat(tab_5.getUniqueConstraints().get(1).getColumnNames(), is(List.of("col_5_2")));
   }
 }
