@@ -61,13 +61,9 @@ public class GeneratorConfig {
           .flatMap(t -> t.getColumnConfigs().stream())
           .collect(Collectors.toMap(c -> c.getFullQualifiedName(), c -> c.getRequiredValueCount()));
 
-  @JsonIgnore
   @Getter(lazy = true)
-  private final Map<String, ValueGenerator> valueGeneratorMap =
-      schemaConfigs.stream()
-          .flatMap(s -> s.getTableConfigs().stream())
-          .flatMap(t -> t.getColumnConfigs().stream())
-          .collect(Collectors.toMap(ColumnConfig::getFullQualifiedName, ColumnConfig::getSpec));
+  @JsonIgnore
+  private final Map<String, ValueGenerator> valueGeneratorMap = initValueGenMap();
 
   @JsonIgnore
   public Integer getRowCount(TableDef tableDef) {
@@ -91,5 +87,31 @@ public class GeneratorConfig {
   public ValueGenerator findValueGenerator(ColumnDef column) {
     return getValueGeneratorMap()
         .computeIfAbsent(column.getFullyQualifiedName(), k -> new RandomValueGenerator());
+  }
+
+  private Map<String, ValueGenerator> initValueGenMap() {
+    Map<String, ValueGenerator> map =
+        schemaConfigs.stream()
+            .flatMap(s -> s.getTableConfigs().stream())
+            .flatMap(t -> t.getColumnConfigs().stream())
+            .collect(Collectors.toMap(ColumnConfig::getFullQualifiedName, ColumnConfig::getSpec));
+
+    for (SchemaConfig sconfig : getSchemaConfigs()) {
+      for (TableConfig tconfig : sconfig.getTableConfigs()) {
+        for (ColumnConfig cconfig : tconfig.getColumnConfigs()) {
+
+          if (cconfig.getSpec() instanceof MultiSequenceValueGenerator) {
+            MultiSequenceValueGenerator msvg = (MultiSequenceValueGenerator) cconfig.getSpec();
+
+            msvg.setTotalRequiredCount(tconfig.getRowCount());
+            msvg.postDeserialize();
+            String fully = tconfig.getFullQualifiedName() + "." + msvg.getSubColumn();
+            map.put(fully, msvg.getSubColGen());
+          }
+        }
+      }
+    }
+
+    return map;
   }
 }

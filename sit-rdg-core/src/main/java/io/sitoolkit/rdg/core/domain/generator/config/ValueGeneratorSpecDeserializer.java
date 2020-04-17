@@ -10,7 +10,7 @@ import java.io.IOException;
 public class ValueGeneratorSpecDeserializer extends JsonDeserializer<ValueGenerator> {
 
   @Override
-  public ValueGenerator deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+  public ValueGenerator deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
 
     ObjectMapper mapper = (ObjectMapper) p.getCodec();
     JsonNode node = mapper.readTree(p);
@@ -22,6 +22,9 @@ public class ValueGeneratorSpecDeserializer extends JsonDeserializer<ValueGenera
     switch (type) {
       case "sequence":
         generatorType = SequenceValueGenerator.class;
+        break;
+      case "multi-sequence":
+        generatorType = MultiSequenceValueGenerator.class;
         break;
       case "choice":
         generatorType = ChoiceValueGenerator.class;

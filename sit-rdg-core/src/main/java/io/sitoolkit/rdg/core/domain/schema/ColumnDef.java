@@ -26,7 +26,7 @@ public class ColumnDef implements Comparable<ColumnDef> {
 
   @EqualsAndHashCode.Include private String fullyQualifiedName;
 
-  private DataType dataType;
+  private DataType dataType = new DataType();
 
   // @JsonProperty("argumentsStringList")
   // private List<String> args;

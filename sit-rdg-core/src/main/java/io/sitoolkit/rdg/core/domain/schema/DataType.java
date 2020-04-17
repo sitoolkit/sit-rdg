@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Data
 public class DataType {
 
-  private DataTypeName name;
+  private DataTypeName name = DataTypeName.CHAR;
 
-  private int size;
+  private int size = 5;
 
   private int integerDigit;
 

@@ -1,14 +1,11 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import io.sitoolkit.rdg.core.application.DataGenerator;
 import io.sitoolkit.rdg.core.application.DataRelationChecker;
 import io.sitoolkit.rdg.core.domain.check.CheckResult;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 
@@ -16,28 +13,23 @@ public class E2eTestHelper {
 
   static DataRelationChecker checker = new DataRelationChecker();
 
-  public static void doTest(Object test, DataGenerator dataGenerator) throws IOException {
-    Path rootPath = Path.of("target", test.getClass().getSimpleName());
+  public static CheckResult doTest(Object testClass, String testName, DataGenerator dataGenerator) {
+    Path rootPath = Path.of("target", testClass.getClass().getSimpleName(), testName);
 
-    FileUtils.deleteDirectory(rootPath.toFile());
+    try {
+      FileUtils.deleteDirectory(rootPath.toFile());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
 
     Path inDir = rootPath.resolve("in");
     Path outDir = rootPath.resolve("out");
 
-    FileUtils.deleteDirectory(inDir.toFile());
-    TestResourceUtils.copy(test, "schema.json", inDir);
-
-    FileUtils.deleteDirectory(outDir.toFile());
+    TestResourceUtils.copy(testClass, testName, "schema.json", inDir);
+    TestResourceUtils.copy(testClass, testName, "generator-config.json", inDir);
 
     List<Path> outFiles = dataGenerator.generate(inDir, List.of(outDir));
 
-    CheckResult result = checker.checkFiles(inDir, outFiles);
-
-    assertThat(
-        "genereated files and order",
-        result.getChekedFileNames(),
-        is(List.of("tab_1.csv", "tab_2.csv", "tab_3.csv")));
-
-    assertThat("relation check error", result.getErrorList(), is(Collections.emptyList()));
+    return checker.checkFiles(inDir, outFiles);
   }
 }
