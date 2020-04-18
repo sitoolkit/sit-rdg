@@ -100,6 +100,10 @@ public class TableDef implements Comparable<TableDef> {
         .filter(
             relation ->
                 !relation.getRightTable().equals(this) && relation.getLeftTable().equals(this))
+        .sorted(
+            Comparator.comparingInt(
+                    relation -> ((RelationDef) relation).getMainUniqueConstraints().size())
+                .reversed())
         .collect(Collectors.toList());
   }
 

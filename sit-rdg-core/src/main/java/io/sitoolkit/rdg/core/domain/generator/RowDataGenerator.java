@@ -7,9 +7,13 @@ import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
+import java.util.List;
+import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RowDataGenerator {
 
@@ -203,5 +207,68 @@ public class RowDataGenerator {
     }
 
     return appended;
+  }
+
+  public static RowData append(
+      RowData rowData, UniqueConstraintDef unique, GeneratorConfig config) {
+    RowData append = new RowData();
+
+    for (ColumnDef column : unique.getColumns()) {
+      String value = rowData.get(column);
+      if (value == null) {
+        ValueGenerator generator = config.findValueGenerator(column);
+        value = generator.generate(column);
+      }
+
+      append.put(column, value);
+    }
+
+    return append;
+  }
+
+  public static RowData applyWithUniqueCheck(
+      Function<UniqueConstraintDef, RowData> function,
+      List<UniqueConstraintDef> uniques,
+      UniqueDataStore uniqueDataStore) {
+
+    RowData rowData = new RowData();
+    for (UniqueConstraintDef unique : uniques) {
+      rowData.putAll(applyWithUniqueCheck(function, unique, uniqueDataStore));
+    }
+
+    return rowData;
+  }
+
+  public static RowData applyWithUniqueCheck(
+      Function<UniqueConstraintDef, RowData> function,
+      UniqueConstraintDef unique,
+      UniqueDataStore uniqueDataStore) {
+
+    log.trace("Applying {} with checking {}", function, unique);
+
+    RowData rowData = null;
+
+    int loopCount = 0;
+    do {
+      rowData = function.apply(unique);
+
+      loopCount++;
+      if (loopCount > 100) {
+        throw new RetryException(
+            "Give up generating for " + unique + " in " + uniqueDataStore.get(unique));
+      }
+
+    } while (uniqueDataStore.contains(unique, rowData));
+
+    log.trace(
+        "Generated unique data: {}({}) for {} in {}",
+        rowData,
+        rowData.hashCode(),
+        unique,
+        uniqueDataStore);
+
+    uniqueDataStore.put(unique, rowData);
+
+    return rowData;
   }
 }

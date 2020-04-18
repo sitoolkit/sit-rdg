@@ -4,6 +4,7 @@ import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
 import java.util.List;
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -16,19 +17,38 @@ public class MainRelationDataGenerator extends RelationDataGenerator {
 
   @Override
   public void doGenerateAndFill(RowData rowData) {
+
+    RowData existingData = rowData.filter(getRelation().getLeftColumns());
+
+    if (existingData.size() == getRelation().getLeftColumns().size()) {
+      RowData subData = RowDataGenerator.replicateForSub(existingData, getRelation());
+
+      log.trace("Existing main data: {} is passed as sub data: {}", existingData, subData);
+
+      getDataStoreForSubRel().add(subData);
+
+      return;
+    }
+
     RowData mainData = null;
 
     List<UniqueConstraintDef> uniques = getRelation().getMainUniqueConstraints();
 
-    do {
+    if (uniques.isEmpty()) {
       mainData = RowDataGenerator.append(rowData, getRelation(), getConfig());
-    } while (getUniqueDataStore().containsAny(uniques, mainData));
 
-    getUniqueDataStore().putAll(uniques, mainData);
+    } else {
+
+      Function<UniqueConstraintDef, RowData> function =
+          unique -> RowDataGenerator.append(rowData, getRelation(), getConfig());
+
+      mainData = RowDataGenerator.applyWithUniqueCheck(function, uniques, getUniqueDataStore());
+    }
+
     rowData.putAll(mainData);
     RowData subData = RowDataGenerator.replicateForSub(mainData, getRelation());
 
-    log.trace("Generated main data: {} and sub data: {}", mainData, subData);
+    log.trace("Generated main data: {} is passed as sub data: {}", mainData, subData);
 
     getDataStoreForSubRel().add(subData);
   }

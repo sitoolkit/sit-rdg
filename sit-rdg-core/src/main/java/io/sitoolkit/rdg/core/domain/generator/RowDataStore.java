@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.ToString;
 
+@ToString(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class RowDataStore {
 
-  private List<RowData> datas = new ArrayList<>();
+  @ToString.Include private List<RowData> datas = new ArrayList<>();
 
   private Set<Integer> dataHashCodes = new TreeSet<>();
 

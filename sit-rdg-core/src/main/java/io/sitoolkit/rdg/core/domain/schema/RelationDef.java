@@ -20,6 +20,14 @@ public class RelationDef {
   @EqualsAndHashCode.Include @Getter private Set<ColumnPair> columnPairs = new HashSet<>();
 
   @JsonIgnore
+  @Getter(lazy = true)
+  private final List<UniqueConstraintDef> mainUniqueConstraints = initMainUniqueConstraints();
+
+  @Getter(lazy = true)
+  @JsonIgnore
+  private final List<UniqueConstraintDef> subUniqueConstraints = initSubUniqueConstraints();
+
+  @JsonIgnore
   public List<ColumnDef> getDistinctColumns() {
     return columnPairs.stream()
         .map(ColumnPair::getColumns)
@@ -81,7 +89,7 @@ public class RelationDef {
   }
 
   @JsonIgnore
-  public List<UniqueConstraintDef> getMainUniqueConstraints() {
+  public List<UniqueConstraintDef> initMainUniqueConstraints() {
     List<UniqueConstraintDef> mainUniques = new ArrayList<>();
     for (UniqueConstraintDef unique : getLeftTable().getUniqueConstraints()) {
       if (unique.getColumns().equals(getLeftColumns())) {
@@ -91,8 +99,7 @@ public class RelationDef {
     return mainUniques;
   }
 
-  @JsonIgnore
-  public List<UniqueConstraintDef> getSubUniqueConstraints() {
+  private List<UniqueConstraintDef> initSubUniqueConstraints() {
     List<UniqueConstraintDef> subUniques = new ArrayList<>();
     for (UniqueConstraintDef unique : getRightTable().getUniqueConstraints()) {
       if (unique.getColumns().equals(getRightColumns())) {

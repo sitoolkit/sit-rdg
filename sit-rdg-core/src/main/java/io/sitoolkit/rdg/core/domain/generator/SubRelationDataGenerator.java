@@ -4,6 +4,7 @@ import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
 import java.util.List;
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -17,26 +18,22 @@ public class SubRelationDataGenerator extends RelationDataGenerator {
   @Override
   public void doGenerateAndFill(RowData rowData) {
 
-    if (rowData.containsAsSub(getRelation())) {
+    if (rowData.containsAll(getRelation().getRightColumns())) {
       return;
     }
 
     List<UniqueConstraintDef> uniques = getRelation().getSubUniqueConstraints();
-
-    log.trace("Check for {}", uniques);
-
     RowData storedData = null;
-    int loopCount = 0;
 
-    do {
+    if (uniques.isEmpty()) {
       storedData = getDataStoreForSubRel().get();
-      if (loopCount++ > 1000) {
-        throw new IllegalStateException("Give up generating for " + getRelation());
-      }
 
-    } while (getUniqueDataStore().containsAny(uniques, storedData));
+    } else {
+      Function<UniqueConstraintDef, RowData> function = unique -> getDataStoreForSubRel().get();
 
-    getUniqueDataStore().putAll(uniques, storedData);
+      storedData = RowDataGenerator.applyWithUniqueCheck(function, uniques, getUniqueDataStore());
+    }
+
     rowData.putAll(storedData);
     log.trace("Get and add data from store: {}", storedData);
   }

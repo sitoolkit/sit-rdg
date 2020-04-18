@@ -43,7 +43,7 @@ public class DataGeneratorFactory {
           log.debug(
               "{} is registered for {}",
               relGenerator.getClass().getSimpleName(),
-              generator.getTableName());
+              relGenerator.getRelation());
         }
       }
     }

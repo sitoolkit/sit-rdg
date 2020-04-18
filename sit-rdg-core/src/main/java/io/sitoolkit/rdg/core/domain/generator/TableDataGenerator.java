@@ -2,7 +2,9 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
+import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,8 +27,21 @@ public abstract class TableDataGenerator {
   private UniqueDataStore uniqueDataStore = new UniqueDataStore();
 
   public List<Object> generateLine() {
-    RowData rowData = generate();
-    return rowData.toList(table.getColumns());
+
+    int retryCount = 0;
+    RetryException retryException = null;
+
+    do {
+      try {
+        RowData rowData = generate();
+        return rowData.toList(table.getColumns());
+      } catch (RetryException e) {
+        retryCount++;
+        retryException = e;
+      }
+    } while (retryCount < 100);
+
+    throw new IllegalStateException(retryException);
   }
 
   public abstract RowData generate();
@@ -46,5 +61,16 @@ public abstract class TableDataGenerator {
 
   public List<Object> getHeader() {
     return table.getColumns().stream().map(ColumnDef::getName).collect(Collectors.toList());
+  }
+
+  protected List<UniqueConstraintDef> getUnrelatedUnieuqeConstraints() {
+    List<UniqueConstraintDef> result = table.getUniqueConstraints();
+
+    for (RelationDef relation : table.getRelations()) {
+      result.removeAll(relation.getMainUniqueConstraints());
+      result.removeAll(relation.getSubUniqueConstraints());
+    }
+
+    return result;
   }
 }

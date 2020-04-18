@@ -1,7 +1,6 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,18 +20,7 @@ public class UniqueDataStore {
     map.computeIfAbsent(unique, k -> new RowDataStore()).add(rowData);
   }
 
-  public void putAll(Collection<UniqueConstraintDef> uniques, RowData rowData) {
-    for (UniqueConstraintDef unique : uniques) {
-      put(unique, rowData);
-    }
-  }
-
-  public boolean containsAny(Collection<UniqueConstraintDef> uniques, RowData rowData) {
-    for (UniqueConstraintDef unique : uniques) {
-      if (contains(unique, rowData)) {
-        return true;
-      }
-    }
-    return false;
+  public RowDataStore get(UniqueConstraintDef unique) {
+    return map.get(unique);
   }
 }
