@@ -17,26 +17,26 @@ public class SubRelationDataGenerator extends RelationDataGenerator {
   @Override
   public void doGenerateAndFill(RowData rowData) {
 
-    if (rowData.containsAsSub(relation)) {
+    if (rowData.containsAsSub(getRelation())) {
       return;
     }
 
-    // TODO optimize
-    List<UniqueConstraintDef> uniques = relation.getRightUniqueConstraints();
+    List<UniqueConstraintDef> uniques = getRelation().getSubUniqueConstraints();
+
+    log.trace("Check for {}", uniques);
 
     RowData storedData = null;
     int loopCount = 0;
 
     do {
-      storedData = dataStoreForSubRel.get();
+      storedData = getDataStoreForSubRel().get();
       if (loopCount++ > 1000) {
-        log.warn("Give up generating for {}", relation);
-        return;
+        throw new IllegalStateException("Give up generating for " + getRelation());
       }
 
-    } while (uniqueDataStore.containsAny(uniques, storedData));
+    } while (getUniqueDataStore().containsAny(uniques, storedData));
 
-    uniqueDataStore.putAll(uniques, storedData);
+    getUniqueDataStore().putAll(uniques, storedData);
     rowData.putAll(storedData);
     log.trace("Get and add data from store: {}", storedData);
   }

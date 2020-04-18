@@ -2,7 +2,10 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,15 +14,20 @@ public abstract class RelationDataGenerator {
 
   protected Logger log = LoggerFactory.getLogger(getClass());
 
-  protected final RelationDef relation;
+  @Getter(AccessLevel.PROTECTED)
+  private final RelationDef relation;
 
   /** This dataStore is to store the data of this.relation.getSubTable() */
-  protected final RowDataStore dataStoreForSubRel;
+  @Getter(AccessLevel.PROTECTED)
+  private final RowDataStore dataStoreForSubRel;
 
+  @Getter(AccessLevel.PROTECTED)
   // TODO to be moved to columndef
-  protected final GeneratorConfig config;
+  private final GeneratorConfig config;
 
-  protected UniqueDataStore uniqueDataStore = new UniqueDataStore();
+  @Getter(AccessLevel.PROTECTED)
+  @Setter(AccessLevel.PACKAGE)
+  private UniqueDataStore uniqueDataStore;
 
   public void generateAndFill(RowData rowData) {
     log.trace("Generating data for {}", relation);

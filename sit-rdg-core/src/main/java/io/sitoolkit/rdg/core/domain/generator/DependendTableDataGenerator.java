@@ -14,11 +14,11 @@ public class DependendTableDataGenerator extends TableDataGenerator {
   public RowData generate() {
     RowData rowData = new RowData();
 
-    for (RelationDataGenerator generator : generators) {
+    for (RelationDataGenerator generator : getGenerators()) {
       generator.generateAndFill(rowData);
     }
 
-    RowDataGenerator.fill(rowData, table, config);
+    RowDataGenerator.fill(rowData, getTable(), getConfig());
 
     log.trace("Generated data: {}", rowData);
 

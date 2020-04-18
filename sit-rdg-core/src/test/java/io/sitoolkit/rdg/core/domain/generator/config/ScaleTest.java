@@ -23,12 +23,12 @@ public class ScaleTest {
   @Test
   public void testScale() {
     Scale scale = Scale.parse("/3");
-    Assert.assertEquals(10, scale.apply(30));
-    Assert.assertEquals(0, scale.apply(0));
-    Assert.assertEquals(0, scale.apply(1));
-    Assert.assertEquals(1, scale.apply(2));
-    Assert.assertEquals(1, scale.apply(3));
-    Assert.assertEquals(1, scale.apply(4));
-    Assert.assertEquals(2, scale.apply(5));
+    Assert.assertEquals(10, scale.apply(30L));
+    Assert.assertEquals(1, scale.apply(0L));
+    Assert.assertEquals(1, scale.apply(1L));
+    Assert.assertEquals(1, scale.apply(2L));
+    Assert.assertEquals(1, scale.apply(3L));
+    Assert.assertEquals(1, scale.apply(4L));
+    Assert.assertEquals(2, scale.apply(5L));
   }
 }

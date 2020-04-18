@@ -2,12 +2,12 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
+import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MainRelationDataGenerator extends RelationDataGenerator {
-
-  RowDataStore dataStoreForMainRel = new RowDataStore();
 
   public MainRelationDataGenerator(
       RelationDef relation, RowDataStore dataStoreForSubRel, GeneratorConfig config) {
@@ -18,16 +18,18 @@ public class MainRelationDataGenerator extends RelationDataGenerator {
   public void doGenerateAndFill(RowData rowData) {
     RowData mainData = null;
 
+    List<UniqueConstraintDef> uniques = getRelation().getMainUniqueConstraints();
+
     do {
-      mainData = RowDataGenerator.append(rowData, relation, config);
-    } while (dataStoreForMainRel.contains(mainData));
+      mainData = RowDataGenerator.append(rowData, getRelation(), getConfig());
+    } while (getUniqueDataStore().containsAny(uniques, mainData));
 
-    dataStoreForMainRel.add(mainData);
+    getUniqueDataStore().putAll(uniques, mainData);
     rowData.putAll(mainData);
-    RowData subData = RowDataGenerator.replicateForSub(mainData, relation);
+    RowData subData = RowDataGenerator.replicateForSub(mainData, getRelation());
 
-    log.trace("Generated sub data: {}", subData);
+    log.trace("Generated main data: {} and sub data: {}", mainData, subData);
 
-    dataStoreForSubRel.add(subData);
+    getDataStoreForSubRel().add(subData);
   }
 }

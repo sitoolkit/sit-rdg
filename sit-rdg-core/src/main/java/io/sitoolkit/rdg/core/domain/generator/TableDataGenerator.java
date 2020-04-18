@@ -6,18 +6,23 @@ import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public abstract class TableDataGenerator {
 
-  protected final TableDef table;
+  @Getter(AccessLevel.PROTECTED)
+  private final TableDef table;
 
-  protected List<RelationDataGenerator> generators = new ArrayList<>();
+  @Getter private List<RelationDataGenerator> generators = new ArrayList<>();
 
-  protected final GeneratorConfig config;
+  @Getter(AccessLevel.PROTECTED)
+  private final GeneratorConfig config;
 
-  protected UniqueDataStore uniqueDataStore = new UniqueDataStore();
+  @Getter(AccessLevel.PROTECTED)
+  private UniqueDataStore uniqueDataStore = new UniqueDataStore();
 
   public List<Object> generateLine() {
     RowData rowData = generate();
@@ -27,6 +32,7 @@ public abstract class TableDataGenerator {
   public abstract RowData generate();
 
   public void add(RelationDataGenerator generator) {
+    generator.setUniqueDataStore(uniqueDataStore);
     generators.add(generator);
   }
 

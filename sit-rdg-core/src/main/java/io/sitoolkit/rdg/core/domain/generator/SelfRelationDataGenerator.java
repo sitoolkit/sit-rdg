@@ -13,15 +13,15 @@ public class SelfRelationDataGenerator extends RelationDataGenerator {
   @Override
   public void doGenerateAndFill(RowData rowData) {
 
-    if (rowData.containsAsSub(relation)) {
+    if (rowData.containsAsSub(getRelation())) {
       return;
     }
 
     RowData generatedData = null;
 
     do {
-      generatedData = RowDataGenerator.generateForSelfRelation(rowData, relation, config);
-    } while (dataStoreForSubRel.contains(generatedData));
+      generatedData = RowDataGenerator.generateForSelfRelation(rowData, getRelation(), getConfig());
+    } while (getDataStoreForSubRel().contains(generatedData));
 
     rowData.putAll(generatedData);
   }

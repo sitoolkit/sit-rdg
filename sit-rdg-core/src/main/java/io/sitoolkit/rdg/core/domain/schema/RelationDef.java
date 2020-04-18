@@ -80,13 +80,25 @@ public class RelationDef {
     return getRightTable().equals(getLeftTable());
   }
 
-  public List<UniqueConstraintDef> getRightUniqueConstraints() {
-    List<UniqueConstraintDef> rightUniques = new ArrayList<>();
-    for (UniqueConstraintDef unique : getRightTable().getUniqueConstraints()) {
-      if (unique.isRelated(getRightColumns())) {
-        rightUniques.add(unique);
+  @JsonIgnore
+  public List<UniqueConstraintDef> getMainUniqueConstraints() {
+    List<UniqueConstraintDef> mainUniques = new ArrayList<>();
+    for (UniqueConstraintDef unique : getLeftTable().getUniqueConstraints()) {
+      if (unique.getColumns().equals(getLeftColumns())) {
+        mainUniques.add(unique);
       }
     }
-    return rightUniques;
+    return mainUniques;
+  }
+
+  @JsonIgnore
+  public List<UniqueConstraintDef> getSubUniqueConstraints() {
+    List<UniqueConstraintDef> subUniques = new ArrayList<>();
+    for (UniqueConstraintDef unique : getRightTable().getUniqueConstraints()) {
+      if (unique.getColumns().equals(getRightColumns())) {
+        subUniques.add(unique);
+      }
+    }
+    return subUniques;
   }
 }

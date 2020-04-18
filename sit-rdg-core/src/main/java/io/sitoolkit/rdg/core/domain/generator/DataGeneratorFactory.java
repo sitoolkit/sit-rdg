@@ -39,7 +39,7 @@ public class DataGeneratorFactory {
             generator.getClass().getSimpleName(),
             generator.getTableName());
 
-        for (RelationDataGenerator relGenerator : generator.generators) {
+        for (RelationDataGenerator relGenerator : generator.getGenerators()) {
           log.debug(
               "{} is registered for {}",
               relGenerator.getClass().getSimpleName(),
