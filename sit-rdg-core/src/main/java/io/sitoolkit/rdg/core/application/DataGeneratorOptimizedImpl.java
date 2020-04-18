@@ -28,6 +28,10 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
     List<TableDataGenerator> generators =
         DataGeneratorFactory.build(schemaInfo.getAllTables(), config);
 
+    log.info(
+        "Generating order : {}",
+        generators.stream().map(TableDataGenerator::getTableName).collect(Collectors.joining(",")));
+
     return generate(generators, outDirs);
   }
 
@@ -37,13 +41,15 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
 
     for (TableDataGenerator generator : generators) {
 
-      int rowCount = generator.getRequiredRowCount();
+      long rowCount = generator.getRequiredRowCount();
+
+      log.info("Start generating {} rows to {}", rowCount, generator.getTableName());
 
       try (DataWriter writer = DataWriter.build(outDirs, generator.getTableName() + ".csv")) {
 
         writer.writeAppend(generator.getHeader());
 
-        for (int i = 0; i < rowCount; i++) {
+        for (long i = 0; i < rowCount; i++) {
           writer.writeAppend(generator.generateLine());
         }
 

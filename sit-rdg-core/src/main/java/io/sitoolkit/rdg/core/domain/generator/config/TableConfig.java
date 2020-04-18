@@ -1,17 +1,14 @@
 package io.sitoolkit.rdg.core.domain.generator.config;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 @Getter
 public class TableConfig implements Comparable<TableConfig> {
@@ -22,10 +19,10 @@ public class TableConfig implements Comparable<TableConfig> {
   private String name;
 
   @JsonProperty("priorityRank")
-  private Integer priorityRank;
+  private Integer priorityRank = 0;
 
   @JsonProperty("rowCount")
-  private Integer rowCount;
+  private Long rowCount;
 
   @JsonProperty("requiredValueCount")
   private Integer requiredValueCount;
@@ -34,7 +31,7 @@ public class TableConfig implements Comparable<TableConfig> {
   @JsonProperty("columnConfigs")
   private List<ColumnConfig> columnConfigs = Collections.emptyList();;
 
-  public Integer getRowCount() {
+  public Long getRowCount() {
     if (Objects.isNull(rowCount)) {
       rowCount = schemaConfig.getRowCount();
     }

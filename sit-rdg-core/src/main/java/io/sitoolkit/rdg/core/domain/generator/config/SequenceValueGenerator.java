@@ -9,7 +9,7 @@ import lombok.Data;
 public class SequenceValueGenerator implements ValueGenerator {
 
   @JsonProperty(required = false)
-  private long start = 0;
+  private long start = 1;
 
   @JsonProperty(required = false)
   private long end = Long.MAX_VALUE;

@@ -12,8 +12,13 @@ public class Scale {
 
   private Scale() {}
 
+  public long apply(long num) {
+    return Math.max(1, Math.round(num * value));
+  }
+
+  @Deprecated
   public int apply(int num) {
-    return (int) Math.round(num * value);
+    return (int) Math.max(1, Math.round(num * value));
   }
 
   public static Scale parse(String scaleStr) {

@@ -53,7 +53,7 @@ public class DataGeneratorTablePriorityImpl implements DataGenerator {
       for (int tblCnt = 0; tblCnt < tableSize; tblCnt++) {
 
         TableDef table = tables.get(tblCnt);
-        Integer rowCount = config.getRowCount(table);
+        long rowCount = config.getRowCount(table);
 
         log.info(
             "Generating csv: count={}/{}, table={}, rowCnt={}",
@@ -80,7 +80,7 @@ public class DataGeneratorTablePriorityImpl implements DataGenerator {
   }
 
   public List<Path> write(
-      TableDef table, Integer rowCount, List<Path> out, GeneratedValueStore store) {
+      TableDef table, long rowCount, List<Path> out, GeneratedValueStore store) {
 
     String csvName = table.getFullyQualifiedName() + ".csv";
 
@@ -89,7 +89,7 @@ public class DataGeneratorTablePriorityImpl implements DataGenerator {
 
   public List<Path> generate(
       TableDef tableDef,
-      int rowCount,
+      long rowCount,
       List<Path> outDir,
       String fileName,
       GeneratedValueStore store) {

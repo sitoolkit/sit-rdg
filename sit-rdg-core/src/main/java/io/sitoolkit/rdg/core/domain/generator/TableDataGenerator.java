@@ -34,7 +34,7 @@ public abstract class TableDataGenerator {
     return table.getFullyQualifiedName();
   }
 
-  public int getRequiredRowCount() {
+  public long getRequiredRowCount() {
     return config.getRowCount(table);
   }
 

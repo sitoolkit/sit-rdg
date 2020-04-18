@@ -19,7 +19,7 @@ public class GeneratorConfig {
   private String scaleStr;
 
   @JsonProperty("defaultRowCount")
-  private Integer defaultRowCount;
+  private Long defaultRowCount;
 
   @JsonProperty("defaultRequiredValueCount")
   private Integer defaultRequiredValueCount;
@@ -28,9 +28,9 @@ public class GeneratorConfig {
   @JsonProperty("schemaConfigs")
   private List<SchemaConfig> schemaConfigs = Collections.emptyList();
 
-  public Integer getDefaultRowCount() {
+  public Long getDefaultRowCount() {
     if (Objects.isNull(defaultRowCount)) {
-      defaultRowCount = Integer.valueOf(5);
+      defaultRowCount = Long.valueOf(5);
     }
     return defaultRowCount;
   }
@@ -48,7 +48,7 @@ public class GeneratorConfig {
 
   @JsonIgnore
   @Getter(lazy = true)
-  private final Map<String, Integer> rowCountMap =
+  private final Map<String, Long> rowCountMap =
       schemaConfigs.stream()
           .flatMap(s -> s.getTableConfigs().stream())
           .collect(Collectors.toMap(t -> t.getFullQualifiedName(), t -> t.getRowCount()));
@@ -66,14 +66,15 @@ public class GeneratorConfig {
   private final Map<String, ValueGenerator> valueGeneratorMap = initValueGenMap();
 
   @JsonIgnore
-  public Integer getRowCount(TableDef tableDef) {
+  public long getRowCount(TableDef tableDef) {
 
-    Integer rowCount =
+    long rowCount =
         getRowCountMap().getOrDefault(tableDef.getFullyQualifiedName(), getDefaultRowCount());
 
     return getScale().apply(rowCount);
   }
 
+  @Deprecated
   @JsonIgnore
   public Integer getRequiredValueCount(ColumnDef col) {
 

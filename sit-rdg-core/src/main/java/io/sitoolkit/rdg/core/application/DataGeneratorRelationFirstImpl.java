@@ -67,7 +67,7 @@ public class DataGeneratorRelationFirstImpl implements DataGenerator {
 
     for (TableDef table : tables) {
 
-      int rowCount = config.getRowCount(table);
+      long rowCount = config.getRowCount(table);
 
       try (DataWriter writer = DataWriter.build(outDirs, toFileName(table))) {
 
