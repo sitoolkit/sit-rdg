@@ -1,23 +1,25 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RatioUtils {
 
   private RatioUtils() {}
 
   public static <T extends NormalizableRatio> T get(List<T> items) {
-    int index = -1;
+    ThreadLocalRandom random = ThreadLocalRandom.current();
 
-    while (index < 0) {
-      for (int i = 0; i < items.size(); i++) {
-        if (Math.random() <= items.get(i).getRatio()) {
-          index = i;
+    while (true) {
+      for (T item : items) {
+        double ratio = random.nextDouble();
+        if (ratio <= item.getRatio()) {
+          return item;
         }
       }
     }
-
-    return items.get(index);
   }
 
   public static void normalize(List<? extends NormalizableRatio> items) {
@@ -26,5 +28,7 @@ public class RatioUtils {
     if (sumRatio != 1) {
       items.stream().forEach(choice -> choice.setRatio(choice.getRatio() / sumRatio));
     }
+
+    Collections.sort(items, Comparator.comparing(NormalizableRatio::getRatio));
   }
 }

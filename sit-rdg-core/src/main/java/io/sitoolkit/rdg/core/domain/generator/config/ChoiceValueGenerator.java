@@ -6,8 +6,10 @@ import io.sitoolkit.rdg.core.infrastructure.RatioUtils;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
+@Slf4j
 public class ChoiceValueGenerator implements ValueGenerator {
 
   private List<Choice> values = new ArrayList<>();
@@ -20,6 +22,8 @@ public class ChoiceValueGenerator implements ValueGenerator {
   @Override
   public void initialize() {
     RatioUtils.normalize(values);
+
+    log.debug("Initialized: {}", values);
   }
 
   @Data
