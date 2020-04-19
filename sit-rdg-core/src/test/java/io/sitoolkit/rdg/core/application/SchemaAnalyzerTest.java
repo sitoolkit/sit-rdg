@@ -1,6 +1,5 @@
 package io.sitoolkit.rdg.core.application;
 
-import static com.google.common.truth.Truth.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -14,14 +13,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-@Slf4j
 public class SchemaAnalyzerTest {
 
   SchemaAnalyzer analyzer = new SchemaAnalyzer();
@@ -35,50 +32,11 @@ public class SchemaAnalyzerTest {
     FileUtils.deleteDirectory(workDir.toFile());
   }
 
-  // @Test
-  // public void testReadDynamicRelations() throws IOException, URISyntaxException {
-  //   Path input = workingDir.resolve("create-and-select.sql");
-  //   SchemaInfo answer = analyzer.read(input);
-
-  //   List<SchemaDef> schemas = new ArrayList<>(answer.getSchemas());
-  //   List<TableDef> tables =
-  //       schemas.get(0).getTables().stream()
-  //           .sorted(Comparator.comparing(TableDef::getName))
-  //           .collect(Collectors.toList());
-
-  //   Function<TableDef, List<ColumnDef>> sortColumnsFunc =
-  //       table -> {
-  //         return table.getColumns().stream()
-  //             .sorted(Comparator.comparing(ColumnDef::getName))
-  //             .collect(Collectors.toList());
-  //       };
-  //   List<ColumnDef> table1columns = new ArrayList<>(sortColumnsFunc.apply(tables.get(0)));
-  //   List<ColumnDef> table2columns = new ArrayList<>(sortColumnsFunc.apply(tables.get(1)));
-  //   List<ColumnDef> table3columns = new ArrayList<>(sortColumnsFunc.apply(tables.get(2)));
-
-  //   List<RelationDef> table1relations4group1 = table1columns.get(0).getRelations();
-  //   List<RelationDef> table1relations4group2 = table1columns.get(1).getRelations();
-  //   List<RelationDef> table2relations4group1 = table2columns.get(1).getRelations();
-  //   List<RelationDef> table3relations4group2 = table3columns.get(1).getRelations();
-
-  //   assertThat(table1relations4group1).containsAnyIn(table2relations4group1);
-  //   assertThat(table1relations4group2).containsAnyIn(table3relations4group2);
-
-  //   assertThat(table1relations4group1).containsExactlyElementsIn(table1relations4group2);
-  // }
-
-  @Test
-  public void testReadStaticRelations() throws Exception {
-    Path input = TestResourceUtils.copy(this, "create-table-with-foreign-key.sql", workDir);
-    SchemaInfo schemaInfo = analyzer.read(input);
-    assertReadStaticRelations(schemaInfo);
-  }
-
   @Test
   public void testAnalyzeStaticRelations() {
-    Path input = TestResourceUtils.copy(this, "create-table-with-foreign-key.sql", workDir);
-    Path output = analyzer.analyze(input);
-    SchemaInfo schemaInfo = SchemaInfo.read(output.getParent());
+    Path dstDir = TestResourceUtils.copyResDir(this, testName.getMethodName());
+    Path outFile = analyzer.analyze(dstDir);
+    SchemaInfo schemaInfo = SchemaInfo.read(outFile.getParent());
     assertReadStaticRelations(schemaInfo);
   }
 
@@ -125,17 +83,10 @@ public class SchemaAnalyzerTest {
   }
 
   @Test
-  public void testReadAllSchemas() throws IOException {
-    Path input = TestResourceUtils.copy(this, "multiple-schemas-create.sql", workDir);
-    SchemaInfo schemaInfo = analyzer.read(input);
-    assertReadAllSchemas(schemaInfo);
-  }
-
-  @Test
   public void testAnalyzeAllSchemas() {
-    Path input = TestResourceUtils.copy(this, "multiple-schemas-create.sql", workDir);
-    Path output = analyzer.analyze(input);
-    SchemaInfo schemaInfo = SchemaInfo.read(output.getParent());
+    Path dstDir = TestResourceUtils.copyResDir(this, testName.getMethodName());
+    Path outFile = analyzer.analyze(dstDir);
+    SchemaInfo schemaInfo = SchemaInfo.read(outFile.getParent());
     assertReadAllSchemas(schemaInfo);
   }
 
@@ -153,7 +104,7 @@ public class SchemaAnalyzerTest {
 
   @Test
   public void testUniqueConstraint() {
-    Path input = TestResourceUtils.copy(this, "unique-constraint.sql", workDir);
+    Path input = TestResourceUtils.copyResDir(this, testName.getMethodName());
     SchemaInfo schemaInfo = analyzer.read(input);
     assertUniqueConstraint(schemaInfo);
     schemaInfo.write(input.getParent());

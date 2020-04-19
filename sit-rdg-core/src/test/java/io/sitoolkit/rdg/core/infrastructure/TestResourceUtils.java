@@ -39,9 +39,19 @@ public class TestResourceUtils {
     }
   }
 
-  public static void copyDir(Object owner, String sub, Path dstDir) {
-    String packagePath = owner.getClass().getName().replace(".", "/");
-    Path srcDir = Path.of("src/test/resources", packagePath, sub);
+  public static Path workDir(Object testClass, String testMethod) {
+    return Path.of("target", testClass.getClass().getSimpleName(), testMethod);
+  }
+
+  public static Path copyResDir(Object testClass, String testMethod) {
+    Path dstDir = workDir(testClass, testMethod).resolve("in");
+    copyResDir(testClass, testMethod, dstDir);
+    return dstDir;
+  }
+
+  public static void copyResDir(Object testClass, String testMethod, Path dstDir) {
+    String packagePath = testClass.getClass().getName().replace(".", "/");
+    Path srcDir = Path.of("src/test/resources", packagePath, testMethod);
     try {
       FileUtils.copyDirectory(srcDir.toFile(), dstDir.toFile());
     } catch (IOException e) {

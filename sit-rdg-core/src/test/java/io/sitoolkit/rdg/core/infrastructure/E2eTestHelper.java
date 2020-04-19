@@ -36,21 +36,18 @@ public class E2eTestHelper {
   }
 
   public static SetUpResult setUp(Object testClass, String testName) {
-    Path rootPath = Path.of("target", testClass.getClass().getSimpleName(), testName);
+    Path workDir = TestResourceUtils.workDir(testClass.getClass().getSimpleName(), testName);
 
     try {
-      FileUtils.deleteDirectory(rootPath.toFile());
+      FileUtils.deleteDirectory(workDir.toFile());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
 
-    Path inDir = rootPath.resolve("in");
-    Path outDir = rootPath.resolve("out");
+    Path inDir = workDir.resolve("in");
+    Path outDir = workDir.resolve("out");
 
-    // TestResourceUtils.copy(testClass, testName, "schema.json", inDir);
-    // TestResourceUtils.copy(testClass, testName, "generator-config.json", inDir);
-
-    TestResourceUtils.copyDir(testClass, testName, inDir);
+    TestResourceUtils.copyResDir(testClass, testName, inDir);
 
     return new SetUpResult(inDir, outDir);
   }
