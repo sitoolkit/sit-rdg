@@ -73,4 +73,8 @@ public abstract class TableDataGenerator {
 
     return result;
   }
+
+  public void end() {
+    generators.stream().forEach(RelationDataGenerator::end);
+  }
 }

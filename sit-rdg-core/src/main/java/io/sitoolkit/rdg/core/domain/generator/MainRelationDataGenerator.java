@@ -52,4 +52,9 @@ public class MainRelationDataGenerator extends RelationDataGenerator {
 
     getDataStoreForSubRel().add(subData);
   }
+
+  @Override
+  public void end() {
+    getDataStoreForSubRel().setUp();
+  }
 }

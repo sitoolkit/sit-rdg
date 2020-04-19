@@ -2,7 +2,9 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 public class UsageLimitRowDataStore extends RowDataStoreImpl {
 
   @Setter private int usageCountLimit;

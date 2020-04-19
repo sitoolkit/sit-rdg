@@ -37,4 +37,9 @@ public class SubRelationDataGenerator extends RelationDataGenerator {
     rowData.putAll(storedData);
     log.trace("Get and add data from store: {}", storedData);
   }
+
+  @Override
+  public void end() {
+    getDataStoreForSubRel().clear();
+  }
 }

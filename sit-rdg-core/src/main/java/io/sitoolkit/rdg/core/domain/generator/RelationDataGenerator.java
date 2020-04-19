@@ -39,4 +39,8 @@ public abstract class RelationDataGenerator {
   }
 
   protected abstract void doGenerateAndFill(RowData rowData);
+
+  public void end() {
+    // NOP
+  }
 }

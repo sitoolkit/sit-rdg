@@ -44,4 +44,10 @@ public class RowDataStoreImpl implements RowDataStore {
   protected boolean isEmpty() {
     return datas.isEmpty();
   }
+
+  @Override
+  public void clear() {
+    datas.clear();
+    dataHashCodes.clear();
+  }
 }

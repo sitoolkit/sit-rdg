@@ -7,4 +7,10 @@ public interface RowDataStore {
   void add(RowData rowData);
 
   boolean contains(RowData rowData);
+
+  default void setUp() {
+    // NOP
+  }
+
+  void clear();
 }

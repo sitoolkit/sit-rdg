@@ -43,8 +43,9 @@ public class DataGeneratorFactory {
 
         for (RelationDataGenerator relGenerator : generator.getGenerators()) {
           log.debug(
-              "{} is registered for {}",
+              "{}({}) is registered for {}",
               relGenerator.getClass().getSimpleName(),
+              relGenerator.getDataStoreForSubRel(),
               relGenerator.getRelation());
         }
       }

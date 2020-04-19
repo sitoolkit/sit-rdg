@@ -15,4 +15,9 @@ public class TopRelationDataGenerator extends RelationDataGenerator {
     RowData subData = RowDataGenerator.replicateForSub(rowData, getRelation());
     getDataStoreForSubRel().add(subData);
   }
+
+  @Override
+  public void end() {
+    getDataStoreForSubRel().setUp();
+  }
 }

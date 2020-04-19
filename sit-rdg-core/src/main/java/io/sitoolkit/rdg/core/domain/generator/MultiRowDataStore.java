@@ -4,9 +4,12 @@ import io.sitoolkit.rdg.core.domain.generator.config.MultiplicityConfig;
 import io.sitoolkit.rdg.core.infrastructure.NormalizableRatio;
 import io.sitoolkit.rdg.core.infrastructure.RatioUtils;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MultiRowDataStore implements RowDataStore {
 
   private List<DataStoreGroup> groups = new ArrayList<>();
@@ -59,5 +62,23 @@ public class MultiRowDataStore implements RowDataStore {
   class DataStoreGroup implements NormalizableRatio {
     double ratio;
     UsageLimitRowDataStore dataStore;
+  }
+
+  @Override
+  public void clear() {
+    groups.clear();
+  }
+
+  @Override
+  public void setUp() {
+    Iterator<DataStoreGroup> groupItr = groups.iterator();
+    while (groupItr.hasNext()) {
+      DataStoreGroup group = groupItr.next();
+
+      if (group.getDataStore().isEmpty()) {
+        groupItr.remove();
+        log.debug("Removed empty group:{} ", group);
+      }
+    }
   }
 }

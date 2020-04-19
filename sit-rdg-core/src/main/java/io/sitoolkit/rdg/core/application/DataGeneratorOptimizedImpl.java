@@ -53,6 +53,8 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
           writer.writeAppend(generator.generateLine());
         }
 
+        generator.end();
+
         outFiles.addAll(writer.getFiles());
 
       } catch (IOException e) {
