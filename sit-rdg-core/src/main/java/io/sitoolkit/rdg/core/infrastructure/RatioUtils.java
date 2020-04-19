@@ -1,5 +1,6 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -9,8 +10,12 @@ public class RatioUtils {
 
   private RatioUtils() {}
 
-  public static <T extends NormalizableRatio> T get(List<T> items) {
+  public static <T extends NormalizableRatio> T get(Collection<T> items) {
     ThreadLocalRandom random = ThreadLocalRandom.current();
+
+    if (items.isEmpty()) {
+      throw new IllegalArgumentException("items must not be empty");
+    }
 
     while (true) {
       for (T item : items) {

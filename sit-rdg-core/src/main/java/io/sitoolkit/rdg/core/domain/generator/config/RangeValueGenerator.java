@@ -36,8 +36,8 @@ public class RangeValueGenerator implements ValueGenerator {
 
   @Data
   static class RangeSpec implements NormalizableRatio {
-    private int min;
-    private int max;
+    private int min = 1;
+    private int max = 10;
 
     @JsonProperty(required = false)
     private int step = 1;

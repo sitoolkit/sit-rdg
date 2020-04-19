@@ -17,7 +17,7 @@ public class UniqueDataStore {
   }
 
   public void put(UniqueConstraintDef unique, RowData rowData) {
-    map.computeIfAbsent(unique, k -> new RowDataStore()).add(rowData);
+    map.computeIfAbsent(unique, k -> new RowDataStoreImpl()).add(rowData);
   }
 
   public RowDataStore get(UniqueConstraintDef unique) {

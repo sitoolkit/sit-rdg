@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @ToString
@@ -16,6 +18,8 @@ import lombok.ToString;
 public class RowData {
 
   @EqualsAndHashCode.Include private Map<String, String> valueMap = new HashMap<>();
+
+  @Getter @Setter private int usedCount;
 
   public void put(ColumnDef column, String value) {
     put(column.getFullyQualifiedName(), value);

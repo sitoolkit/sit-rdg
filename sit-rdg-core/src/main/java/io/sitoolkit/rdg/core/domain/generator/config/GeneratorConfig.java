@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Getter;
 
@@ -90,6 +91,7 @@ public class GeneratorConfig {
         .computeIfAbsent(column.getFullyQualifiedName(), k -> new RandomValueGenerator());
   }
 
+  @Deprecated
   private Map<String, ValueGenerator> initValueGenMap() {
     Map<String, ValueGenerator> map =
         schemaConfigs.stream()
@@ -114,5 +116,20 @@ public class GeneratorConfig {
     }
 
     return map;
+  }
+
+  public Optional<RelationConfig> findRelationConfig(List<ColumnDef> subColumns) {
+    List<String> columnNames =
+        subColumns.stream().map(ColumnDef::getFullyQualifiedName).collect(Collectors.toList());
+
+    for (SchemaConfig sconfig : schemaConfigs) {
+      for (RelationConfig rconfig : sconfig.getRelationConfigs()) {
+        if (columnNames.equals(rconfig.getSubColumns())) {
+          return Optional.of(rconfig);
+        }
+      }
+    }
+
+    return Optional.empty();
   }
 }

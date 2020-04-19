@@ -36,4 +36,9 @@ public class DataGeneratorOptimizedImplTest {
   public void testGeneration() throws IOException {
     E2eTestHelper.doTest(this, testName.getMethodName(), generator);
   }
+
+  @Test
+  public void testMultiplicity() throws IOException {
+    E2eTestHelper.doTest(this, testName.getMethodName(), generator);
+  }
 }
