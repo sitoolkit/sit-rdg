@@ -19,8 +19,8 @@ public class TableSorterTest {
   public void test() {
 
     SchemaAnalyzer analyzer = new SchemaAnalyzer();
-    Path input = TestResourceUtils.res2path(this, "dependency-tables.sql");
-    SchemaInfo schemaInfo = analyzer.read(input);
+    Path dstDir = TestResourceUtils.copyResDir(this, "test");
+    SchemaInfo schemaInfo = analyzer.read(dstDir);
 
     List<TableDef> tables = schemaInfo.getAllTables();
 
