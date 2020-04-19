@@ -27,8 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class StaticRelationFinder extends StatementVisitorAdapter {
 
-  // private SchemaInfoStore store;
-
   private SchemaInfo schemaInfo;
 
   @Override
