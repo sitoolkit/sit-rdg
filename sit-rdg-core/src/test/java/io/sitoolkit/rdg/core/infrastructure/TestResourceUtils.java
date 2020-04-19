@@ -39,15 +39,29 @@ public class TestResourceUtils {
     }
   }
 
+  public static void copyDir(Object owner, String sub, Path dstDir) {
+    String packagePath = owner.getClass().getName().replace(".", "/");
+    Path srcDir = Path.of("src/test/resources", packagePath, sub);
+    try {
+      FileUtils.copyDirectory(srcDir.toFile(), dstDir.toFile());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
   public static Path copy(Object owner, String sub, String resourceName, Path toDir) {
 
     try {
+      Path srcFile = res2path(owner, sub, resourceName);
+
+      if (!srcFile.toFile().exists()) {
+        return srcFile;
+      }
+
       if (!toDir.toFile().exists()) {
         toDir.toFile().mkdirs();
         log.info("Make directory: {}", toDir);
       }
-
-      Path srcFile = res2path(owner, sub, resourceName);
 
       Path dstFile = toDir.resolve(srcFile.getFileName());
       Files.copy(srcFile, dstFile);
