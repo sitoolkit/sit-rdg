@@ -21,6 +21,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.StopWatch;
 
 @Slf4j
 public class Main {
@@ -99,7 +100,7 @@ public class Main {
   }
 
   public int execute(CommandLine cmd) {
-
+    StopWatch stopWatch = StopWatch.createStarted();
     try {
 
       Path input =
@@ -123,12 +124,12 @@ public class Main {
 
       if (cmd.getArgList().contains("read-sql")) {
         Path out = schemaAnalyzer.analyze(input);
-        log.info("json: {}", out);
+        log.info("Write: {}", out);
       }
 
       if (cmd.getArgList().contains("gen-data")) {
         List<Path> outputs = dataGenerator.generate(input, outDirs);
-        outputs.forEach(out -> log.info("csv: {}", out));
+        outputs.forEach(out -> log.info("Write: {}", out));
       }
 
       if (cmd.getArgList().contains("check")) {
@@ -136,15 +137,19 @@ public class Main {
         if (result.hasError()) {
           log.error(result.getErrorMessage());
           return 1;
+        } else {
+          log.info("Finished with no check error");
         }
       }
-
-      return 0;
 
     } catch (Exception e) {
       log.error("Error: ", e);
       return 1;
+    } finally {
+      log.info("Total time: {}", stopWatch);
     }
+
+    return 0;
   }
 
   void printHelp() {

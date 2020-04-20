@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DataGeneratorOptimizedImpl implements DataGenerator {
 
   GeneratorConfigReader reader = new GeneratorConfigReader();
+
+  NumberFormat f = NumberFormat.getNumberInstance();
 
   public List<Path> generate(Path input, List<Path> outDirs) {
     SchemaInfo schemaInfo = SchemaInfo.read(input);
@@ -38,12 +41,19 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
   List<Path> generate(List<TableDataGenerator> generators, List<Path> outDirs) {
 
     List<Path> outFiles = new ArrayList<>();
+    int tableCount = generators.size();
+    int generatedTableCount = 1;
 
     for (TableDataGenerator generator : generators) {
 
       long rowCount = generator.getRequiredRowCount();
 
-      log.info("Start generating {} rows to {}", rowCount, generator.getTableName());
+      log.info(
+          "Start generating {} rows to {} {}/{}",
+          f.format(rowCount),
+          generator.getTableName(),
+          generatedTableCount,
+          tableCount);
 
       try (DataWriter writer = DataWriter.build(outDirs, generator.getTableName() + ".csv")) {
 
@@ -51,6 +61,10 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
 
         for (long i = 0; i < rowCount; i++) {
           writer.writeAppend(generator.generateLine());
+
+          if (i % 10000 == 0 && i > 0) {
+            log.info("{}/{}", f.format(i), f.format(rowCount));
+          }
         }
 
         generator.end();
@@ -60,6 +74,8 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
+
+      generatedTableCount++;
     }
 
     return outFiles;
