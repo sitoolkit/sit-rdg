@@ -11,9 +11,13 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class TableDataGenerator {
+
+  private static final int RETRY_LIMIT = 10;
 
   @Getter(AccessLevel.PROTECTED)
   private final TableDef table;
@@ -36,10 +40,14 @@ public abstract class TableDataGenerator {
         RowData rowData = generate();
         return rowData.toList(table.getColumns());
       } catch (RetryException e) {
+        log.warn(
+            "Failed row data generation and retry {} more times. cause: {}",
+            RETRY_LIMIT - retryCount,
+            e.getMessage());
         retryCount++;
         retryException = e;
       }
-    } while (retryCount < 100);
+    } while (retryCount < RETRY_LIMIT);
 
     throw new IllegalStateException(retryException);
   }

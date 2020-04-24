@@ -253,9 +253,8 @@ public class RowDataGenerator {
       rowData = function.apply(unique);
 
       loopCount++;
-      if (loopCount > 100) {
-        throw new RetryException(
-            "Give up generating for " + unique + " in " + uniqueDataStore.get(unique));
+      if (loopCount > 10) {
+        throw new RetryException("Give up generating for " + unique + ", " + rowData);
       }
 
     } while (uniqueDataStore.contains(unique, rowData));

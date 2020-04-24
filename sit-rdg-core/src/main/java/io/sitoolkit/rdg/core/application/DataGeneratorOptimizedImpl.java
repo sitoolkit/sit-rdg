@@ -35,7 +35,11 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
         "Generating order : {}",
         generators.stream().map(TableDataGenerator::getTableName).collect(Collectors.joining(",")));
 
-    return generate(generators, outDirs);
+    List<Path> outFiles = generate(generators, outDirs);
+
+    writeOrderFile(outFiles, outDirs);
+
+    return outFiles;
   }
 
   List<Path> generate(List<TableDataGenerator> generators, List<Path> outDirs) {
@@ -81,19 +85,22 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
     return outFiles;
   }
 
-  void writeOrderFile(List<Path> outFiles, Path outDir) {
+  void writeOrderFile(List<Path> outFiles, List<Path> outDirs) {
     String orderString =
         outFiles.stream()
             .map(Path::getFileName)
             .map(Path::toString)
             .map(fileName -> fileName.replace(".csv", ""))
             .collect(Collectors.joining(System.lineSeparator()));
-    Path orderFile = outDir.resolve("order.txt");
-    try {
-      Files.writeString(orderFile, orderString);
-      log.info("Write: {}", orderFile);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+
+    for (Path outDir : outDirs) {
+      Path orderFile = outDir.resolve("order.txt");
+      try {
+        Files.writeString(orderFile, orderString);
+        log.info("Write: {}", orderFile);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
     }
   }
 }
