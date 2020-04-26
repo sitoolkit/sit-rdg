@@ -26,7 +26,7 @@ public class JsqlParserConverter {
 
     List<ColumnDef> columns =
         createTable.getColumnDefinitions().stream()
-            .map(JsqlParserConverter::convert)
+            .map(column -> JsqlParserConverter.convert(tableDef, column))
             .peek(
                 c -> {
                   List<ConstraintAttribute> constraints =
@@ -55,13 +55,13 @@ public class JsqlParserConverter {
     return tableDef;
   }
 
-  public static ColumnDef convert(ColumnDefinition columnDefinition) {
+  public static ColumnDef convert(TableDef table, ColumnDefinition columnDefinition) {
 
     String name = columnDefinition.getColumnName();
     DataTypeName dataTypeName = DataTypeName.parse(columnDefinition.getColDataType().getDataType());
     DataType dataType = DataType.builder().name(dataTypeName).build();
     dataTypeName.resolve(columnDefinition.getColDataType().getArgumentsStringList(), dataType);
 
-    return ColumnDef.builder().name(name).dataType(dataType).build();
+    return ColumnDef.builder().table(table).name(name).dataType(dataType).build();
   }
 }

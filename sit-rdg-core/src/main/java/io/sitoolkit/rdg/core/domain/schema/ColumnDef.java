@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -17,56 +18,28 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
-@ToString(onlyExplicitlyIncluded = true, doNotUseGetters = true)
-public class ColumnDef implements Comparable<ColumnDef> {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
+public class ColumnDef {
 
   @JsonBackReference private TableDef table;
 
   @JsonProperty("columnName")
-  @ToString.Include
   private String name;
 
-  @EqualsAndHashCode.Include private String fullyQualifiedName;
-
-  @ToString.Include private DataType dataType = new DataType();
-
-  // @JsonProperty("argumentsStringList")
-  // private List<String> args;
-
-  @JsonProperty("constraints")
-  @Builder.Default
+  @Getter(lazy = true)
+  @JsonIgnore
+  @EqualsAndHashCode.Include
   @ToString.Include
+  private final String fullyQualifiedName = table.getFullyQualifiedName() + "." + name;
+
+  @Builder.Default @ToString.Include private DataType dataType = new DataType();
+
+  @Builder.Default @ToString.Include
   private List<ConstraintAttribute> constraints = new ArrayList<>();
 
-  @Builder.Default @JsonIgnore private List<RelationDef> relations = new ArrayList<>();
-
-  public static ColumnDef shallowCopyExcludeRelations(ColumnDef columnDef) {
-    ColumnDef newColumn = new ColumnDef();
-    newColumn.setTable(columnDef.getTable());
-    newColumn.setName(columnDef.getName());
-    // newColumn.setArgs(columnDef.getArgs());
-    newColumn.setDataType(columnDef.getDataType());
-    newColumn.setConstraints(columnDef.getConstraints());
-    return newColumn;
-  }
-
-  // this MUST NOT be replaced to @Getter(lazy = true)
+  @Getter(lazy = true)
   @JsonIgnore
-  public String getFullyQualifiedName() {
-    if (fullyQualifiedName == null) {
-      fullyQualifiedName = table.getFullyQualifiedName() + "." + name;
-    }
-    return fullyQualifiedName;
-  }
-
-  @JsonIgnore
-  public boolean isPrimaryKey() {
-    return Objects.nonNull(constraints) && constraints.contains(ConstraintAttribute.PRIMARY_KEY);
-  }
-
-  @Override
-  public int compareTo(ColumnDef o) {
-    return getFullyQualifiedName().compareTo(o.getFullyQualifiedName());
-  }
+  private final boolean primaryKey =
+      Objects.nonNull(constraints) && constraints.contains(ConstraintAttribute.PRIMARY_KEY);
 }
