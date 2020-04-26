@@ -1,0 +1,85 @@
+{
+  "defaultRowCount": 20,
+  "schemaConfigs": [
+    {
+      "tableConfigs": [
+        {
+          "tableName": "tab_1",
+          "priorityRank": 1,
+          "columnConfigs": [
+            {
+              "columnName": "col_seq",
+              "requiredValueCount": 10,
+              "spec": {
+                "type": "sequence",
+                "start": 0,
+                "end": 9,
+                "step": 1
+              }
+            },
+            {
+              "columnName": "col_choice",
+              "requiredValueCount": 10,
+              "spec": {
+                "type": "choice",
+                "values": [
+                  {
+                    "value": "01",
+                    "ratio": 0.3
+                  },
+                  {
+                    "value": "02",
+                    "ratio": 0.2
+                  }
+                ]
+              }
+            },
+            {
+              "columnName": "col_range",
+              "requiredValueCount": 10,
+              "spec": {
+                "type": "range",
+                "ranges": [
+                  {
+                    "min": 0,
+                    "max": 9,
+                    "step": 1,
+                    "ratio": 0.2
+                  },
+                  {
+                    "min": 10,
+                    "max": 19,
+                    "step": 1,
+                    "ratio": 0.3
+                  }
+                ]
+              }
+            },
+            {
+              "columnName": "col_multi_seq",
+              "requiredValueCount": 10,
+              "spec": {
+                "type": "multi-sequence",
+                "subColumn": "col_sub",
+                "multiplicities": [
+                  {
+                    "ratio": 0.1,
+                    "multiplicity": 1
+                  },
+                  {
+                    "ratio": 0.2,
+                    "multiplicity": 2
+                  },
+                  {
+                    "ratio": 0.7,
+                    "multiplicity": 3
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

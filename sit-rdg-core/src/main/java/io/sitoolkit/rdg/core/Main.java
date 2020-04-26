@@ -1,9 +1,18 @@
 package io.sitoolkit.rdg.core;
 
+import io.sitoolkit.rdg.core.application.DataGenerator;
+import io.sitoolkit.rdg.core.application.DataGeneratorOptimizedImpl;
+import io.sitoolkit.rdg.core.application.DataRelationChecker;
+import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
+import io.sitoolkit.rdg.core.domain.check.CheckResult;
+import io.sitoolkit.rdg.core.infrastructure.ResourceUtils;
+import io.sitoolkit.rdg.core.infrastructure.RuntimeOptions;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
-
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -11,18 +20,16 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
-import io.sitoolkit.rdg.core.application.DataGenerator;
-import io.sitoolkit.rdg.core.application.SchemaAnalyzer;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.time.StopWatch;
 
 @Slf4j
 public class Main {
 
   static Option inputOpt =
       Option.builder("i")
-          .argName("Input directory path")
-          .desc("default is input")
+          .argName("InputDirectory")
+          .desc("Path of input directory (default ./input)")
           .longOpt("input")
           .required(false)
           .hasArg()
@@ -30,18 +37,43 @@ public class Main {
 
   static Option outputOpt =
       Option.builder("o")
-          .argName("Output directroy path")
-          .desc("default is output")
+          .argName("OutputDirectory")
+          .desc("Path of Output directroy (default ./output)")
           .longOpt("output")
           .required(false)
           .hasArg()
           .build();
 
-  static Options options = new Options().addOption(inputOpt).addOption(outputOpt);
+  static Option bufferSizeOpt =
+      Option.builder("b")
+          .argName("BuffreSize")
+          .desc("Buffre size of csv row count (default 1000)")
+          .longOpt("buffer-size")
+          .required(false)
+          .hasArg()
+          .build();
+
+  static Option flushWaitAlertSecOpt =
+      Option.builder("fat")
+          .argName("FlushAlertTheshold")
+          .desc("Threshold to alert of wait span for csv writing (default 10 (sec))")
+          .longOpt("flush-alert-threahold")
+          .required(false)
+          .hasArg()
+          .build();
+
+  static Options options =
+      new Options()
+          .addOption(inputOpt)
+          .addOption(outputOpt)
+          .addOption(bufferSizeOpt)
+          .addOption(flushWaitAlertSecOpt);
 
   SchemaAnalyzer schemaAnalyzer = new SchemaAnalyzer();
 
-  DataGenerator dataGenerator = new DataGenerator();
+  DataGenerator dataGenerator = new DataGeneratorOptimizedImpl();
+
+  DataRelationChecker dataRelationChecker = new DataRelationChecker();
 
   public static void main(String[] args) {
     System.exit(new Main().execute(args));
@@ -50,20 +82,25 @@ public class Main {
   public int execute(String[] args) {
 
     CommandLineParser parser = new DefaultParser();
-    HelpFormatter formatter = new HelpFormatter();
+
+    if (args.length == 0) {
+      printHelp();
+    }
 
     CommandLine cmd;
     try {
       cmd = parser.parse(options, args);
+
       return execute(cmd);
     } catch (ParseException e) {
-      formatter.printHelp("options", options);
+      log.error("Error:", e);
+      printHelp();
       return 1;
     }
   }
 
   public int execute(CommandLine cmd) {
-
+    StopWatch stopWatch = StopWatch.createStarted();
     try {
 
       Path input =
@@ -71,26 +108,60 @@ public class Main {
               .toAbsolutePath()
               .normalize();
 
-      Path output =
-          Paths.get(cmd.getOptionValue(outputOpt.getLongOpt(), "output"))
-              .toAbsolutePath()
-              .normalize();
+      String output = cmd.getOptionValue(outputOpt.getLongOpt(), "output");
+      List<Path> outDirs =
+          Arrays.asList(output.split(",")).stream()
+              .map(Path::of)
+              .map(Path::toAbsolutePath)
+              .map(Path::normalize)
+              .collect(Collectors.toList());
+
+      String bufferSize = cmd.getOptionValue(bufferSizeOpt.getLongOpt());
+      RuntimeOptions.getInstance().setBufferSize(NumberUtils.toInt(bufferSize, 1000));
+
+      String flushWaitAlertSec = cmd.getOptionValue(flushWaitAlertSecOpt.getLongOpt());
+      RuntimeOptions.getInstance().setFlushWaitAlertSec(NumberUtils.toInt(flushWaitAlertSec, 10));
 
       if (cmd.getArgList().contains("read-sql")) {
         Path out = schemaAnalyzer.analyze(input);
-        log.info("json: {}", out);
+        log.info("Write: {}", out);
       }
 
       if (cmd.getArgList().contains("gen-data")) {
-        List<Path> outputs = dataGenerator.generate(input, output);
-        outputs.forEach(out -> log.info("csv: {}", out));
+        List<Path> outputs = dataGenerator.generate(input, outDirs);
+        outputs.forEach(out -> log.info("Write: {}", out));
       }
 
-      return 0;
+      if (cmd.getArgList().contains("check")) {
+        CheckResult result = dataRelationChecker.checkDirs(input, outDirs);
+        if (result.hasError()) {
+          log.error(result.getErrorMessage());
+          return 1;
+        } else {
+          log.info("Finished with no check error");
+        }
+      }
 
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Error: ", e);
       return 1;
+    } finally {
+      log.info("Total time: {}", stopWatch);
     }
+
+    return 0;
+  }
+
+  void printHelp() {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.setWidth(-1);
+
+    String jarFileName =
+        Path.of(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+            .getFileName()
+            .toString();
+
+    String header = ResourceUtils.res2str("help.txt");
+    formatter.printHelp("java -jar " + jarFileName + " [COMMAND...]", header, options, "", true);
   }
 }

@@ -1,125 +1,131 @@
 package io.sitoolkit.rdg.core.application;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
+import io.sitoolkit.rdg.core.infrastructure.TestResourceUtils;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 
 public class SchemaAnalyzerTest {
 
   SchemaAnalyzer analyzer = new SchemaAnalyzer();
-  Path workingDir;
+  Path workDir;
+
+  @Rule public TestName testName = new TestName();
 
   @Before
-  public void setup() throws URISyntaxException {
-    workingDir = Paths.get(SchemaAnalyzer.class.getClassLoader().getResource(".").toURI());
+  public void setup() throws IOException {
+    workDir = Path.of("target", getClass().getSimpleName(), testName.getMethodName());
+    FileUtils.deleteDirectory(workDir.toFile());
   }
 
   @Test
-  public void shouldReadRelations() throws IOException, URISyntaxException {
-    Path input = workingDir.resolve("create-and-select.sql");
-    SchemaInfo answer = analyzer.read(input);
-
-    List<SchemaDef> schemas = new ArrayList<>(answer.getSchemas());
-    List<TableDef> tables =
-        schemas
-            .get(0)
-            .getTables()
-            .stream()
-            .sorted(Comparator.comparing(TableDef::getName))
-            .collect(Collectors.toList());
-
-    Function<TableDef, List<ColumnDef>> sortColumnsFunc =
-        table -> {
-          return table
-              .getColumns()
-              .stream()
-              .sorted(Comparator.comparing(ColumnDef::getName))
-              .collect(Collectors.toList());
-        };
-    List<ColumnDef> table1columns = new ArrayList<>(sortColumnsFunc.apply(tables.get(0)));
-    List<ColumnDef> table2columns = new ArrayList<>(sortColumnsFunc.apply(tables.get(1)));
-    List<ColumnDef> table3columns = new ArrayList<>(sortColumnsFunc.apply(tables.get(2)));
-
-    List<RelationDef> table1relations4group1 = table1columns.get(0).getRelations();
-    List<RelationDef> table1relations4group2 = table1columns.get(1).getRelations();
-    List<RelationDef> table2relations4group1 = table2columns.get(1).getRelations();
-    List<RelationDef> table3relations4group2 = table3columns.get(1).getRelations();
-
-    assertThat(table1relations4group1).containsAnyIn(table2relations4group1);
-    assertThat(table1relations4group2).containsAnyIn(table3relations4group2);
-
-    assertThat(table1relations4group1).containsExactlyElementsIn(table1relations4group2);
+  public void testAnalyzeStaticRelations() {
+    Path dstDir = TestResourceUtils.copyResDir(this, testName.getMethodName());
+    Path outFile = analyzer.analyze(dstDir);
+    SchemaInfo schemaInfo = SchemaInfo.read(outFile.getParent());
+    assertReadStaticRelations(schemaInfo);
   }
 
-  //  @Test
-  public void shouldReadAllSchemas() throws IOException {
-    Path input = workingDir.resolve("multiple-schemas-create.sql");
+  void assertReadStaticRelations(SchemaInfo schemaInfo) {
+    SchemaDef schema = schemaInfo.findByName("").orElseThrow();
 
-    TableDef expctTable1onSchema1 = new TableDef();
-    expctTable1onSchema1.setName("SCHEMA1.TABLE1");
-    List<ColumnDef> expctColumnSetOnSchema1 =
-        createColumnSetAbout(expctTable1onSchema1).apply(List.of("COLUMN1", "COLUMN2"));
-    expctTable1onSchema1.setColumns(expctColumnSetOnSchema1);
-    SortedSet<TableDef> set1 = new TreeSet();
-    set1.add(expctTable1onSchema1);
-    SchemaDef expctSchema1 = new SchemaDef("SCHEMA1", set1);
+    TableDef tab_1 = schema.findTable("tab_1").orElseThrow();
+    TableDef tab_2 = schema.findTable("tab_2").orElseThrow();
+    TableDef tab_3 = schema.findTable("tab_3").orElseThrow();
+    TableDef tab_4 = schema.findTable("tab_4").orElseThrow();
 
-    TableDef expctTable1onSchema2 = new TableDef();
-    expctTable1onSchema2.setName("SCHEMA2.TABLE1");
-    List<ColumnDef> expctColumnSetOnSchema2 =
-        createColumnSetAbout(expctTable1onSchema2).apply(List.of("COLUMNA", "COLUMNB"));
-    expctTable1onSchema2.setColumns(expctColumnSetOnSchema2);
-    SortedSet<TableDef> set2 = new TreeSet();
-    set2.add(expctTable1onSchema2);
-    SchemaDef expctSchema2 = new SchemaDef("SCHEMA2", set2);
+    assertThat("tab_1 is independent", tab_1.isDependent(), is(false));
+    assertThat("tab_2 is dependent", tab_2.isDependent(), is(true));
+    assertThat("tab_3 is dependent", tab_3.isDependent(), is(true));
+    assertThat("tab_4 is dependent", tab_4.isDependent(), is(true));
 
-    SchemaInfo answer = analyzer.read(input);
+    assertThat(tab_2.getAncestors().get(0).getName(), is("tab_1"));
+    assertThat(tab_3.getAncestors().get(0).getName(), is("tab_2"));
+    assertThat(tab_3.getAncestors().get(1).getName(), is("tab_1"));
 
-    List<SchemaDef> resultSchemas =
-        new ArrayList<>(
-            answer
-                .getSchemas()
-                .stream()
-                .sorted(Comparator.comparing(SchemaDef::getName))
-                .collect(Collectors.toList()));
-    List<TableDef> resultTablesOnSchema1 = new ArrayList<>(resultSchemas.get(0).getTables());
-    List<TableDef> resultTablesOnSchema2 = new ArrayList<>(resultSchemas.get(1).getTables());
-    List<ColumnDef> resultColumnsOnSchema1 = resultTablesOnSchema1.get(0).getColumns();
-    List<ColumnDef> resultColumnsOnSchema2 = resultTablesOnSchema2.get(0).getColumns();
+    assertThat("tab_2 depends on tab_1", tab_2.dependsOn(tab_1), is(true));
+    assertThat("tab_3 depends on tab_2", tab_3.dependsOn(tab_2), is(true));
+    assertThat("tab_4 depends on tab_1", tab_4.dependsOn(tab_1), is(true));
 
-    assertThat(resultSchemas).containsExactlyElementsIn(List.of(expctSchema1, expctSchema2));
-    assertThat(resultTablesOnSchema1).containsExactlyElementsIn(Set.of(expctTable1onSchema1));
-    assertThat(resultTablesOnSchema2).containsExactlyElementsIn(Set.of(expctTable1onSchema2));
-    assertThat(resultColumnsOnSchema1).containsExactlyElementsIn(expctColumnSetOnSchema1);
-    assertThat(resultColumnsOnSchema2).containsExactlyElementsIn(expctColumnSetOnSchema2);
+    List<RelationDef> relations = schema.getRelations();
+
+    assertThat(relations.size(), is(3));
+
+    RelationDef rel_1_2 = relations.get(0);
+    RelationDef rel_2_3 = relations.get(1);
+
+    ColumnPair pair_1_2 = rel_1_2.getColumnPairs().iterator().next();
+
+    assertThat(pair_1_2.getLeft().getName(), is("col_1_1"));
+    assertThat(pair_1_2.getRight().getName(), is("col_2_1"));
+
+    List<ColumnPair> pair_2_3 = new ArrayList<>(rel_2_3.getColumnPairs());
+
+    assertThat(pair_2_3.get(0).getLeft().getName(), is("col_2_1"));
+    assertThat(pair_2_3.get(0).getRight().getName(), is("col_3_1"));
+
+    assertThat(pair_2_3.get(1).getLeft().getName(), is("col_2_2"));
+    assertThat(pair_2_3.get(1).getRight().getName(), is("col_3_2"));
   }
 
-  private Function<List<String>, List<ColumnDef>> createColumnSetAbout(TableDef table) {
-    return columnNames -> {
-      return columnNames
-          .stream()
-          .map(name -> new ColumnDef(table, name, null, null, null, null, null))
-          .collect(Collectors.toList());
-    };
+  @Test
+  public void testAnalyzeAllSchemas() {
+    Path dstDir = TestResourceUtils.copyResDir(this, testName.getMethodName());
+    Path outFile = analyzer.analyze(dstDir);
+    SchemaInfo schemaInfo = SchemaInfo.read(outFile.getParent());
+    assertReadAllSchemas(schemaInfo);
+  }
+
+  void assertReadAllSchemas(SchemaInfo schemaInfo) {
+    SchemaDef schema1 = schemaInfo.findByName("SCHEMA1").orElseThrow();
+    TableDef table1_1 = schema1.findTable("tabLE1").orElseThrow();
+    assertThat(table1_1.getColumns().get(0).getName(), is("COLUMN1"));
+    assertThat(table1_1.getColumns().get(1).getName(), is("COLUMN2"));
+
+    SchemaDef schema2 = schemaInfo.findByName("SCHEMA2").orElseThrow();
+    TableDef table1_2 = schema2.findTable("tabLE1").orElseThrow();
+    assertThat(table1_2.getColumns().get(0).getName(), is("COLUMNA"));
+    assertThat(table1_2.getColumns().get(1).getName(), is("COLUMNB"));
+  }
+
+  @Test
+  public void testUniqueConstraint() {
+    Path input = TestResourceUtils.copyResDir(this, testName.getMethodName());
+    SchemaInfo schemaInfo = analyzer.read(input);
+    assertUniqueConstraint(schemaInfo);
+    schemaInfo.write(input.getParent());
+  }
+
+  void assertUniqueConstraint(SchemaInfo schemaInfo) {
+
+    TableDef tab_1 = schemaInfo.findTable("", "tab_1").orElseThrow();
+    assertThat(tab_1.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_1_1")));
+
+    TableDef tab_2 = schemaInfo.findTable("", "tab_2").orElseThrow();
+    assertThat(tab_2.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_2_1")));
+
+    TableDef tab_3 = schemaInfo.findTable("", "tab_3").orElseThrow();
+    assertThat(tab_3.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_3_1")));
+
+    TableDef tab_4 = schemaInfo.findTable("", "tab_4").orElseThrow();
+    assertThat(tab_4.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_4_1")));
+
+    TableDef tab_5 = schemaInfo.findTable("", "tab_5").orElseThrow();
+    assertThat(tab_5.getUniqueConstraints().get(0).getColumnNames(), is(List.of("col_5_1")));
+    assertThat(tab_5.getUniqueConstraints().get(1).getColumnNames(), is(List.of("col_5_2")));
   }
 }

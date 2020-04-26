@@ -1,53 +1,54 @@
 package io.sitoolkit.rdg.core;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
+import io.sitoolkit.rdg.core.domain.check.CheckResult;
+import io.sitoolkit.rdg.core.infrastructure.E2eTestHelper;
+import java.util.Collections;
+import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
-
-import static com.google.common.truth.Truth.assertThat;
+import org.junit.rules.TestName;
 
 public class MainTest {
 
-  Path resources;
-  Path input = Path.of("target/input");
-  Path output = Path.of("target/output");
+  @Rule public TestName testName = new TestName();
 
-  @Before
-  public void before() throws IOException, URISyntaxException {
-    resources = Paths.get(Main.class.getClassLoader().getResource(".").toURI());
-    Files.createDirectories(input);
-    Files.createDirectories(output);
+  Main main = new Main();
 
-    Files.copy(
-        resources.resolve("multiple-create.sql"),
-        input.resolve("multiple-create.sql"),
-        StandardCopyOption.REPLACE_EXISTING);
-    Files.copy(
-        resources.resolve("relational-columns.sql"),
-        input.resolve("relational-columns.sql"),
-        StandardCopyOption.REPLACE_EXISTING);
+  @Test
+  public void testMultiFkWithChild() {
+    CheckResult result = E2eTestHelper.doTest(this, testName.getMethodName(), main);
+
+    assertThat(
+        "genereated files and order",
+        result.getChekedFileNames(),
+        is(List.of("tab_1.csv", "tab_2.csv", "tab_3.csv")));
+
+    assertThat("relation check error", result.getErrorList(), is(Collections.emptyList()));
   }
 
   @Test
-  public void execute() {
-    int exitVal =
-        new Main()
-            .execute(
-                new String[] {
-                  "read-sql", "gen-data", "--input", input.toString(), "--output", output.toString()
-                });
+  public void testSelfJoinWithParent() {
+    CheckResult result = E2eTestHelper.doTest(this, testName.getMethodName(), main);
 
-    assertThat(exitVal).isEqualTo(0);
+    assertThat(
+        "genereated files and order",
+        result.getChekedFileNames(),
+        is(List.of("tab_1.csv", "tab_2.csv")));
 
-    assertThat(Files.exists(input.resolve("schema.json"))).isEqualTo(true);
-    assertThat(Files.exists(output.resolve("UNKNOWN.CAMEL_CASE_TABLE.csv"))).isEqualTo(true);
-    assertThat(Files.exists(output.resolve("UNKNOWN.SNAKE_CASE_TABLE.csv"))).isEqualTo(true);
-    assertThat(Files.exists(output.resolve("UNKNOWN.DOUBLE_QUOTED_TABLE.csv"))).isEqualTo(true);
+    assertThat("relation check error", result.getErrorList(), is(Collections.emptyList()));
+  }
+
+  @Test
+  public void testSelfJoinWithChild() {
+    CheckResult result = E2eTestHelper.doTest(this, testName.getMethodName(), main);
+    assertThat(
+        "genereated files and order",
+        result.getChekedFileNames(),
+        is(List.of("tab_1.csv", "tab_2.csv", "tab_3.csv")));
+
+    assertThat("relation check error", result.getErrorList(), is(Collections.emptyList()));
   }
 }

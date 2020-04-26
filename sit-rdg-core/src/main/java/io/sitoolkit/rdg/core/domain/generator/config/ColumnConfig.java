@@ -1,14 +1,12 @@
 package io.sitoolkit.rdg.core.domain.generator.config;
 
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Objects;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 @Getter
 public class ColumnConfig {
@@ -17,6 +15,9 @@ public class ColumnConfig {
 
   @JsonProperty("columnName")
   private String name;
+
+  @JsonDeserialize(using = ValueGeneratorSpecDeserializer.class)
+  private ValueGenerator spec = new RandomValueGenerator();
 
   @JsonProperty("requiredValueCount")
   private Integer requiredValueCount;

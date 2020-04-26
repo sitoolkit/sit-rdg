@@ -1,53 +1,43 @@
 package io.sitoolkit.rdg.core.application;
 
+import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
+import io.sitoolkit.rdg.core.domain.schema.SqlScriptReader;
+import io.sitoolkit.rdg.core.domain.schema.jsqlparser.SqlScriptReaderJsqlParserImpl;
+import io.sitoolkit.rdg.core.infrastructure.SqlFileUtils;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
-import io.sitoolkit.rdg.core.domain.Converter;
-import io.sitoolkit.rdg.core.domain.schema.SchemaDef;
-import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
-import io.sitoolkit.rdg.core.domain.visitor.SchemaInfoStore;
-import io.sitoolkit.rdg.core.domain.visitor.StatementVisitorImpl;
-import io.sitoolkit.rdg.core.infrastructure.JsonUtils;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jsqlparser.statement.Statements;
 
 @Slf4j
 public class SchemaAnalyzer {
 
-  public Path analyze(Path input) throws IOException {
+  public Path analyze(Path inDirOrFile) {
 
-    SchemaInfo schemaInfo = read(input);
+    SchemaInfo schemaInfo = read(inDirOrFile);
 
-    String json = JsonUtils.object2json(schemaInfo);
+    Path outDir = inDirOrFile.toFile().isFile() ? inDirOrFile.getParent() : inDirOrFile;
 
-    return Files.writeString(input.resolve("schema.json"), json);
+    return schemaInfo.write(outDir);
   }
 
-  public SchemaInfo read(Path input) throws IOException {
-    List<Path> sqls =
-        Files.walk(input, FileVisitOption.FOLLOW_LINKS)
-            .filter(p -> StringUtils.endsWith(p.getFileName().toString(), ".sql"))
-            .peek(sql -> log.info("Read sqls:{}", sql.toString()))
-            .collect(Collectors.toList());
+  public SchemaInfo read(Path inDir) {
 
-    List<Statements> statementsList = Converter.sqls2statements(sqls);
+    SqlScriptReader scriptReader = new SqlScriptReaderJsqlParserImpl();
 
-    SchemaInfoStore store = new SchemaInfoStore();
+    try (Stream<Path> inFiles = Files.walk(inDir, FileVisitOption.FOLLOW_LINKS)) {
+      inFiles
+          .filter(SqlFileUtils::isSqlFile)
+          .sorted()
+          .map(SqlFileUtils::readSql)
+          .forEach(scriptReader::read);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
 
-    StatementVisitorImpl statementVisitor = new StatementVisitorImpl(store);
-    statementVisitor.visit(statementsList);
-
-    Set<SchemaDef> schemas = store.getSchemas();
-    SchemaInfo schemaInfo = new SchemaInfo(schemas);
-
-    return schemaInfo;
+    return scriptReader.getSchemaInfo();
   }
 }

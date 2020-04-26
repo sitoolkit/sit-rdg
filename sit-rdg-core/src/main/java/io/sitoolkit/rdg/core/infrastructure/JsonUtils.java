@@ -1,16 +1,19 @@
 package io.sitoolkit.rdg.core.infrastructure;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
 
@@ -26,15 +29,26 @@ public class JsonUtils {
     try {
       return mapper.writeValueAsString(source);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static Path object2jsonFile(Object source, Path filePath) {
+    log.info("Write: {}", filePath.toAbsolutePath().normalize());
+    try {
+      Files.writeString(filePath, object2json(source));
+      return filePath;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 
   public static <T> T json2object(Path json, Class<T> type) {
+    log.info("Read: {}", json.toAbsolutePath().normalize());
     try {
       return mapper.readValue(json.toFile(), type);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 }

@@ -1,0 +1,56 @@
+{
+  "schemaConfigs": [
+    {
+      "tableConfigs": [
+        {
+          "tableName": "tab_1",
+          "rowCount": 3,
+          "columnConfigs": [
+            {
+              "columnName": "col_1_1",
+              "spec": {
+                "type": "sequence"
+              }
+            }
+          ]
+        },
+        {
+          "tableName": "tab_2",
+          "rowCount": 10,
+          "columnConfigs": [
+            {
+              "columnName": "col_2_2",
+              "spec": {
+                "type": "range",
+                "ranges": [
+                  {
+                    "min": 1,
+                    "max": 10,
+                    "ratio": 1
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "relationConfigs": [
+        {
+          "subColumns": [
+            "tab_2.col_2_1"
+          ],
+          "multiplicities": [
+            {
+              "multiplicity": 1,
+              "ratio": 0.3
+            },
+            {
+              "multiplicity": 4,
+              "ratio": 0.7
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+
+COMMAND:
+
+  read-sql
+      Read * .sql file under the input directoryand generate schema.json file in the input directory.
+
+  gen-data
+      Generate Read schema.json file and generator-config.json file under the input directory
+      and generate * .csv file in the output directory.
+
+

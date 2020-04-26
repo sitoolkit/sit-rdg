@@ -1,13 +1,13 @@
 package io.sitoolkit.rdg.core.domain.generator.config;
 
-import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -21,7 +21,7 @@ public class SchemaConfig {
   private String name;
 
   @JsonProperty("rowCount")
-  private Integer rowCount;
+  private Long rowCount;
 
   @JsonProperty("requiredValueCount")
   private Integer requiredValueCount;
@@ -30,7 +30,9 @@ public class SchemaConfig {
   @JsonProperty("tableConfigs")
   private SortedSet<TableConfig> tableConfigs = new TreeSet<>();
 
-  public Integer getRowCount() {
+  @JsonProperty private List<RelationConfig> relationConfigs = new ArrayList<>();
+
+  public Long getRowCount() {
     if (Objects.isNull(rowCount)) {
       rowCount = setting.getDefaultRowCount();
     }
