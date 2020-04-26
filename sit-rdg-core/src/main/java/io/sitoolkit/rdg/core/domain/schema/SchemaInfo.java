@@ -50,16 +50,11 @@ public class SchemaInfo {
 
   public static SchemaInfo read(Path inDir) {
     SchemaInfo schemaInfo = JsonUtils.json2object(inDir.resolve(FILE_NAME), SchemaInfo.class);
-    schemaInfo.afterDeserialize();
     return schemaInfo;
   }
 
   public Path write(Path outDir) {
     return JsonUtils.object2jsonFile(this, outDir.resolve(FILE_NAME));
-  }
-
-  public void afterDeserialize() {
-    schemas.stream().forEach(SchemaDef::afterDeserialize);
   }
 
   @JsonIgnore

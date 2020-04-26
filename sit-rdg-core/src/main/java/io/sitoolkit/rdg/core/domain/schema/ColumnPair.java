@@ -1,16 +1,13 @@
 package io.sitoolkit.rdg.core.domain.schema;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * 当該オブジェクトが「等価である」と評価される条件は、 「互いにテーブル名、列名が等価であるColumnDefオブジェクトを持つこと」である。
@@ -18,52 +15,36 @@ import lombok.NoArgsConstructor;
  * <p>この挙動は、 「フィールドをSortedSet columnsのみ持ち」、「@EqualsAndHashcodeを宣言する」 ことにより実現している。
  */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(doNotUseGetters = true, onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class ColumnPair {
 
-  @EqualsAndHashCode.Include @Getter private List<ColumnDef> columns = new ArrayList<>();
+  @JsonProperty("main")
+  @ToString.Include(name = "main")
+  @EqualsAndHashCode.Include
+  private String mainColName;
 
-  public ColumnPair(ColumnDef main, ColumnDef sub) {
-    List.of(main, sub).stream().forEach(columns::add);
-  }
+  @JsonProperty("sub")
+  @ToString.Include(name = "sub")
+  @EqualsAndHashCode.Include
+  private String subColName;
 
+  @JsonBackReference private RelationDef relation;
+
+  @Getter(lazy = true)
   @JsonIgnore
-  public ColumnDef getMain() {
-    return columns.get(0);
-  }
+  private final ColumnDef main = relation.getSchema().findColumnByQualifiedName(mainColName).get();
 
+  @Getter(lazy = true)
   @JsonIgnore
-  public ColumnDef getSub() {
-    return columns.get(1);
-  }
+  private final ColumnDef sub = relation.getSchema().findColumnByQualifiedName(subColName).get();
 
-  @JsonCreator
-  public ColumnPair(@JsonProperty("main") String main, @JsonProperty("sub") String sub) {
+  @Getter(lazy = true)
+  @JsonIgnore
+  private final List<ColumnDef> columns = List.of(getMain(), getSub());
 
-    this(
-        ColumnDef.builder().fullyQualifiedName(main).build(),
-        ColumnDef.builder().fullyQualifiedName(sub).build());
-  }
-
-  @JsonValue
-  public Map<String, String> toJson() {
-    Map<String, String> json = new HashMap<>();
-    json.put("main", getMain().getFullyQualifiedName());
-    json.put("sub", getSub().getFullyQualifiedName());
-    return json;
-  }
-
-  public void reset(ColumnDef main, ColumnDef sub) {
-    columns.clear();
-    columns.add(main);
-    columns.add(sub);
-  }
-
-  @Override
-  public String toString() {
-    return "main:"
-        + getMain().getFullyQualifiedName()
-        + ", sub: "
-        + getSub().getFullyQualifiedName();
+  public ColumnPair(String mainColName, String subColName) {
+    this.mainColName = mainColName;
+    this.subColName = subColName;
   }
 }

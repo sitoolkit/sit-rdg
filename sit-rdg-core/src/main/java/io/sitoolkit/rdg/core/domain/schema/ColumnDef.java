@@ -11,28 +11,32 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
+@ToString(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class ColumnDef implements Comparable<ColumnDef> {
 
   @JsonBackReference private TableDef table;
 
   @JsonProperty("columnName")
+  @ToString.Include
   private String name;
 
   @EqualsAndHashCode.Include private String fullyQualifiedName;
 
-  private DataType dataType = new DataType();
+  @ToString.Include private DataType dataType = new DataType();
 
   // @JsonProperty("argumentsStringList")
   // private List<String> args;
 
   @JsonProperty("constraints")
   @Builder.Default
+  @ToString.Include
   private List<ConstraintAttribute> constraints = new ArrayList<>();
 
   @Builder.Default @JsonIgnore private List<RelationDef> relations = new ArrayList<>();

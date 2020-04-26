@@ -21,6 +21,8 @@ public class TableSorterTest {
     SchemaAnalyzer analyzer = new SchemaAnalyzer();
     Path dstDir = TestResourceUtils.copyResDir(this, "test");
     SchemaInfo schemaInfo = analyzer.read(dstDir);
+    schemaInfo.write(dstDir);
+    schemaInfo = SchemaInfo.read(dstDir);
 
     List<TableDef> tables = schemaInfo.getAllTables();
 

@@ -1,23 +1,27 @@
 package io.sitoolkit.rdg.core.domain.schema;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-@ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true, doNotUseGetters = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 @NoArgsConstructor
 public class RelationDef {
 
-  @EqualsAndHashCode.Include @Getter private Set<ColumnPair> columnPairs = new HashSet<>();
+  @Getter @JsonBackReference private SchemaDef schema;
+
+  @JsonManagedReference @EqualsAndHashCode.Include @Getter @Setter @ToString.Include
+  private List<ColumnPair> columnPairs = new ArrayList<>();
 
   @JsonIgnore
   @Getter(lazy = true)
@@ -27,21 +31,21 @@ public class RelationDef {
   @JsonIgnore
   private final List<UniqueConstraintDef> subUniqueConstraints = initSubUniqueConstraints();
 
+  @Getter(lazy = true)
+  @JsonIgnore
+  private final List<TableDef> tables =
+      columnPairs.stream()
+          .map(ColumnPair::getColumns)
+          .flatMap(Collection::stream)
+          .map(ColumnDef::getTable)
+          .distinct()
+          .collect(Collectors.toList());
+
   @JsonIgnore
   public List<ColumnDef> getDistinctColumns() {
     return columnPairs.stream()
         .map(ColumnPair::getColumns)
         .flatMap(Collection::stream)
-        .distinct()
-        .collect(Collectors.toList());
-  }
-
-  @JsonIgnore
-  public List<TableDef> getTables() {
-    return columnPairs.stream()
-        .map(ColumnPair::getColumns)
-        .flatMap(Collection::stream)
-        .map(ColumnDef::getTable)
         .distinct()
         .collect(Collectors.toList());
   }

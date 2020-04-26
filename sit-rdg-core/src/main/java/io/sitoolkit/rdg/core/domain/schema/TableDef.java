@@ -22,10 +22,11 @@ import org.apache.commons.lang3.StringUtils;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
+@ToString(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class TableDef implements Comparable<TableDef> {
 
-  @ToString.Exclude @JsonBackReference private SchemaDef schema;
+  @JsonBackReference private SchemaDef schema;
 
   @JsonIgnore private String schemaName;
 
@@ -38,6 +39,7 @@ public class TableDef implements Comparable<TableDef> {
       StringUtils.isEmpty(schemaName) ? getName() : schema.getName() + "." + getName();
 
   @JsonProperty("tableName")
+  @ToString.Include
   private String name;
 
   @Builder.Default @JsonManagedReference private List<ColumnDef> columns = new ArrayList<>();

@@ -1,6 +1,5 @@
 package io.sitoolkit.rdg.core.domain.schema.jsqlparser;
 
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
@@ -72,6 +71,8 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
   public void analyzeFk(Table table, ForeignKeyIndex fk) {
     log.debug("Analyze: {}", fk);
     String schemaName = StringUtils.defaultString(table.getSchemaName());
+    String schemaNamePart = StringUtils.isEmpty(schemaName) ? "" : schemaName + ".";
+
     Optional<TableDef> mainTableOpt = schemaInfo.findTable(schemaName, fk.getTable().getName());
 
     if (!mainTableOpt.isPresent()) {
@@ -83,25 +84,30 @@ public class StaticRelationFinder extends StatementVisitorAdapter {
     List<ColumnPair> pairs = new ArrayList<>();
 
     for (int i = 0; i < fk.getColumnsNames().size(); i++) {
-      ColumnDef mainColumn =
-          schemaInfo
-              .findColumn(
-                  fk.getTable().getSchemaName(),
-                  referencedTableName,
-                  fk.getReferencedColumnNames().get(i))
-              .orElseThrow();
-      ColumnDef subColumn =
-          schemaInfo
-              .findColumn(table.getSchemaName(), readingTableName, fk.getColumnsNames().get(i))
-              .orElseThrow();
+      String mainColumn =
+          schemaNamePart + referencedTableName + "." + fk.getReferencedColumnNames().get(i);
+      String subColumn = schemaNamePart + readingTableName + "." + fk.getColumnsNames().get(i);
 
       pairs.add(new ColumnPair(mainColumn, subColumn));
+      // ColumnDef mainColumn =
+      //     schemaInfo
+      //         .findColumn(
+      //             fk.getTable().getSchemaName(),
+      //             referencedTableName,
+      //             fk.getReferencedColumnNames().get(i))
+      //         .orElseThrow();
+      // ColumnDef subColumn =
+      //     schemaInfo
+      //         .findColumn(table.getSchemaName(), readingTableName, fk.getColumnsNames().get(i))
+      //         .orElseThrow();
+
+      // pairs.add(new ColumnPair(mainColumn, subColumn));
     }
 
     RelationDef relation = new RelationDef();
     relation.addAllPairs(pairs);
 
-    schemaInfo.findByName(schemaName).orElseThrow().getRelations().add(relation);
+    schemaInfo.findByName(table.getSchemaName()).orElseThrow().getRelations().add(relation);
   }
 
   void analyzeNamedConstraint(Table table, NamedConstraint constraint) {

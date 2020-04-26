@@ -29,7 +29,7 @@ public class SchemaDef {
 
   @Builder.Default @JsonManagedReference private SortedSet<TableDef> tables = new TreeSet<>();
 
-  @Builder.Default private List<RelationDef> relations = new ArrayList<>();
+  @JsonManagedReference @Builder.Default private List<RelationDef> relations = new ArrayList<>();
 
   @JsonIgnore
   public List<ColumnDef> getColumns() {
@@ -73,21 +73,5 @@ public class SchemaDef {
     }
 
     return StringUtils.equalsIgnoreCase(this.name, name);
-  }
-
-  public void afterDeserialize() {
-    relations.stream().forEach(this::resolveRelationReferenceOfColumn);
-  }
-
-  void resolveRelationReferenceOfColumn(RelationDef relation) {
-
-    for (ColumnPair pair : relation.getColumnPairs()) {
-      ColumnDef main =
-          findColumnByQualifiedName(pair.getMain().getFullyQualifiedName()).orElseThrow();
-      ColumnDef sub =
-          findColumnByQualifiedName(pair.getSub().getFullyQualifiedName()).orElseThrow();
-      pair.reset(main, sub);
-      // columnInSchema.getRelations().add(relation);
-    }
   }
 }

@@ -60,21 +60,21 @@ public class RowDataGenerator {
     return rowData;
   }
 
-  public static RowData generateUnrelated(
-      TableDef table, RelationDef relation, GeneratorConfig config) {
-    RowData rowData = new RowData();
+  // public static RowData generateUnrelated(
+  //     TableDef table, RelationDef relation, GeneratorConfig config) {
+  //   RowData rowData = new RowData();
 
-    for (ColumnDef column : table.getColumns()) {
-      if (!relation.getDistinctColumns().contains(column)) {
-        continue;
-      }
-      ValueGenerator generator = config.findValueGenerator(column);
-      String generatedValue = generator.generate(column);
-      rowData.put(column, generatedValue);
-    }
+  //   for (ColumnDef column : table.getColumns()) {
+  //     if (!relation.getDistinctColumns().contains(column)) {
+  //       continue;
+  //     }
+  //     ValueGenerator generator = config.findValueGenerator(column);
+  //     String generatedValue = generator.generate(column);
+  //     rowData.put(column, generatedValue);
+  //   }
 
-    return rowData;
-  }
+  //   return rowData;
+  // }
 
   public static RowData generateForSelfRelation(
       RowData rowData, RelationDef relation, GeneratorConfig config) {
