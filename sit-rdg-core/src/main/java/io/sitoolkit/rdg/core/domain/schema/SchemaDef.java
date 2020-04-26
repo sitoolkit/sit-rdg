@@ -82,11 +82,11 @@ public class SchemaDef {
   void resolveRelationReferenceOfColumn(RelationDef relation) {
 
     for (ColumnPair pair : relation.getColumnPairs()) {
-      ColumnDef left =
-          findColumnByQualifiedName(pair.getLeft().getFullyQualifiedName()).orElseThrow();
-      ColumnDef right =
-          findColumnByQualifiedName(pair.getRight().getFullyQualifiedName()).orElseThrow();
-      pair.reset(left, right);
+      ColumnDef main =
+          findColumnByQualifiedName(pair.getMain().getFullyQualifiedName()).orElseThrow();
+      ColumnDef sub =
+          findColumnByQualifiedName(pair.getSub().getFullyQualifiedName()).orElseThrow();
+      pair.reset(main, sub);
       // columnInSchema.getRelations().add(relation);
     }
   }

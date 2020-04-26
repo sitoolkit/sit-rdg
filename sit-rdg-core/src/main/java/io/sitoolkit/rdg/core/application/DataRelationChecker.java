@@ -74,8 +74,8 @@ public class DataRelationChecker {
       boolean result =
           check(
               relation,
-              csvDataMap.get(relation.getLeftTable().getName()),
-              csvDataMap.get(relation.getRightTable().getName()));
+              csvDataMap.get(relation.getMainTable().getName()),
+              csvDataMap.get(relation.getSubTable().getName()));
 
       if (result) {
         log.info("OK " + relation);
@@ -104,8 +104,8 @@ public class DataRelationChecker {
   }
 
   boolean check(RelationDef relation, CsvData mainData, CsvData subData) {
-    List<String> mainCols = cols2names(relation.getLeftColumns());
-    List<String> subCols = cols2names(relation.getRightColumns());
+    List<String> mainCols = cols2names(relation.getMainColumns());
+    List<String> subCols = cols2names(relation.getSubColumns());
 
     return mainData.containsAll(mainCols, subData, subCols);
   }

@@ -81,26 +81,26 @@ public class RowDataGenerator {
     RowData newData = new RowData();
 
     for (ColumnPair pair : relation.getColumnPairs()) {
-      ColumnDef left = pair.getLeft();
-      ColumnDef right = pair.getRight();
-      String leftValue = rowData.get(left);
-      String rightValue = rowData.get(right);
+      ColumnDef main = pair.getMain();
+      ColumnDef sub = pair.getSub();
+      String mainValue = rowData.get(main);
+      String subValue = rowData.get(sub);
 
-      if (leftValue == null) {
+      if (mainValue == null) {
 
-        if (rightValue == null) {
-          ValueGenerator generator = config.findValueGenerator(left);
-          leftValue = generator.generate(left);
-          newData.put(left, leftValue);
-          newData.put(right, leftValue);
+        if (subValue == null) {
+          ValueGenerator generator = config.findValueGenerator(main);
+          mainValue = generator.generate(main);
+          newData.put(main, mainValue);
+          newData.put(sub, mainValue);
         } else {
-          newData.put(left, rightValue);
+          newData.put(main, subValue);
         }
 
       } else {
 
-        if (rightValue == null) {
-          newData.put(right, leftValue);
+        if (subValue == null) {
+          newData.put(sub, mainValue);
         }
       }
     }
@@ -117,7 +117,7 @@ public class RowDataGenerator {
 
     for (ColumnPair pair : relation.getColumnPairs()) {
       // TODO for primary key column
-      ColumnDef column = pair.getRight();
+      ColumnDef column = pair.getSub();
       ValueGenerator generator = config.findValueGenerator(column);
       rowData.put(column, generator.generate(column));
     }
@@ -128,7 +128,7 @@ public class RowDataGenerator {
   public static RowData replicateForSub(RowData rowData, RelationDef relation) {
     RowData replica = new RowData();
     for (ColumnPair pair : relation.getColumnPairs()) {
-      replica.put(pair.getRight(), rowData.get(pair.getLeft()));
+      replica.put(pair.getSub(), rowData.get(pair.getMain()));
     }
     return replica;
   }
@@ -136,7 +136,7 @@ public class RowDataGenerator {
   public static RowData filter(RowData rowData, RelationDef relation) {
     RowData filterd = new RowData();
     for (ColumnPair pair : relation.getColumnPairs()) {
-      filterd.put(pair.getLeft(), rowData.get(pair.getLeft()));
+      filterd.put(pair.getMain(), rowData.get(pair.getMain()));
     }
     return filterd;
   }
@@ -157,16 +157,16 @@ public class RowDataGenerator {
     RowData newRowData = new RowData();
 
     for (ColumnPair parentPair : parentRelation.getColumnPairs()) {
-      newRowData.put(parentPair.getRight(), rowData.get(parentPair.getLeft()));
+      newRowData.put(parentPair.getSub(), rowData.get(parentPair.getMain()));
     }
 
     for (ColumnPair pair : relation.getColumnPairs()) {
-      ColumnDef left = pair.getLeft();
-      if (newRowData.contains(left)) {
+      ColumnDef main = pair.getMain();
+      if (newRowData.contains(main)) {
         continue;
       }
-      ValueGenerator generator = config.findValueGenerator(left);
-      newRowData.put(left, generator.generate(left));
+      ValueGenerator generator = config.findValueGenerator(main);
+      newRowData.put(main, generator.generate(main));
     }
 
     return newRowData;
@@ -177,15 +177,15 @@ public class RowDataGenerator {
     RowData appended = new RowData();
 
     for (ColumnPair pair : relation.getColumnPairs()) {
-      if (rowData.contains(pair.getLeft())) {
-        appended.put(pair.getRight(), rowData.get(pair.getLeft()));
+      if (rowData.contains(pair.getMain())) {
+        appended.put(pair.getSub(), rowData.get(pair.getMain()));
         continue;
       }
 
-      ValueGenerator generator = config.findValueGenerator(pair.getLeft());
-      String value = generator.generate(pair.getLeft());
-      rowData.put(pair.getLeft(), value);
-      appended.put(pair.getRight(), value);
+      ValueGenerator generator = config.findValueGenerator(pair.getMain());
+      String value = generator.generate(pair.getMain());
+      rowData.put(pair.getMain(), value);
+      appended.put(pair.getSub(), value);
     }
 
     return appended;
@@ -195,7 +195,7 @@ public class RowDataGenerator {
     RowData appended = new RowData();
 
     for (ColumnPair pair : relation.getColumnPairs()) {
-      ColumnDef main = pair.getLeft();
+      ColumnDef main = pair.getMain();
       if (rowData.contains(main)) {
         appended.put(main, rowData.get(main));
         continue;

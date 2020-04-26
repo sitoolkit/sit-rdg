@@ -45,7 +45,7 @@ public class RowData {
 
   public void putAllMainToSub(RowData rowData, RelationDef relation) {
     for (ColumnPair pair : relation.getColumnPairs()) {
-      put(pair.getRight(), rowData.get(pair.getLeft()));
+      put(pair.getSub(), rowData.get(pair.getMain()));
     }
   }
 
@@ -55,7 +55,7 @@ public class RowData {
 
   public void mergeRelatedData(RowData relatedRowData, RelationDef relation) {
     for (ColumnPair pair : relation.getColumnPairs()) {
-      put(pair.getRight(), relatedRowData.get(pair.getLeft()));
+      put(pair.getSub(), relatedRowData.get(pair.getMain()));
     }
   }
 
@@ -65,7 +65,7 @@ public class RowData {
 
   @Deprecated
   public boolean containsAsSub(RelationDef relation) {
-    for (ColumnDef column : relation.getRightColumns()) {
+    for (ColumnDef column : relation.getSubColumns()) {
       if (!contains(column)) {
         return false;
       }

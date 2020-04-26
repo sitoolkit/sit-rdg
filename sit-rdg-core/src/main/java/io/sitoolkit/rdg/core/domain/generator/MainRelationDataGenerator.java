@@ -18,9 +18,9 @@ public class MainRelationDataGenerator extends RelationDataGenerator {
   @Override
   public void doGenerateAndFill(RowData rowData) {
 
-    RowData existingData = rowData.filter(getRelation().getLeftColumns());
+    RowData existingData = rowData.filter(getRelation().getMainColumns());
 
-    if (existingData.size() == getRelation().getLeftColumns().size()) {
+    if (existingData.size() == getRelation().getMainColumns().size()) {
       RowData subData = RowDataGenerator.replicateForSub(existingData, getRelation());
 
       log.trace("Existing main data: {} is passed as sub data: {}", existingData, subData);

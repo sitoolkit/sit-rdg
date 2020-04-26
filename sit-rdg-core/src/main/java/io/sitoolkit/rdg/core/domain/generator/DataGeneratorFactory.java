@@ -92,7 +92,7 @@ public class DataGeneratorFactory {
   }
 
   static RowDataStore buildDataStore(RelationDef relation, GeneratorConfig config) {
-    Optional<RelationConfig> rconfig = config.findRelationConfig(relation.getRightColumns());
+    Optional<RelationConfig> rconfig = config.findRelationConfig(relation.getSubColumns());
 
     if (rconfig.isEmpty()) {
       return new RowDataStoreImpl();

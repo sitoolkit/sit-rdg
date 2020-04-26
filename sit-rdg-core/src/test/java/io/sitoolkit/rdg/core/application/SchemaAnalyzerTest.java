@@ -70,16 +70,16 @@ public class SchemaAnalyzerTest {
 
     ColumnPair pair_1_2 = rel_1_2.getColumnPairs().iterator().next();
 
-    assertThat(pair_1_2.getLeft().getName(), is("col_1_1"));
-    assertThat(pair_1_2.getRight().getName(), is("col_2_1"));
+    assertThat(pair_1_2.getMain().getName(), is("col_1_1"));
+    assertThat(pair_1_2.getSub().getName(), is("col_2_1"));
 
     List<ColumnPair> pair_2_3 = new ArrayList<>(rel_2_3.getColumnPairs());
 
-    assertThat(pair_2_3.get(0).getLeft().getName(), is("col_2_1"));
-    assertThat(pair_2_3.get(0).getRight().getName(), is("col_3_1"));
+    assertThat(pair_2_3.get(0).getMain().getName(), is("col_2_1"));
+    assertThat(pair_2_3.get(0).getSub().getName(), is("col_3_1"));
 
-    assertThat(pair_2_3.get(1).getLeft().getName(), is("col_2_2"));
-    assertThat(pair_2_3.get(1).getRight().getName(), is("col_3_2"));
+    assertThat(pair_2_3.get(1).getMain().getName(), is("col_2_2"));
+    assertThat(pair_2_3.get(1).getSub().getName(), is("col_3_2"));
   }
 
   @Test

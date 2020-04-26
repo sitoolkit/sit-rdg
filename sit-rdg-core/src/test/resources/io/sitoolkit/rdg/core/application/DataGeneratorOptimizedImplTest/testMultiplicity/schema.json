@@ -34,8 +34,8 @@
         {
           "columnPairs": [
             {
-              "left": "tab_1.col_1_1",
-              "right": "tab_2.col_2_1"
+              "main": "tab_1.col_1_1",
+              "sub": "tab_2.col_2_1"
             }
           ]
         }

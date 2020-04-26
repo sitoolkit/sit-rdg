@@ -49,7 +49,7 @@ public class TableDef implements Comparable<TableDef> {
   public boolean isDependent() {
 
     for (RelationDef relation : getRelations()) {
-      if (relation.getRightTable().equals(this)) {
+      if (relation.getSubTable().equals(this)) {
         return true;
       }
     }
@@ -68,8 +68,8 @@ public class TableDef implements Comparable<TableDef> {
 
     List<TableDef> parents =
         getRelations().stream()
-            .map(RelationDef::getLeftTable)
-            .filter(leftTable -> !leftTable.equals(this))
+            .map(RelationDef::getMainTable)
+            .filter(mainTable -> !mainTable.equals(this))
             .collect(Collectors.toList());
 
     ancestors.addAll(parents);
@@ -99,7 +99,7 @@ public class TableDef implements Comparable<TableDef> {
     return getRelations().stream()
         .filter(
             relation ->
-                !relation.getRightTable().equals(this) && relation.getLeftTable().equals(this))
+                !relation.getSubTable().equals(this) && relation.getMainTable().equals(this))
         .sorted(
             Comparator.comparingInt(
                     relation -> ((RelationDef) relation).getMainUniqueConstraints().size())
@@ -112,7 +112,7 @@ public class TableDef implements Comparable<TableDef> {
     return getRelations().stream()
         .filter(
             relation ->
-                relation.getRightTable().equals(this) && !relation.getLeftTable().equals(this))
+                relation.getSubTable().equals(this) && !relation.getMainTable().equals(this))
         .sorted(Comparator.comparing(RelationDef::getSize).reversed())
         .collect(Collectors.toList());
   }

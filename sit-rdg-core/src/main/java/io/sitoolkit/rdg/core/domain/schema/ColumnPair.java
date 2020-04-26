@@ -23,47 +23,47 @@ public class ColumnPair {
 
   @EqualsAndHashCode.Include @Getter private List<ColumnDef> columns = new ArrayList<>();
 
-  public ColumnPair(ColumnDef left, ColumnDef right) {
-    List.of(left, right).stream().forEach(columns::add);
+  public ColumnPair(ColumnDef main, ColumnDef sub) {
+    List.of(main, sub).stream().forEach(columns::add);
   }
 
   @JsonIgnore
-  public ColumnDef getLeft() {
+  public ColumnDef getMain() {
     return columns.get(0);
   }
 
   @JsonIgnore
-  public ColumnDef getRight() {
+  public ColumnDef getSub() {
     return columns.get(1);
   }
 
   @JsonCreator
-  public ColumnPair(@JsonProperty("left") String left, @JsonProperty("right") String right) {
+  public ColumnPair(@JsonProperty("main") String main, @JsonProperty("sub") String sub) {
 
     this(
-        ColumnDef.builder().fullyQualifiedName(left).build(),
-        ColumnDef.builder().fullyQualifiedName(right).build());
+        ColumnDef.builder().fullyQualifiedName(main).build(),
+        ColumnDef.builder().fullyQualifiedName(sub).build());
   }
 
   @JsonValue
   public Map<String, String> toJson() {
     Map<String, String> json = new HashMap<>();
-    json.put("left", getLeft().getFullyQualifiedName());
-    json.put("right", getRight().getFullyQualifiedName());
+    json.put("main", getMain().getFullyQualifiedName());
+    json.put("sub", getSub().getFullyQualifiedName());
     return json;
   }
 
-  public void reset(ColumnDef left, ColumnDef right) {
+  public void reset(ColumnDef main, ColumnDef sub) {
     columns.clear();
-    columns.add(left);
-    columns.add(right);
+    columns.add(main);
+    columns.add(sub);
   }
 
   @Override
   public String toString() {
-    return "left:"
-        + getLeft().getFullyQualifiedName()
-        + ", right: "
-        + getRight().getFullyQualifiedName();
+    return "main:"
+        + getMain().getFullyQualifiedName()
+        + ", sub: "
+        + getSub().getFullyQualifiedName();
   }
 }

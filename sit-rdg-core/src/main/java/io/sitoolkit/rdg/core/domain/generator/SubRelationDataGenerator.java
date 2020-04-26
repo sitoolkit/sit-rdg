@@ -18,7 +18,7 @@ public class SubRelationDataGenerator extends RelationDataGenerator {
   @Override
   public void doGenerateAndFill(RowData rowData) {
 
-    if (rowData.containsAll(getRelation().getRightColumns())) {
+    if (rowData.containsAll(getRelation().getSubColumns())) {
       return;
     }
 

@@ -59,40 +59,40 @@ public class RelationDef {
   }
 
   @JsonIgnore
-  public List<ColumnDef> getLeftColumns() {
-    return columnPairs.stream().map(ColumnPair::getLeft).collect(Collectors.toList());
+  public List<ColumnDef> getMainColumns() {
+    return columnPairs.stream().map(ColumnPair::getMain).collect(Collectors.toList());
   }
 
   @JsonIgnore
-  public List<ColumnDef> getRightColumns() {
-    return columnPairs.stream().map(ColumnPair::getRight).collect(Collectors.toList());
+  public List<ColumnDef> getSubColumns() {
+    return columnPairs.stream().map(ColumnPair::getSub).collect(Collectors.toList());
   }
 
   @JsonIgnore
-  public TableDef getLeftTable() {
-    return columnPairs.iterator().next().getLeft().getTable();
+  public TableDef getMainTable() {
+    return columnPairs.iterator().next().getMain().getTable();
   }
 
   @JsonIgnore
-  public TableDef getRightTable() {
-    return columnPairs.iterator().next().getRight().getTable();
+  public TableDef getSubTable() {
+    return columnPairs.iterator().next().getSub().getTable();
   }
 
   @JsonIgnore
   public int getSize() {
-    return getLeftColumns().size();
+    return getMainColumns().size();
   }
 
   @JsonIgnore
   public boolean isSelfRelation() {
-    return getRightTable().equals(getLeftTable());
+    return getSubTable().equals(getMainTable());
   }
 
   @JsonIgnore
   public List<UniqueConstraintDef> initMainUniqueConstraints() {
     List<UniqueConstraintDef> mainUniques = new ArrayList<>();
-    for (UniqueConstraintDef unique : getLeftTable().getUniqueConstraints()) {
-      if (unique.getColumns().equals(getLeftColumns())) {
+    for (UniqueConstraintDef unique : getMainTable().getUniqueConstraints()) {
+      if (unique.getColumns().equals(getMainColumns())) {
         mainUniques.add(unique);
       }
     }
@@ -101,8 +101,8 @@ public class RelationDef {
 
   private List<UniqueConstraintDef> initSubUniqueConstraints() {
     List<UniqueConstraintDef> subUniques = new ArrayList<>();
-    for (UniqueConstraintDef unique : getRightTable().getUniqueConstraints()) {
-      if (unique.getColumns().equals(getRightColumns())) {
+    for (UniqueConstraintDef unique : getSubTable().getUniqueConstraints()) {
+      if (unique.getColumns().equals(getSubColumns())) {
         subUniques.add(unique);
       }
     }

@@ -62,20 +62,20 @@
         {
           "columnPairs": [
             {
-              "left": "tab_1.col_1_1",
-              "right": "tab_2.col_2_1"
+              "main": "tab_1.col_1_1",
+              "sub": "tab_2.col_2_1"
             }
           ]
         },
         {
           "columnPairs": [
             {
-              "left": "tab_2.col_2_1",
-              "right": "tab_3.col_3_1"
+              "main": "tab_2.col_2_1",
+              "sub": "tab_3.col_3_1"
             },
             {
-              "left": "tab_2.col_2_2",
-              "right": "tab_3.col_3_2"
+              "main": "tab_2.col_2_2",
+              "sub": "tab_3.col_3_2"
             }
           ]
         }
