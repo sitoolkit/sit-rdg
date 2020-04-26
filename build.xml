@@ -30,13 +30,13 @@
 
     <property name="version" value="1.0.0-beta.1-SNAPSHOT" />
 
-    <!-- <exec executable="${mvn.cmd}" dir="${basedir}">
+    <exec executable="${mvn.cmd}" dir="${basedir}">
       <arg line="versions:set -DnewVersion=${version} -DgenerateBackupPoms=false" />
     </exec>
 
     <exec executable="${mvn.cmd}" dir="${basedir}/sit-rdg-maven-plugin/src/test/projects/test-project-1">
       <arg line="versions:set -DnewVersion=${version} -DgenerateBackupPoms=false" />
-    </exec> -->
+    </exec>
 
     <if>
       <not>
