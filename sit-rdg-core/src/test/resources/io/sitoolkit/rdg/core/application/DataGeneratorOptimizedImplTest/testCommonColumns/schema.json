@@ -1,0 +1,19 @@
+{
+  "schemas": [
+    {
+      "tables": [
+        {
+          "tableName": "tab_1",
+          "columns": [
+            {
+              "columnName": "created_at"
+            },
+            {
+              "columnName": "created_by"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

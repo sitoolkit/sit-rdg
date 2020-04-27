@@ -1,5 +1,6 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
+import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.RelationConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
@@ -125,6 +126,13 @@ public class DataGeneratorFactory {
 
   static void registerColumnValueGenerator(final TableDef table, GeneratorConfig config) {
     for (ColumnDef column : table.getColumns()) {
+
+      ColumnConfig colConfig = config.getCommonColumnMap().get(column.getName());
+
+      if (colConfig != null) {
+        column.setValueGenerator(colConfig.getSpec());
+        continue;
+      }
 
       Optional<ValueGenerator> generatorOpt = config.findValueGenerator(column);
       if (generatorOpt.isPresent()) {

@@ -1,0 +1,19 @@
+{
+  "defaultRowCount": 1,
+  "commonColumns": [
+    {
+      "columnName": "created_at",
+      "spec": {
+        "type": "const",
+        "value": "2020-04-27"
+      }
+    },
+    {
+      "columnName": "created_by",
+      "spec": {
+        "type": "const",
+        "value": "admin"
+      }
+    }
+  ]
+}

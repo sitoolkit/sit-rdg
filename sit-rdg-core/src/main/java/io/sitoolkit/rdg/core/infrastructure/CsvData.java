@@ -45,4 +45,8 @@ public class CsvData {
   public boolean isUnique(List<String> cols) {
     return CsvUtils.selectCols(records, cols, HashSet.class).size() == records.size();
   }
+
+  public String get(int row, String col) {
+    return records.get(row).get(col);
+  }
 }

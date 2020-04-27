@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,15 @@ public class GeneratorConfig {
   @JsonProperty("defaultRequiredValueCount")
   private Integer defaultRequiredValueCount;
 
+  @JsonProperty private List<ColumnConfig> commonColumns = new ArrayList<>();
+
   @JsonManagedReference
   @JsonProperty("schemaConfigs")
   private List<SchemaConfig> schemaConfigs = Collections.emptyList();
+
+  @Getter(lazy = true)
+  private final Map<String, ColumnConfig> commonColumnMap =
+      commonColumns.stream().collect(Collectors.toMap(ColumnConfig::getName, s -> s));
 
   public Long getDefaultRowCount() {
     if (Objects.isNull(defaultRowCount)) {

@@ -14,6 +14,8 @@ import lombok.Getter;
 public class CheckResult {
   @Getter private List<String> chekedFileNames = new ArrayList<>();
 
+  @Getter private List<Path> checkedFiles = new ArrayList<>();
+
   @Getter private List<RelationDef> okRelations = new ArrayList<>();
 
   @Getter private List<RelationDef> ngRelations = new ArrayList<>();
@@ -24,6 +26,7 @@ public class CheckResult {
 
   public Path addFile(Path file) {
     chekedFileNames.add(file.getFileName().toString());
+    checkedFiles.add(file);
     return file;
   }
 

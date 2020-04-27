@@ -31,6 +31,9 @@ public class ValueGeneratorSpecDeserializer extends JsonDeserializer<ValueGenera
       case "choice":
         generatorType = ChoiceValueGenerator.class;
         break;
+      case "const":
+        generatorType = ConstantGenerator.class;
+        break;
       case "date":
         generatorType = DateValueGenerator.class;
         break;
