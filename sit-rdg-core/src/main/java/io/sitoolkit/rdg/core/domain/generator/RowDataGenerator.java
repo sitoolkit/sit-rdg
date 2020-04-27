@@ -1,12 +1,14 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
-import io.sitoolkit.rdg.core.domain.generator.config.ValueGenerator;
+// import io.sitoolkit.rdg.core.domain.generator.config.ValueGenerator;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.ColumnPair;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
+
 import java.util.List;
 import java.util.function.Function;
 import lombok.AccessLevel;
@@ -30,8 +32,10 @@ public class RowDataGenerator {
       RowData uniqueData = new RowData();
 
       for (ColumnDef column : unique.getColumns()) {
-        ValueGenerator generator = config.findValueGenerator(column);
-        String generatedValue = generator.generate(column);
+        // ValueGenerator generator = config.findValueGenerator(column);
+        // String generatedValue = generator.generate(column);
+        ValueGenerator generator = column.getValueGenerator();
+        String generatedValue = generator.generate(rowData);
         uniqueData.put(column, generatedValue);
       }
 
@@ -52,8 +56,10 @@ public class RowDataGenerator {
     RowData rowData = new RowData();
 
     for (ColumnDef column : table.getColumns()) {
-      ValueGenerator generator = config.findValueGenerator(column);
-      String generatedValue = generator.generate(column);
+      // ValueGenerator generator = config.findValueGenerator(column);
+      // String generatedValue = generator.generate(column);
+      ValueGenerator generator = column.getValueGenerator();
+      String generatedValue = generator.generate(rowData);
       rowData.put(column, generatedValue);
     }
 
@@ -89,8 +95,10 @@ public class RowDataGenerator {
       if (mainValue == null) {
 
         if (subValue == null) {
-          ValueGenerator generator = config.findValueGenerator(main);
-          mainValue = generator.generate(main);
+          // ValueGenerator generator = config.findValueGenerator(main);
+          // mainValue = generator.generate(main);
+          ValueGenerator generator = main.getValueGenerator();
+          mainValue = generator.generate(rowData);
           newData.put(main, mainValue);
           newData.put(sub, mainValue);
         } else {
@@ -118,8 +126,10 @@ public class RowDataGenerator {
     for (ColumnPair pair : relation.getColumnPairs()) {
       // TODO for primary key column
       ColumnDef column = pair.getSub();
-      ValueGenerator generator = config.findValueGenerator(column);
-      rowData.put(column, generator.generate(column));
+      // ValueGenerator generator = config.findValueGenerator(column);
+      // rowData.put(column, generator.generate(column));
+      ValueGenerator generator = column.getValueGenerator();
+      rowData.put(column, generator.generate(rowData));
     }
 
     return rowData;
@@ -147,48 +157,11 @@ public class RowDataGenerator {
         continue;
       }
 
-      ValueGenerator generator = config.findValueGenerator(column);
-      rowData.put(column, generator.generate(column));
+      // ValueGenerator generator = config.findValueGenerator(column);
+      // rowData.put(column, generator.generate(column));
+      ValueGenerator generator = column.getValueGenerator();
+      rowData.put(column, generator.generate(rowData));
     }
-  }
-
-  public static RowData takeOverGenerate(
-      RowData rowData, RelationDef parentRelation, RelationDef relation, GeneratorConfig config) {
-    RowData newRowData = new RowData();
-
-    for (ColumnPair parentPair : parentRelation.getColumnPairs()) {
-      newRowData.put(parentPair.getSub(), rowData.get(parentPair.getMain()));
-    }
-
-    for (ColumnPair pair : relation.getColumnPairs()) {
-      ColumnDef main = pair.getMain();
-      if (newRowData.contains(main)) {
-        continue;
-      }
-      ValueGenerator generator = config.findValueGenerator(main);
-      newRowData.put(main, generator.generate(main));
-    }
-
-    return newRowData;
-  }
-
-  public static RowData generateAndFill(
-      RowData rowData, RelationDef relation, GeneratorConfig config) {
-    RowData appended = new RowData();
-
-    for (ColumnPair pair : relation.getColumnPairs()) {
-      if (rowData.contains(pair.getMain())) {
-        appended.put(pair.getSub(), rowData.get(pair.getMain()));
-        continue;
-      }
-
-      ValueGenerator generator = config.findValueGenerator(pair.getMain());
-      String value = generator.generate(pair.getMain());
-      rowData.put(pair.getMain(), value);
-      appended.put(pair.getSub(), value);
-    }
-
-    return appended;
   }
 
   public static RowData append(RowData rowData, RelationDef relation, GeneratorConfig config) {
@@ -201,8 +174,10 @@ public class RowDataGenerator {
         continue;
       }
 
-      ValueGenerator generator = config.findValueGenerator(main);
-      String value = generator.generate(main);
+      // ValueGenerator generator = config.findValueGenerator(main);
+      // String value = generator.generate(main);
+      ValueGenerator generator = main.getValueGenerator();
+      String value = generator.generate(rowData);
       appended.put(main, value);
     }
 
@@ -216,8 +191,10 @@ public class RowDataGenerator {
     for (ColumnDef column : unique.getColumns()) {
       String value = rowData.get(column);
       if (value == null) {
-        ValueGenerator generator = config.findValueGenerator(column);
-        value = generator.generate(column);
+        // ValueGenerator generator = config.findValueGenerator(column);
+        // value = generator.generate(column);
+        ValueGenerator generator = column.getValueGenerator();
+        value = generator.generate(rowData);
       }
 
       append.put(column, value);

@@ -2,9 +2,12 @@ package io.sitoolkit.rdg.core.domain.schema;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public enum DataTypeName {
   CHAR(ArgsResolverCharImpl.instance, "CHARACTER", "CHARACTER_VARYING"),
   VARCHAR(ArgsResolverCharImpl.instance, "TEXT", "VARCHAR2"),
@@ -36,10 +39,18 @@ public enum DataTypeName {
 
   public static DataTypeName parse(String str) {
     String upperStr = str.toUpperCase();
-    return Stream.of(values())
-        .filter(dataTypeName -> dataTypeName.tags.contains(upperStr))
-        .findFirst()
-        .orElse(UNKNOWN);
+    Optional<DataTypeName> name =
+        Stream.of(values())
+            .filter(dataTypeName -> dataTypeName.tags.contains(upperStr))
+            .findFirst();
+
+    if (name.isPresent()) {
+      return name.get();
+    }
+
+    log.warn("Fail to parse {}", str);
+
+    return UNKNOWN;
   }
 
   public void resolve(List<String> args, DataType dataType) {

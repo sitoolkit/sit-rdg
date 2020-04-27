@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -86,9 +87,8 @@ public class GeneratorConfig {
     return getScale().apply(requiredValueCount);
   }
 
-  public ValueGenerator findValueGenerator(ColumnDef column) {
-    return getValueGeneratorMap()
-        .computeIfAbsent(column.getFullyQualifiedName(), k -> new RandomValueGenerator());
+  public Optional<ValueGenerator> findValueGenerator(ColumnDef column) {
+    return Optional.ofNullable(getValueGeneratorMap().get(column.getFullyQualifiedName()));
   }
 
   @Deprecated

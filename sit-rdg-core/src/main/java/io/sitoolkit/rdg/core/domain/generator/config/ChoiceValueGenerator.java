@@ -1,6 +1,7 @@
 package io.sitoolkit.rdg.core.domain.generator.config;
 
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import io.sitoolkit.rdg.core.infrastructure.NormalizableRatio;
 import io.sitoolkit.rdg.core.infrastructure.RatioUtils;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class ChoiceValueGenerator implements ValueGenerator {
   private List<Choice> values = new ArrayList<>();
 
   @Override
-  public String generate(ColumnDef column) {
+  public String generate(RowData rowData) {
     return RatioUtils.get(values).getValue();
   }
 

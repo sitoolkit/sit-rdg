@@ -2,7 +2,8 @@ package io.sitoolkit.rdg.core.domain.generator.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import io.sitoolkit.rdg.core.infrastructure.NormalizableRatio;
 import io.sitoolkit.rdg.core.infrastructure.RatioUtils;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class RangeValueGenerator implements ValueGenerator {
   private List<RangeSpec> ranges = new ArrayList<>();
 
   @Override
-  public String generate(ColumnDef column) {
+  public String generate(RowData rowData) {
     List<Integer> values = RatioUtils.get(ranges).getValues();
     int index = RandomUtils.nextInt(0, values.size());
 

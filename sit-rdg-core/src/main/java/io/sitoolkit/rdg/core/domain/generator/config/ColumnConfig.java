@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.sitoolkit.rdg.core.domain.value.RandomGenerator;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import java.util.Objects;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +19,7 @@ public class ColumnConfig {
   private String name;
 
   @JsonDeserialize(using = ValueGeneratorSpecDeserializer.class)
-  private ValueGenerator spec = new RandomValueGenerator();
+  private ValueGenerator spec = new RandomGenerator();
 
   @JsonProperty("requiredValueCount")
   private Integer requiredValueCount;

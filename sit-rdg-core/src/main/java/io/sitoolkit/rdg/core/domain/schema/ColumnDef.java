@@ -3,6 +3,7 @@ package io.sitoolkit.rdg.core.domain.schema;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +27,8 @@ public class ColumnDef {
 
   @JsonProperty("columnName")
   private String name;
+
+  @JsonIgnore private ValueGenerator valueGenerator;
 
   @Getter(lazy = true)
   @JsonIgnore

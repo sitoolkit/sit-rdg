@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.sitoolkit.rdg.core.domain.value.RandomGenerator;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import java.io.IOException;
 
 public class ValueGeneratorSpecDeserializer extends JsonDeserializer<ValueGenerator> {
@@ -36,7 +38,7 @@ public class ValueGeneratorSpecDeserializer extends JsonDeserializer<ValueGenera
         generatorType = RangeValueGenerator.class;
         break;
       default:
-        generatorType = RandomValueGenerator.class;
+        generatorType = RandomGenerator.class;
     }
 
     ValueGenerator generator = mapper.readValue(node.toString(), generatorType);

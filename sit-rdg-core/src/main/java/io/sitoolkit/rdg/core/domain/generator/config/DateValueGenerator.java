@@ -1,7 +1,8 @@
 package io.sitoolkit.rdg.core.domain.generator.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import io.sitoolkit.rdg.core.infrastructure.NormalizableRatio;
 import io.sitoolkit.rdg.core.infrastructure.RatioUtils;
 import java.time.LocalDate;
@@ -22,7 +23,7 @@ public class DateValueGenerator implements ValueGenerator {
   @JsonIgnore private DateTimeFormatter formatter;
 
   @Override
-  public String generate(ColumnDef column) {
+  public String generate(RowData rowData) {
     DateRangeSpec spec = RatioUtils.get(ranges);
     long days = ThreadLocalRandom.current().nextLong(spec.getSpan());
     return spec.getFromObj().plusDays(days).format(formatter);

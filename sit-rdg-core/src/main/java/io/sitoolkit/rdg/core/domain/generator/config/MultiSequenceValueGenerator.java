@@ -2,7 +2,8 @@ package io.sitoolkit.rdg.core.domain.generator.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import io.sitoolkit.rdg.core.infrastructure.NormalizableRatio;
 import io.sitoolkit.rdg.core.infrastructure.RatioUtils;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class MultiSequenceValueGenerator implements ValueGenerator {
   private long totalRequiredCount = 0;
 
   @Override
-  public String generate(ColumnDef column) {
+  public String generate(RowData rowData) {
     String value = Integer.toString(sequence);
 
     if (!subColGen.needsMultipleValue()) {
@@ -92,7 +93,7 @@ public class MultiSequenceValueGenerator implements ValueGenerator {
     private int index = 0;
 
     @Override
-    public String generate(ColumnDef column) {
+    public String generate(RowData rowData) {
       return Integer.toString(sequence++);
     }
 

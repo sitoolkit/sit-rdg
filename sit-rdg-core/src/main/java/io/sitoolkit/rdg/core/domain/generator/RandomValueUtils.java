@@ -74,4 +74,12 @@ public class RandomValueUtils {
   public static LocalDateTime generateRandomDateTime() {
     return LocalDateTime.now().minusSeconds(ThreadLocalRandom.current().nextInt(10000));
   }
+
+  public static String generateRandomDateStr() {
+    return generateRandomDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+  }
+
+  public static String generateRandomTimestampStr() {
+    return generateRandomDateTime().format(TIMESTAMP_FORMATTER);
+  }
 }

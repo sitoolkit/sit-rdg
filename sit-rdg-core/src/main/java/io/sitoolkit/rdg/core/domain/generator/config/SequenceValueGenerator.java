@@ -2,7 +2,8 @@ package io.sitoolkit.rdg.core.domain.generator.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import io.sitoolkit.rdg.core.domain.generator.RowData;
+import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import lombok.Data;
 
 @Data
@@ -20,7 +21,7 @@ public class SequenceValueGenerator implements ValueGenerator {
   @JsonIgnore private long current;
 
   @Override
-  public String generate(ColumnDef column) {
+  public String generate(RowData rowData) {
     long next = current;
 
     current += step;
