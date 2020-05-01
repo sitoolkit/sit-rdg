@@ -1,22 +1,16 @@
 package io.sitoolkit.rdg.plugin.maven;
 
+import io.sitoolkit.rdg.core.Main;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import io.sitoolkit.rdg.core.Main;
-
 @Mojo(name = "run")
 public class RunApplicationMojo extends AbstractMojo {
-
-  private static final String READ_SQL_OPTION = "readSql";
-  private static final String GEN_DATA_OPTION = "genData";
-  private static final String INPUT_OPTION = "input";
-  private static final String OUTPUT_OPTION = "output";
 
   @Parameter(defaultValue = "true")
   private boolean readSql;
@@ -29,12 +23,12 @@ public class RunApplicationMojo extends AbstractMojo {
   @Parameter private String output;
 
   @Override
-  public void execute() {
-    getLog().info("readSql:" + readSql);
-    getLog().info("genData:" + genData);
-    getLog().info("input:" + input);
-    getLog().info("output:" + output);
-    new Main().execute(getArgsAsArray());
+  public void execute() throws MojoExecutionException {
+    int exitCode = new Main().execute(getArgsAsArray());
+
+    if (exitCode != 0) {
+      throw new MojoExecutionException("Execution failure. See above statck trace.");
+    }
   }
 
   private String[] getArgsAsArray() {
