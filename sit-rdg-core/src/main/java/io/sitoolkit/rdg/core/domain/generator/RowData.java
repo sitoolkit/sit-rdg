@@ -53,6 +53,10 @@ public class RowData {
     return valueMap.get(column.getFullyQualifiedName());
   }
 
+  public String get(String fullyQualifiedColumnName) {
+    return valueMap.get(fullyQualifiedColumnName);
+  }
+
   public void mergeRelatedData(RowData relatedRowData, RelationDef relation) {
     for (ColumnPair pair : relation.getColumnPairs()) {
       put(pair.getSub(), relatedRowData.get(pair.getMain()));

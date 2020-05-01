@@ -21,32 +21,11 @@
             {
               "columnName": "col_2_2",
               "spec": {
-                "type": "range",
-                "ranges": [
-                  {
-                    "min": 1,
-                    "max": 10,
-                    "ratio": 1
-                  }
+                "type": "branchNumber",
+                "parentColumns": [
+                  "col_2_1"
                 ]
               }
-            }
-          ]
-        }
-      ],
-      "relationConfigs": [
-        {
-          "subColumns": [
-            "tab_2.col_2_1"
-          ],
-          "multiplicities": [
-            {
-              "multiplicity": 1,
-              "ratio": 0.3
-            },
-            {
-              "multiplicity": 4,
-              "ratio": 0.7
             }
           ]
         }

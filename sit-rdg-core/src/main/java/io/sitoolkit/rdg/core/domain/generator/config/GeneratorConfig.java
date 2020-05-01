@@ -68,7 +68,8 @@ public class GeneratorConfig {
       schemaConfigs.stream()
           .flatMap(s -> s.getTableConfigs().stream())
           .flatMap(t -> t.getColumnConfigs().stream())
-          .collect(Collectors.toMap(c -> c.getFullQualifiedName(), c -> c.getRequiredValueCount()));
+          .collect(
+              Collectors.toMap(c -> c.getFullyQualifiedName(), c -> c.getRequiredValueCount()));
 
   @Getter(lazy = true)
   @JsonIgnore
@@ -98,31 +99,31 @@ public class GeneratorConfig {
     return Optional.ofNullable(getValueGeneratorMap().get(column.getFullyQualifiedName()));
   }
 
-  @Deprecated
+  // @Deprecated
   private Map<String, ValueGenerator> initValueGenMap() {
-    Map<String, ValueGenerator> map =
-        schemaConfigs.stream()
-            .flatMap(s -> s.getTableConfigs().stream())
-            .flatMap(t -> t.getColumnConfigs().stream())
-            .collect(Collectors.toMap(ColumnConfig::getFullQualifiedName, ColumnConfig::getSpec));
+    // Map<String, ValueGenerator> map =
+    return schemaConfigs.stream()
+        .flatMap(s -> s.getTableConfigs().stream())
+        .flatMap(t -> t.getColumnConfigs().stream())
+        .collect(Collectors.toMap(ColumnConfig::getFullyQualifiedName, ColumnConfig::getSpec));
 
-    for (SchemaConfig sconfig : getSchemaConfigs()) {
-      for (TableConfig tconfig : sconfig.getTableConfigs()) {
-        for (ColumnConfig cconfig : tconfig.getColumnConfigs()) {
+    // for (SchemaConfig sconfig : getSchemaConfigs()) {
+    //   for (TableConfig tconfig : sconfig.getTableConfigs()) {
+    //     for (ColumnConfig cconfig : tconfig.getColumnConfigs()) {
 
-          if (cconfig.getSpec() instanceof MultiSequenceValueGenerator) {
-            MultiSequenceValueGenerator msvg = (MultiSequenceValueGenerator) cconfig.getSpec();
+    //       if (cconfig.getSpec() instanceof MultiSequenceValueGenerator) {
+    //         MultiSequenceValueGenerator msvg = (MultiSequenceValueGenerator) cconfig.getSpec();
 
-            msvg.setTotalRequiredCount(tconfig.getRowCount());
-            msvg.postDeserialize();
-            String fully = tconfig.getFullQualifiedName() + "." + msvg.getSubColumn();
-            map.put(fully, msvg.getSubColGen());
-          }
-        }
-      }
-    }
+    //         msvg.setTotalRequiredCount(tconfig.getRowCount());
+    //         msvg.postDeserialize();
+    //         String fully = tconfig.getFullQualifiedName() + "." + msvg.getSubColumn();
+    //         map.put(fully, msvg.getSubColGen());
+    //       }
+    //     }
+    //   }
+    // }
 
-    return map;
+    // return map;
   }
 
   public Optional<RelationConfig> findRelationConfig(List<ColumnDef> subColumns) {
