@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.sitoolkit.rdg.core.domain.value.RandomGenerator;
 import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
-import java.util.Objects;
 import lombok.Getter;
 
 @Getter
@@ -19,20 +18,10 @@ public class ColumnConfig {
   @JsonDeserialize(using = ValueGeneratorSpecDeserializer.class)
   private ValueGenerator spec = new RandomGenerator();
 
-  @JsonProperty("requiredValueCount")
-  private Integer requiredValueCount;
-
   @Getter(lazy = true)
   private final String fullyQualifiedName = initFqn();
 
-  public Integer getRequiredValueCount() {
-    if (Objects.isNull(requiredValueCount)) {
-      requiredValueCount = tableConfig.getRequiredValueCount();
-    }
-    return requiredValueCount;
-  }
-
-  public String initFqn() {
+  private String initFqn() {
 
     spec.initialize(this);
 

@@ -8,7 +8,6 @@
       "tableConfigs": [
         {
           "tableName": "TABLE1",
-          "priorityRank": 2,
           "columnConfigs": [
             {
               "columnName": "GROUP1_COLUMN",
@@ -18,7 +17,6 @@
         },
         {
           "tableName": "TABLE3",
-          "priorityRank": 1,
           "rowCount": 150
         }
       ]

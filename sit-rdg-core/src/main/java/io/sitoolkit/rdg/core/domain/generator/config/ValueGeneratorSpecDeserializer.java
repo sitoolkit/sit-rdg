@@ -27,29 +27,6 @@ public class ValueGeneratorSpecDeserializer extends JsonDeserializer<ValueGenera
       throw new IllegalArgumentException(e);
     }
 
-    // switch (type) {
-    //   case "sequence":
-    //     generatorType = SequenceValueGenerator.class;
-    //     break;
-    //   case "branchNumber":
-    //     generatorType = MultiSequenceValueGenerator.class;
-    //     break;
-    //   case "choice":
-    //     generatorType = ChoiceValueGenerator.class;
-    //     break;
-    //   case "const":
-    //     generatorType = ConstantGenerator.class;
-    //     break;
-    //   case "date":
-    //     generatorType = DateValueGenerator.class;
-    //     break;
-    //   case "range":
-    //     generatorType = RangeValueGenerator.class;
-    //     break;
-    //   default:
-    //     generatorType = RandomGenerator.class;
-    // }
-
     ValueGenerator generator = mapper.readValue(node.toString(), generatorType);
 
     generator.initialize();

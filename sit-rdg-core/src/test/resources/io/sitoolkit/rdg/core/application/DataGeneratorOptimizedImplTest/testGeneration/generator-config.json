@@ -5,11 +5,9 @@
       "tableConfigs": [
         {
           "tableName": "tab_1",
-          "priorityRank": 1,
           "columnConfigs": [
             {
               "columnName": "col_seq",
-              "requiredValueCount": 10,
               "spec": {
                 "type": "sequence",
                 "start": 0,
@@ -19,7 +17,6 @@
             },
             {
               "columnName": "col_choice",
-              "requiredValueCount": 10,
               "spec": {
                 "type": "choice",
                 "values": [
@@ -36,7 +33,6 @@
             },
             {
               "columnName": "col_range",
-              "requiredValueCount": 10,
               "spec": {
                 "type": "range",
                 "ranges": [

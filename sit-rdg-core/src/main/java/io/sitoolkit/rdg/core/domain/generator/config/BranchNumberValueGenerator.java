@@ -35,7 +35,7 @@ public class BranchNumberValueGenerator implements ValueGenerator {
   public void initialize(ColumnConfig config) {
     columnFqns =
         parentColumns.stream()
-            .map(column -> config.getTableConfig().getFullQualifiedName() + "." + column)
+            .map(column -> config.getTableConfig().getFullyQualifiedName() + "." + column)
             .collect(Collectors.toList());
   }
 }

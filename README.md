@@ -107,18 +107,15 @@ mvn
 {
   "scale": "1/10",
   "defaultRowCount": 100,
-  "defaultRequiredValueCount": 100,
   "schemaConfigs": [
     {
       "schemaName": "",
       "tableConfigs": [
         {
           "tableName": "TABLE_1",
-          "priorityRank": 1,
           "columnConfigs": [
             {
               "columnName": "COLUMN_1",
-              "requiredValueCount": 1,
 
             　// See -Data Generation Specification-
               "spec": {
