@@ -6,6 +6,7 @@ import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfigReader;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
 import io.sitoolkit.rdg.core.infrastructure.DataWriter;
+import io.sitoolkit.rdg.core.infrastructure.RowCounter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -47,10 +48,12 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
     List<Path> outFiles = new ArrayList<>();
     int tableCount = generators.size();
     int generatedTableCount = 1;
+    RowCounter rowCounter = new RowCounter();
 
     for (TableDataGenerator generator : generators) {
 
       long rowCount = generator.getRequiredRowCount();
+      rowCounter.init(rowCount);
 
       log.info(
           "Start generating {} rows to {} {}/{}",
@@ -66,8 +69,9 @@ public class DataGeneratorOptimizedImpl implements DataGenerator {
         for (long i = 0; i < rowCount; i++) {
           writer.writeAppend(generator.generateLine());
 
-          if (i % 10000 == 0 && i > 0) {
-            log.info("{}/{}", f.format(i), f.format(rowCount));
+          if (rowCounter.isCheckPoint(i)) {
+            log.info("{}/{} ({})%", f.format(i), f.format(rowCount), rowCounter.getProgressRate(i));
+            rowCounter.next();
           }
         }
 
