@@ -15,8 +15,8 @@ public class RowCounter {
     return count == checkPoint;
   }
 
-  public long getProgressRate(long count) {
-    return Math.round(((double) count / goal) * 100);
+  public int getProgressRate(long count) {
+    return (int) Math.round(((double) count / goal) * 100);
   }
 
   public void next() {

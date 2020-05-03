@@ -10,7 +10,7 @@ public class RowCounterTest {
   @Test
   public void test() {
     RowCounter rowCounter = new RowCounter();
-    rowCounter.init(500);
+    rowCounter.init(500, 10, 0);
 
     assertThat(rowCounter.isCheckPoint(0), is(false));
     assertThat(rowCounter.isCheckPoint(1), is(false));
