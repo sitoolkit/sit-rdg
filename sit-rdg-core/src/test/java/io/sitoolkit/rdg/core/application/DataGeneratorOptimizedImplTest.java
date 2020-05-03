@@ -53,4 +53,9 @@ public class DataGeneratorOptimizedImplTest {
     assertThat("2020-04-27", is(data.get(0, "created_at")));
     assertThat("admin", is(data.get(0, "created_by")));
   }
+
+  @Test
+  public void testEmptyDataStore() throws IOException {
+    E2eTestHelper.doTest(this, testName.getMethodName(), generator);
+  }
 }

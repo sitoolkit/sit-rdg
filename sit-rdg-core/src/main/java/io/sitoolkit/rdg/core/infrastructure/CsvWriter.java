@@ -4,11 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-@Slf4j
 public class CsvWriter implements DataWriter {
 
   private CSVPrinter printer;

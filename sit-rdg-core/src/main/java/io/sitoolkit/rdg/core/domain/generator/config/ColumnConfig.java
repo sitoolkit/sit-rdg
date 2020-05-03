@@ -15,6 +15,8 @@ public class ColumnConfig {
   @JsonProperty("columnName")
   private String name;
 
+  @JsonProperty private InheritanceType inheritanceType = InheritanceType.STORE;
+
   @JsonDeserialize(using = ValueGeneratorSpecDeserializer.class)
   private ValueGenerator spec = new RandomGenerator();
 
@@ -26,5 +28,10 @@ public class ColumnConfig {
     spec.initialize(this);
 
     return String.join(".", tableConfig.getName(), name);
+  }
+
+  public enum InheritanceType {
+    RULE,
+    STORE
   }
 }

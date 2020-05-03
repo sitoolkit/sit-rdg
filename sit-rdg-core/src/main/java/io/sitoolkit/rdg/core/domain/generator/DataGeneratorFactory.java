@@ -1,6 +1,7 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig;
+import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig.InheritanceType;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.RelationConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
@@ -113,6 +114,14 @@ public class DataGeneratorFactory {
   }
 
   static RowDataStore buildDataStore(final RelationDef relation, final GeneratorConfig config) {
+
+    ColumnDef mainColumn = relation.getMainColumns().get(0);
+    InheritanceType inheritanceType =
+        config.findColumnInheritanceType(mainColumn.getFullyQualifiedName());
+    if (InheritanceType.RULE.equals(inheritanceType)) {
+      return new SequentialInteritanceDataStore(relation.getSubColumns().get(0));
+    }
+
     final Optional<RelationConfig> rconfig = config.findRelationConfig(relation.getSubColumns());
 
     if (rconfig.isEmpty()) {

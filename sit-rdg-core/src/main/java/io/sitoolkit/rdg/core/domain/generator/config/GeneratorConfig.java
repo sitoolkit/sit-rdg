@@ -3,10 +3,12 @@ package io.sitoolkit.rdg.core.domain.generator.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig.InheritanceType;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.domain.value.ValueGenerator;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,16 @@ public class GeneratorConfig {
   @JsonIgnore
   private final Map<String, ValueGenerator> valueGeneratorMap = initValueGenMap();
 
+  @Getter(lazy = true)
+  @JsonIgnore
+  private final Map<String, ColumnConfig> columnConfigMap =
+      schemaConfigs.stream()
+          .map(SchemaConfig::getTableConfigs)
+          .flatMap(Collection::stream)
+          .map(TableConfig::getColumnConfigs)
+          .flatMap(Collection::stream)
+          .collect(Collectors.toMap(ColumnConfig::getFullyQualifiedName, c -> c));
+
   public Long getDefaultRowCount() {
     if (Objects.isNull(defaultRowCount)) {
       defaultRowCount = Long.valueOf(5);
@@ -84,5 +96,10 @@ public class GeneratorConfig {
     }
 
     return Optional.empty();
+  }
+
+  public InheritanceType findColumnInheritanceType(String columnFqn) {
+    ColumnConfig config = getColumnConfigMap().get(columnFqn);
+    return config == null ? InheritanceType.STORE : config.getInheritanceType();
   }
 }

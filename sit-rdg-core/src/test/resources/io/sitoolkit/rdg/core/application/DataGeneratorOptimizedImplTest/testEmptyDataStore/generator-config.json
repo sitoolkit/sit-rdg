@@ -1,0 +1,36 @@
+{
+  "schemaConfigs": [
+    {
+      "tableConfigs": [
+        {
+          "tableName": "tab_1",
+          "rowCount": 3,
+          "columnConfigs": [
+            {
+              "columnName": "col_1_1",
+              "inheritanceType": "RULE",
+              "spec": {
+                "type": "sequence"
+              }
+            }
+          ]
+        },
+        {
+          "tableName": "tab_2",
+          "rowCount": 10,
+          "columnConfigs": [
+            {
+              "columnName": "col_2_2",
+              "spec": {
+                "type": "branchNumber",
+                "parentColumns": [
+                  "col_2_1"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
