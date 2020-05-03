@@ -83,6 +83,7 @@ public abstract class TableDataGenerator {
   }
 
   public void end() {
+    uniqueDataStore.clear();
     generators.stream().forEach(RelationDataGenerator::end);
   }
 }

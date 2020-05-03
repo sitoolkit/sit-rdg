@@ -23,4 +23,8 @@ public class UniqueDataStore {
   public RowDataStore get(UniqueConstraintDef unique) {
     return map.get(unique);
   }
+
+  public void clear() {
+    map.clear();
+  }
 }
