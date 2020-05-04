@@ -3,6 +3,7 @@ package io.sitoolkit.rdg.core.domain.generator;
 import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig.InheritanceType;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
+import io.sitoolkit.rdg.core.domain.generator.config.IllegalConfigException;
 import io.sitoolkit.rdg.core.domain.generator.config.RelationConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.DataTypeName;
@@ -33,11 +34,12 @@ public class DataGeneratorFactory {
 
   public static List<TableDataGenerator> build(
       final List<TableDef> tables, final GeneratorConfig config) {
+
     final List<TableDataGenerator> generators = new ArrayList<>();
-
-    final List<TableDef> sortedTables = TableSorter.sortByDependency(tables);
-
     final Map<RelationDef, RowDataStore> relStoreMap = new HashMap<>();
+
+    List<TableDef> filteredTables = config.filter(tables);
+    final List<TableDef> sortedTables = TableSorter.sortByDependency(filteredTables);
 
     for (final TableDef table : sortedTables) {
 
@@ -95,6 +97,11 @@ public class DataGeneratorFactory {
 
     for (final RelationDef relation : table.getSubRelations()) {
       final RowDataStore dataStore = relStoreMap.get(relation);
+      if (dataStore == null) {
+        // TODO avoid hard coding "generator-config.json"
+        throw new IllegalConfigException(
+            relation.getMainTable() + " must be listed on generator-config.json");
+      }
       generator.add(new SubRelationDataGenerator(relation, dataStore, config));
     }
 
@@ -114,6 +121,10 @@ public class DataGeneratorFactory {
   }
 
   static RowDataStore buildDataStore(final RelationDef relation, final GeneratorConfig config) {
+
+    if (config.isListedOnly() && !config.contains(relation.getSubTable())) {
+      return NopRowDataStore.INSTANCE;
+    }
 
     ColumnDef mainColumn = relation.getMainColumns().get(0);
     InheritanceType inheritanceType =

@@ -23,6 +23,8 @@ public class GeneratorConfig {
   @JsonProperty("scale")
   private String scaleStr;
 
+  @JsonProperty private boolean listedOnly = false;
+
   @JsonProperty private Long defaultRowCount;
 
   @JsonProperty private List<ColumnConfig> commonColumns = new ArrayList<>();
@@ -51,7 +53,7 @@ public class GeneratorConfig {
 
   @Getter(lazy = true)
   @JsonIgnore
-  private final Map<String, ColumnConfig> columnConfigMap =
+  private final Map<String, ColumnConfig> columnMap =
       schemaConfigs.stream()
           .map(SchemaConfig::getTableConfigs)
           .flatMap(Collection::stream)
@@ -99,7 +101,19 @@ public class GeneratorConfig {
   }
 
   public InheritanceType findColumnInheritanceType(String columnFqn) {
-    ColumnConfig config = getColumnConfigMap().get(columnFqn);
+    ColumnConfig config = getColumnMap().get(columnFqn);
     return config == null ? InheritanceType.STORE : config.getInheritanceType();
+  }
+
+  public List<TableDef> filter(List<TableDef> tables) {
+    if (listedOnly) {
+      return tables.stream().filter(this::contains).collect(Collectors.toList());
+    }
+
+    return tables;
+  }
+
+  public boolean contains(TableDef table) {
+    return getTableMap().containsKey(table.getFullyQualifiedName());
   }
 }
