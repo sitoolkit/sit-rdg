@@ -61,9 +61,10 @@ public class DataGeneratorFactory {
 
         for (final RelationDataGenerator relGenerator : generator.getGenerators()) {
           log.debug(
-              "{}({}) is registered for {}",
+              "{}({}@{}) is registered for {}",
               relGenerator.getClass().getSimpleName(),
-              relGenerator.getDataStoreForSubRel(),
+              relGenerator.getDataStoreForSubRel().getClass().getSimpleName(),
+              System.identityHashCode(relGenerator.getDataStoreForSubRel()),
               relGenerator.getRelation());
         }
       }
