@@ -131,18 +131,18 @@ public class DataGeneratorFactory {
     InheritanceType inheritanceType =
         config.findColumnInheritanceType(mainColumn.getFullyQualifiedName());
     if (InheritanceType.RULE.equals(inheritanceType)) {
-      return new SequentialInteritanceDataStore(relation.getSubColumns().get(0));
+
+      Optional<RelationConfig> rconfig = config.findRelationConfig(relation.getSubColumns());
+
+      if (rconfig.isEmpty()) {
+        return new SequentialInteritanceRowDataStore(relation.getSubColumns().get(0));
+      }
+
+      return new MultiplicityRowDataStore(
+          relation.getSubColumns().get(0), rconfig.get().getMultiplicities());
     }
 
-    final Optional<RelationConfig> rconfig = config.findRelationConfig(relation.getSubColumns());
-
-    if (rconfig.isEmpty()) {
-      return new RowDataStoreImpl();
-    }
-
-    final MultiRowDataStore dataStore = new MultiRowDataStore();
-    dataStore.initialize(rconfig.get().getMultiplicities());
-    return dataStore;
+    return new RowDataStoreImpl();
   }
 
   static void registerColumnValueGenerator(final TableDef table, GeneratorConfig config) {

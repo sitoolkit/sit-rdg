@@ -2,15 +2,20 @@ package io.sitoolkit.rdg.core.domain.generator;
 
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import java.util.concurrent.ThreadLocalRandom;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-class SequentialInteritanceDataStore implements RowDataStore {
+public class SequentialInteritanceRowDataStore implements RowDataStore {
 
+  @Getter(value = AccessLevel.PROTECTED)
   private final ColumnDef column;
 
+  @Getter(value = AccessLevel.PROTECTED)
   private long max = Long.MIN_VALUE;
 
+  @Getter(value = AccessLevel.PROTECTED)
   private long min = Long.MAX_VALUE;
 
   @Override
