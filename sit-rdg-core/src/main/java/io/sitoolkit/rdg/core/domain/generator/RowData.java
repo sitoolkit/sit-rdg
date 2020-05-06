@@ -8,16 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import lombok.EqualsAndHashCode;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
+// import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @ToString
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
+// @EqualsAndHashCode(onlyExplicitlyIncluded = true, doNotUseGetters = true)
 public class RowData {
 
-  @EqualsAndHashCode.Include private Map<String, String> valueMap = new HashMap<>();
+  // DO NOT use @EqualsAndHashCode because HashMap.hashCode returns rarely disadvantageous value.
+  // See RowDataTest.java for more details.
+  // @EqualsAndHashCode.Include
+   private Map<String, String> valueMap = new HashMap<>();
 
   @Getter @Setter private int usedCount;
 
@@ -101,5 +107,15 @@ public class RowData {
 
   public int size() {
     return valueMap.size();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return EqualsBuilder.reflectionEquals(this, obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
   }
 }
