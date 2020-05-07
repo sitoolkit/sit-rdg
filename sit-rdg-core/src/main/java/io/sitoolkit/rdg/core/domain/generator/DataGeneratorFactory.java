@@ -5,11 +5,14 @@ import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig.InheritanceTyp
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.IllegalConfigException;
 import io.sitoolkit.rdg.core.domain.generator.config.RelationConfig;
+import io.sitoolkit.rdg.core.domain.generator.config.UniqueConstraintConfig;
+import io.sitoolkit.rdg.core.domain.generator.config.TableConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.DataTypeName;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.TableDef;
 import io.sitoolkit.rdg.core.domain.schema.TableSorter;
+import io.sitoolkit.rdg.core.domain.schema.UniqueConstraintDef;
 import io.sitoolkit.rdg.core.domain.value.CharGenerator;
 import io.sitoolkit.rdg.core.domain.value.DataTypeValueGenerator;
 import io.sitoolkit.rdg.core.domain.value.DateGenerator;
@@ -48,6 +51,8 @@ public class DataGeneratorFactory {
       } else {
         generators.add(buildForIndependent(table, config, relStoreMap));
       }
+
+      removeUniqueConstraints(table, config);
 
       registerColumnValueGenerator(table, config);
     }
@@ -164,6 +169,26 @@ public class DataGeneratorFactory {
       DataTypeValueGenerator generator = valueGenerator(column.getDataType().getName());
       generator.setDataType(column.getDataType());
       column.setValueGenerator(generator);
+    }
+  }
+
+  static void removeUniqueConstraints(final TableDef table, GeneratorConfig config) {
+    TableConfig tblConfig = config.getTableMap().get(table.getName());
+
+    for (UniqueConstraintConfig uniqueConstraintConfig : tblConfig.getSkipUniqueCheckConfigs()) {
+
+      List<UniqueConstraintDef> removeConstraints = new ArrayList<>();
+
+      for (UniqueConstraintDef uniqueConstraintDef : table.getUniqueConstraints()) {
+
+        if (uniqueConstraintDef.getColumnNames().containsAll(uniqueConstraintConfig.getColumnNames())) {
+          removeConstraints.add(uniqueConstraintDef);
+          log.trace("Remove unique constraints {} from {}",
+              uniqueConstraintConfig.getColumnNames(), tblConfig.getName());
+        }
+      }
+
+      table.getUniqueConstraints().removeAll(removeConstraints);
     }
   }
 
