@@ -187,7 +187,7 @@ public class DataGeneratorFactory {
 
         if (uniqueConstraintDef.getColumnNames().containsAll(uniqueConstraintConfig.getColumnNames())) {
           removeConstraints.add(uniqueConstraintDef);
-          log.trace("Remove unique constraints {} from {}",
+          log.debug("Remove unique constraints {} from {}",
               uniqueConstraintConfig.getColumnNames(), tblConfig.getName());
         }
       }
