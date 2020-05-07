@@ -175,6 +175,10 @@ public class DataGeneratorFactory {
   static void removeUniqueConstraints(final TableDef table, GeneratorConfig config) {
     TableConfig tblConfig = config.getTableMap().get(table.getName());
 
+    if (tblConfig == null) {
+      return;
+    }
+
     for (UniqueConstraintConfig uniqueConstraintConfig : tblConfig.getSkipUniqueCheckConfigs()) {
 
       List<UniqueConstraintDef> removeConstraints = new ArrayList<>();
