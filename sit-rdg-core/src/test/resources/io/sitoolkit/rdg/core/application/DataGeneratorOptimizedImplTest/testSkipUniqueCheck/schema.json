@@ -1,0 +1,56 @@
+{
+  "schemas": [
+    {
+      "tables": [
+        {
+          "tableName": "tab_1",
+          "columns": [
+            {
+              "columnName": "col_1_1"
+            }
+          ]
+        },
+        {
+          "tableName": "tab_2",
+          "columns": [
+            {
+              "columnName": "col_2_1"
+            },
+            {
+              "columnName": "col_2_2"
+            },
+            {
+              "columnName": "col_2_3"
+            }
+          ],
+          "uniqueConstraints": [
+            {
+              "columns": [
+                "col_2_1",
+                "col_2_2"
+              ]
+            }
+          ]
+        },
+        {
+          "tableName": "tab_3",
+          "columns": [
+            {
+              "columnName": "col_3_1"
+            }
+          ]
+        }
+      ],
+      "relations": [
+        {
+          "columnPairs": [
+            {
+              "main": "tab_1.col_1_1",
+              "sub": "tab_2.col_2_1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

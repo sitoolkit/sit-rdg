@@ -45,6 +45,11 @@ public class DataGeneratorOptimizedImplTest {
   }
 
   @Test
+  public void testSkipUniqueCheck() throws IOException {
+    E2eTestHelper.doTest(this, testName.getMethodName(), generator);
+  }
+
+  @Test
   public void testCommonColumns() {
     CheckResult result = E2eTestHelper.doTest(this, testName.getMethodName(), generator);
 

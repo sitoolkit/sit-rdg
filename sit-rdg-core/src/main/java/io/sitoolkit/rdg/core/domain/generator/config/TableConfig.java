@@ -22,6 +22,9 @@ public class TableConfig {
   @JsonManagedReference @JsonProperty
   private List<ColumnConfig> columnConfigs = Collections.emptyList();
 
+  @JsonManagedReference @JsonProperty("skipUniqueCheck")
+  private List<UniqueConstraintConfig> skipUniqueCheckConfigs = Collections.emptyList();
+
   @Getter(lazy = true)
   private final String fullyQualifiedName =
       StringUtils.isEmpty(schemaConfig.getName())

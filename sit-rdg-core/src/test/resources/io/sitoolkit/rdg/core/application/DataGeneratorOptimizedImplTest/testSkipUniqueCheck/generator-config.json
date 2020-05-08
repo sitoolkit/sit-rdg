@@ -1,0 +1,65 @@
+{
+  "schemaConfigs": [
+    {
+      "tableConfigs": [
+        {
+          "tableName": "tab_1",
+          "rowCount": 300,
+          "columnConfigs": [
+            {
+              "columnName": "col_1_1",
+              "inheritanceType": "RULE",
+              "spec": {
+                "type": "sequence"
+              }
+            }
+          ]
+        },
+        {
+          "tableName": "tab_2",
+          "rowCount": 1000,
+          "columnConfigs": [
+            {
+              "columnName": "col_2_2",
+              "spec": {
+                "type": "seqBranchNum",
+                "parentColumns": [
+                  "col_2_1"
+                ]
+              }
+            }
+          ],
+          "skipUniqueCheck": [
+            {
+              "columns": [
+                "col_2_1",
+                "col_2_2"
+              ]
+            }
+          ]
+        }
+      ],
+      "relationConfigs": [
+        {
+          "subColumns": [
+            "tab_2.col_2_1"
+          ],
+          "multiplicities": [
+            {
+              "multiplicity": 1,
+              "ratio": 0.1
+            },
+            {
+              "multiplicity": 3,
+              "ratio": 0.3
+            },
+            {
+              "multiplicity": 6,
+              "ratio": 0.6
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
