@@ -117,7 +117,7 @@ public class GeneratorConfig {
     return getTableMap().containsKey(table.getFullyQualifiedName());
   }
 
-  public boolean sGenerationTarget(TableDef table) {
+  public boolean isGenerationTarget(TableDef table) {
     if (listedOnly) {
       return contains(table);
     }
