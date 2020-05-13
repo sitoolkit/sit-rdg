@@ -118,7 +118,7 @@ public class DataGeneratorFactory {
     }
 
     for (final RelationDef relation : table.getMainRelations()) {
-      if (!config.containsOrNotListedOnly(relation.getSubTable())) {
+      if (!config.sGenerationTarget(relation.getSubTable())) {
         continue;
       }
       final RowDataStore dataStore =
