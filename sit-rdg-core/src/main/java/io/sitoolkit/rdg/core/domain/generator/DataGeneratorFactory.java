@@ -118,6 +118,9 @@ public class DataGeneratorFactory {
     }
 
     for (final RelationDef relation : table.getMainRelations()) {
+      if (!config.containsOrNotListedOnly(relation.getSubTable())) {
+        continue;
+      }
       final RowDataStore dataStore =
           relStoreMap.computeIfAbsent(relation, rel -> buildDataStore(relation, config));
       generator.add(new MainRelationDataGenerator(relation, dataStore, config));
