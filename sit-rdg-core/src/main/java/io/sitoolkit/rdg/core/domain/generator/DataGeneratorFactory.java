@@ -5,8 +5,8 @@ import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig.InheritanceTyp
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.IllegalConfigException;
 import io.sitoolkit.rdg.core.domain.generator.config.RelationConfig;
-import io.sitoolkit.rdg.core.domain.generator.config.UniqueConstraintConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.TableConfig;
+import io.sitoolkit.rdg.core.domain.generator.config.UniqueConstraintConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.DataTypeName;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
@@ -147,7 +147,9 @@ public class DataGeneratorFactory {
       }
 
       return new MultiplicityRowDataStore(
-          relation.getSubColumns().get(0), rconfig.get().getMultiplicities());
+          relation.getSubColumns().get(0),
+          rconfig.get().getMultiplicities(),
+          config.getRowCount(relation.getSubTable()));
     }
 
     return new RowDataStoreImpl();
@@ -188,10 +190,14 @@ public class DataGeneratorFactory {
 
       for (UniqueConstraintDef uniqueConstraintDef : table.getUniqueConstraints()) {
 
-        if (uniqueConstraintDef.getColumnNames().containsAll(uniqueConstraintConfig.getColumnNames())) {
+        if (uniqueConstraintDef
+            .getColumnNames()
+            .containsAll(uniqueConstraintConfig.getColumnNames())) {
           removeConstraints.add(uniqueConstraintDef);
-          log.debug("Remove unique constraints {} from {}",
-              uniqueConstraintConfig.getColumnNames(), tblConfig.getName());
+          log.debug(
+              "Remove unique constraints {} from {}",
+              uniqueConstraintConfig.getColumnNames(),
+              tblConfig.getName());
         }
       }
 

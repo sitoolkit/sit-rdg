@@ -16,9 +16,13 @@ public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore 
 
   private int index = 0;
 
-  public MultiplicityRowDataStore(ColumnDef column, List<MultiplicityConfig> multiplicities) {
+  private long rowCount = 0;
+
+  public MultiplicityRowDataStore(
+      ColumnDef column, List<MultiplicityConfig> multiplicities, long rowCount) {
     super(column);
     this.multiplicities = new ArrayList<>(multiplicities);
+    this.rowCount = rowCount;
   }
 
   @Override
@@ -28,10 +32,14 @@ public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore 
 
     multiplicity++;
 
-    if (multiplicity >= multiplicities.get(index).getMultiplicity()) {
+    MultiplicityConfig config = multiplicities.get(index);
+    if (multiplicity >= config.getMultiplicity()) {
       sequence++;
       multiplicity = 0;
-      index = Math.min(index + 1, multiplicities.size() - 1);
+
+      if (sequence >= config.getRowCount()) {
+        index = Math.min(index + 1, multiplicities.size() - 1);
+      }
     }
 
     return rowData;
@@ -40,6 +48,8 @@ public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore 
   @Override
   public void setUp() {
     RatioUtils.normalize(multiplicities);
+    multiplicities.stream()
+        .forEach(multi -> multi.setRowCount(Math.round(multi.getRatio() + rowCount)));
     sequence = getMin();
   }
 }
