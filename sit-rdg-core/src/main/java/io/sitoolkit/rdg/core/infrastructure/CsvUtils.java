@@ -19,6 +19,8 @@ public class CsvUtils {
 
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.withFirstRecordAsHeader();
 
+  private static final int LIMIT = 1024 * 1024;
+
   public static boolean isCsvFile(Path file) {
     return file.toString().endsWith(".csv");
   }
@@ -26,7 +28,10 @@ public class CsvUtils {
   public static CsvData read(Path file) {
 
     try {
-      log.info("Read:\n\n{}\n{}", file, Files.readString(file));
+
+      String fileText = file.toFile().length() > LIMIT ? "" : Files.readString(file);
+
+      log.info("Read:\n\n{}\n{}", file, fileText);
 
       return new CsvData(
           CSVParser.parse(file, Charset.defaultCharset(), DEFAULT_FORMAT).getRecords(),
