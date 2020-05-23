@@ -15,13 +15,13 @@ public class SeqBranchNumValueGenerator implements ValueGenerator {
 
   private int branchNumber = 1;
 
-  private int previousParentValue = 0;
+  private String previousParentValue = "";
 
   @Override
   public String generate(RowData rowData) {
-    int parentValue = columnFqns.stream().map(rowData::get).collect(Collectors.toList()).hashCode();
+    String parentValue = columnFqns.stream().map(rowData::get).collect(Collectors.joining("}-{"));
 
-    if (parentValue == previousParentValue) {
+    if (parentValue.equals(previousParentValue)) {
       branchNumber++;
     } else {
       previousParentValue = parentValue;
