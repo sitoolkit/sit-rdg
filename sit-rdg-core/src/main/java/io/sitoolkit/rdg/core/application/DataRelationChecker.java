@@ -1,6 +1,8 @@
 package io.sitoolkit.rdg.core.application;
 
 import io.sitoolkit.rdg.core.domain.check.CheckResult;
+import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
+import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfigReader;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.domain.schema.RelationDef;
 import io.sitoolkit.rdg.core.domain.schema.SchemaInfo;
@@ -26,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DataRelationChecker {
+
+  private GeneratorConfigReader reader = new GeneratorConfigReader();
 
   public CheckResult checkDir(Path inDir, Path outDir) {
     return checkDirs(inDir, List.of(outDir));
@@ -69,8 +73,14 @@ public class DataRelationChecker {
         .forEach(csvData -> csvDataMap.put(csvData.getFileName().replace(".csv", ""), csvData));
 
     SchemaInfo schemaInfo = SchemaInfo.read(inDir);
+    GeneratorConfig config = reader.read(inDir);
 
     for (RelationDef relation : schemaInfo.getAllRelations()) {
+
+      if (!config.contains(relation.getMainTable()) || !config.contains(relation.getSubTable())) {
+        continue;
+      }
+
       boolean result =
           check(
               relation,
@@ -87,6 +97,11 @@ public class DataRelationChecker {
     }
 
     for (TableDef table : schemaInfo.getAllTables()) {
+
+      if (!config.contains(table)) {
+        continue;
+      }
+
       for (UniqueConstraintDef unique : table.getUniqueConstraints()) {
         boolean result = csvDataMap.get(table.getName()).isUnique(unique.getColumnNames());
 
