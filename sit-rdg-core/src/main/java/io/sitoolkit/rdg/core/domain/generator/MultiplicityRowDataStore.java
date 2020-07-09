@@ -49,7 +49,7 @@ public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore 
   public void setUp() {
     RatioUtils.normalize(multiplicities);
     multiplicities.stream()
-        .forEach(multi -> multi.setRowCount(Math.round(multi.getRatio() + rowCount)));
+        .forEach(multi -> multi.setRowCount(Math.round(multi.getRatio() * rowCount)));
     sequence = getMin();
   }
 }
