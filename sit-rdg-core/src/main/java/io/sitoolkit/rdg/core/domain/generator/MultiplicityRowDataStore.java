@@ -16,6 +16,8 @@ public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore 
 
   private int index = 0;
 
+  private long sequenceOfMultiplicities = 0;
+
   private long rowCount = 0;
 
   public MultiplicityRowDataStore(
@@ -34,12 +36,15 @@ public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore 
 
     MultiplicityConfig config = multiplicities.get(index);
     if (multiplicity >= config.getMultiplicity()) {
+      sequenceOfMultiplicities++;
       sequence++;
-      multiplicity = 0;
 
-      if (sequence >= config.getRowCount()) {
+      if (sequenceOfMultiplicities * multiplicity >= config.getRowCount()) {
+        sequenceOfMultiplicities = 0;
         index = Math.min(index + 1, multiplicities.size() - 1);
       }
+
+      multiplicity = 0;
     }
 
     return rowData;
