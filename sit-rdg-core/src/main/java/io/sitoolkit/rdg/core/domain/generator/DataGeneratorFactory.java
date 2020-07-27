@@ -1,5 +1,6 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
+import io.sitoolkit.rdg.core.domain.generator.config.Alignment;
 import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig;
 import io.sitoolkit.rdg.core.domain.generator.config.ColumnConfig.InheritanceType;
 import io.sitoolkit.rdg.core.domain.generator.config.GeneratorConfig;
@@ -139,17 +140,19 @@ public class DataGeneratorFactory {
     InheritanceType inheritanceType =
         config.findColumnInheritanceType(mainColumn.getFullyQualifiedName());
     if (InheritanceType.RULE.equals(inheritanceType)) {
-
       Optional<RelationConfig> rconfig = config.findRelationConfig(relation.getSubColumns());
 
+      Alignment alignment = config.findAlignConfig(mainColumn).orElse(null);
+
       if (rconfig.isEmpty()) {
-        return new SequentialInteritanceRowDataStore(relation.getSubColumns().get(0));
+        return new SequentialInteritanceRowDataStore(relation.getSubColumns().get(0), alignment);
       }
 
       return new MultiplicityRowDataStore(
           relation.getSubColumns().get(0),
           rconfig.get().getMultiplicities(),
-          config.getRowCount(relation.getSubTable()));
+          config.getRowCount(relation.getSubTable()),
+          alignment);
     }
 
     return new RowDataStoreImpl();

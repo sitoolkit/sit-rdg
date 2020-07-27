@@ -1,10 +1,13 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
+import io.sitoolkit.rdg.core.domain.generator.config.Alignment;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @RequiredArgsConstructor
 public class SequentialInteritanceRowDataStore implements RowDataStore {
@@ -18,11 +21,27 @@ public class SequentialInteritanceRowDataStore implements RowDataStore {
   @Getter(value = AccessLevel.PROTECTED)
   private long min = Long.MAX_VALUE;
 
+  @Getter(value = AccessLevel.PROTECTED)
+  private Alignment alignment;
+
+  public SequentialInteritanceRowDataStore(ColumnDef columnDef, Alignment alignment) {
+    this.column = columnDef;
+    this.alignment = alignment;
+  }
+
   @Override
   public RowData get() {
     long pseudoStoredValue = ThreadLocalRandom.current().nextLong(min, max + 1);
     RowData rowData = new RowData();
-    rowData.put(column, Long.toString(pseudoStoredValue));
+
+    String val = Long.toString(pseudoStoredValue);
+
+    if (Objects.nonNull(alignment)) {
+      rowData.put(column, StringUtils.leftPad(val, alignment.getLength(), alignment.getPadChar()));
+    } else {
+      rowData.put(column, val);
+    }
+
     return rowData;
   }
 

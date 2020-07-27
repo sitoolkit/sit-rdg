@@ -52,6 +52,24 @@
               }
             }
           ]
+        },
+        {
+          "tableName": "tab_2",
+          "columnConfigs": [
+            {
+              "columnName": "padded_seq",
+              "spec": {
+                "type": "sequentialChar",
+                "align": {
+                  "length": "10",
+                  "padChar": "0"
+                },
+                "start": 0,
+                "end": 9,
+                "step": 1
+              }
+            }
+          ]
         }
       ]
     }
