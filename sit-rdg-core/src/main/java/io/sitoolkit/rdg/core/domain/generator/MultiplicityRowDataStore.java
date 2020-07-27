@@ -1,10 +1,13 @@
 package io.sitoolkit.rdg.core.domain.generator;
 
+import io.sitoolkit.rdg.core.domain.generator.config.Alignment;
 import io.sitoolkit.rdg.core.domain.generator.config.MultiplicityConfig;
 import io.sitoolkit.rdg.core.domain.schema.ColumnDef;
 import io.sitoolkit.rdg.core.infrastructure.RatioUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore {
 
@@ -20,17 +23,30 @@ public class MultiplicityRowDataStore extends SequentialInteritanceRowDataStore 
 
   private long rowCount = 0;
 
+  private Alignment alignment;
+
   public MultiplicityRowDataStore(
-      ColumnDef column, List<MultiplicityConfig> multiplicities, long rowCount) {
+      ColumnDef column,
+      List<MultiplicityConfig> multiplicities,
+      long rowCount,
+      Alignment alignment) {
     super(column);
     this.multiplicities = new ArrayList<>(multiplicities);
     this.rowCount = rowCount;
+    this.alignment = alignment;
   }
 
   @Override
   public RowData get() {
     RowData rowData = new RowData();
-    rowData.put(getColumn(), Long.toString(sequence));
+    String val = Long.toString(sequence);
+
+    if (Objects.nonNull(alignment)) {
+      rowData.put(
+          getColumn(), StringUtils.leftPad(val, alignment.getLength(), alignment.getPadChar()));
+    } else {
+      rowData.put(getColumn(), val);
+    }
 
     multiplicity++;
 

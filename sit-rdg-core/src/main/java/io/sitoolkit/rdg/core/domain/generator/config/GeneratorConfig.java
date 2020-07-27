@@ -124,4 +124,11 @@ public class GeneratorConfig {
 
     return true;
   }
+
+  public Optional<Alignment> findAlignConfig(ColumnDef mainColumn) {
+    return findValueGenerator(mainColumn)
+        .filter(AlignmentCharValueGenerator.class::isInstance)
+        .map(AlignmentCharValueGenerator.class::cast)
+        .map(AlignmentCharValueGenerator::getAlign);
+  }
 }
