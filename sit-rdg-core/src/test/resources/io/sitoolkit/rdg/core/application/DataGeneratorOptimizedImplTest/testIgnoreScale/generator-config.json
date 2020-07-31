@@ -8,105 +8,11 @@
       "tableConfigs": [
         {
           "tableName": "tab_1",
-          "rowCount": 100,
-          "columnConfigs": [
-            {
-              "columnName": "col_seq",
-              "spec": {
-                "type": "sequence",
-                "start": 1,
-                "end": 100,
-                "step": 1
-              }
-            },
-            {
-              "columnName": "col_choice",
-              "spec": {
-                "type": "choice",
-                "values": [
-                  {
-                    "value": "01",
-                    "ratio": 0.3
-                  },
-                  {
-                    "value": "02",
-                    "ratio": 0.2
-                  }
-                ]
-              }
-            },
-            {
-              "columnName": "col_range",
-              "spec": {
-                "type": "range",
-                "ranges": [
-                  {
-                    "min": 0,
-                    "max": 9,
-                    "step": 1,
-                    "ratio": 0.2
-                  },
-                  {
-                    "min": 10,
-                    "max": 19,
-                    "step": 1,
-                    "ratio": 0.3
-                  }
-                ]
-              }
-            }
-          ]
+          "rowCount": 100
         },
         {
           "tableName": "tab_2",
-          "rowCount": 200,
-          "columnConfigs": [
-            {
-              "columnName": "col_seq",
-              "spec": {
-                "type": "sequence",
-                "start": 1,
-                "end": 200,
-                "step": 1
-              }
-            },
-            {
-              "columnName": "col_choice",
-              "spec": {
-                "type": "choice",
-                "values": [
-                  {
-                    "value": "01",
-                    "ratio": 0.3
-                  },
-                  {
-                    "value": "02",
-                    "ratio": 0.2
-                  }
-                ]
-              }
-            },
-            {
-              "columnName": "col_range",
-              "spec": {
-                "type": "range",
-                "ranges": [
-                  {
-                    "min": 0,
-                    "max": 9,
-                    "step": 1,
-                    "ratio": 0.2
-                  },
-                  {
-                    "min": 10,
-                    "max": 19,
-                    "step": 1,
-                    "ratio": 0.3
-                  }
-                ]
-              }
-            }
-          ]
+          "rowCount": 200
         }
       ]
     }
