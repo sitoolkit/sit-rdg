@@ -23,6 +23,9 @@ public class GeneratorConfig {
   @JsonProperty("scale")
   private String scaleStr;
 
+  @JsonProperty("ignoreScale")
+  private List<String> ignoreScaleTables = new ArrayList<>();
+
   @JsonProperty private boolean listedOnly = false;
 
   @JsonProperty private Long defaultRowCount;
@@ -71,7 +74,7 @@ public class GeneratorConfig {
   public long getRowCount(TableDef tableDef) {
     TableConfig tableConfig = getTableMap().get(tableDef.getFullyQualifiedName());
     long rowCount = tableConfig == null ? getDefaultRowCount() : tableConfig.getRowCount();
-    return getScale().apply(rowCount);
+    return ignoreScaleTables.contains(tableConfig.getFullyQualifiedName()) ? rowCount : getScale().apply(rowCount);
   }
 
   public Optional<ValueGenerator> findValueGenerator(ColumnDef column) {

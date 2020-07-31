@@ -1,0 +1,20 @@
+{
+  "scale": "/10",
+  "ignoreScale": [
+    "tab_1"
+  ],
+  "schemaConfigs": [
+    {
+      "tableConfigs": [
+        {
+          "tableName": "tab_1",
+          "rowCount": 100
+        },
+        {
+          "tableName": "tab_2",
+          "rowCount": 200
+        }
+      ]
+    }
+  ]
+}
