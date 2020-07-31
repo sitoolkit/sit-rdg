@@ -1,0 +1,48 @@
+{
+  "schemas": [
+    {
+      "tables": [
+        {
+          "tableName": "tab_1",
+          "columns": [
+            {
+              "columnName": "col_seq"
+            },
+            {
+              "columnName": "col_choice"
+            },
+            {
+              "columnName": "col_range"
+            },
+            {
+              "columnName": "col_multi_seq"
+            },
+            {
+              "columnName": "col_sub"
+            }
+          ]
+        },
+        {
+          "tableName": "tab_2",
+          "columns": [
+            {
+              "columnName": "col_seq"
+            },
+            {
+              "columnName": "col_choice"
+            },
+            {
+              "columnName": "col_range"
+            },
+            {
+              "columnName": "col_multi_seq"
+            },
+            {
+              "columnName": "col_sub"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

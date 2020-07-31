@@ -63,4 +63,9 @@ public class DataGeneratorOptimizedImplTest {
   public void testEmptyDataStore() throws IOException {
     E2eTestHelper.doTest(this, testName.getMethodName(), generator);
   }
+
+  @Test
+  public void testIgnoreScale() throws IOException {
+    E2eTestHelper.doTest(this, testName.getMethodName(), generator);
+  }
 }
