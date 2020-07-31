@@ -8,15 +8,19 @@ import io.sitoolkit.rdg.core.infrastructure.TestResourceUtils;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 @Slf4j
-public class IgnoreScaleTest {
+public class GeneratorConfigTest {
+
+  @Rule public TestName testName = new TestName();
 
   @Test
-  public void test() {
+  public void ignoreScale() {
 
-    Path dstDir = TestResourceUtils.copyResDir(this, "test");
+    Path dstDir = TestResourceUtils.copyResDir(this, testName.getMethodName());
 
     SchemaInfo schemaInfo = SchemaInfo.read(dstDir);
     TableDef tab1 = schemaInfo.findTable("", "tab_1").get();
