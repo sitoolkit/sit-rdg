@@ -8,15 +8,10 @@ import io.sitoolkit.rdg.core.infrastructure.TestResourceUtils;
 import java.nio.file.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 
 @Slf4j
 public class IgnoreScaleTest {
-
-  @Rule
-  public TestName testName = new TestName();
 
   @Test
   public void test() {
