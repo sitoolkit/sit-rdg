@@ -74,18 +74,17 @@ public class GeneratorConfig {
   public long getRowCount(TableDef tableDef) {
     TableConfig tableConfig = getTableMap().get(tableDef.getFullyQualifiedName());
 
-    long rowCount = getDefaultRowCount();
-    if (tableConfig != null) {
-
-      long confRowCount = tableConfig.getRowCount();
-
-      rowCount =
-          ignoreScaleTables.contains(tableConfig.getFullyQualifiedName())
-              ? confRowCount
-              : getScale().apply(confRowCount);
+    if (tableConfig == null) {
+      return getDefaultRowCount();
     }
 
-    return rowCount;
+    long rowCount = tableConfig.getRowCount();
+
+    if (ignoreScaleTables.contains(tableConfig.getFullyQualifiedName())) {
+      return rowCount;
+    }
+
+    return getScale().apply(rowCount);
   }
 
   public Optional<ValueGenerator> findValueGenerator(ColumnDef column) {
