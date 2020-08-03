@@ -17,6 +17,14 @@
               "columnName": "col"
             }
           ]
+        },
+        {
+          "tableName": "tab_3",
+          "columns": [
+            {
+              "columnName": "col"
+            }
+          ]
         }
       ]
     }
