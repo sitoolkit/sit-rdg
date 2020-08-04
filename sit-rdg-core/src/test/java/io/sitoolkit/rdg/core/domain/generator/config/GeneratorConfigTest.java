@@ -25,14 +25,17 @@ public class GeneratorConfigTest {
     SchemaInfo schemaInfo = SchemaInfo.read(dstDir);
     TableDef tab1 = schemaInfo.findTable("", "tab_1").get();
     TableDef tab2 = schemaInfo.findTable("", "tab_2").get();
+    TableDef tab3 = schemaInfo.findTable("", "tab_3").get();
 
     GeneratorConfig generatorConfig = new GeneratorConfigReader().read(dstDir);
     long tab1RowCount = generatorConfig.getRowCount(tab1);
     long tab2RowCount = generatorConfig.getRowCount(tab2);
+    long tab3RowCount = generatorConfig.getRowCount(tab3);
 
-    log.info("tab1RowCount:{}, tab2RowCount:{}", tab1RowCount, tab2RowCount);
+    log.info("tab1RowCount:{}, tab2RowCount:{}, tab3RowCount:{}", tab1RowCount, tab2RowCount, tab3RowCount);
 
     Assert.assertThat(tab1RowCount, is(100L));
     Assert.assertThat(tab2RowCount, is(20L));
+    Assert.assertThat(tab3RowCount, is(5L));
   }
 }

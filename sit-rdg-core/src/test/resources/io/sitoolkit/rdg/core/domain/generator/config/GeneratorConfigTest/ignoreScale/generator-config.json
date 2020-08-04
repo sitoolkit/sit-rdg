@@ -1,5 +1,6 @@
 {
   "scale": "/10",
+  "defaultRowCount": 50,
   "ignoreScale": [
     "tab_1"
   ],
