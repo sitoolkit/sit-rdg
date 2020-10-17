@@ -56,9 +56,9 @@ You can execute sit-rtg with the following 2 ways.
 Exeucte the following commands in your workspace.
 
 ```bash
-curl -o sit-rdg-core-1.0.0-beta.1.jar https://repo.maven.apache.org/maven2/io/sitoolkit/rdg/sit-rdg-core/1.0.0-beta.1/sit-rdg-core-1.0.0-beta.1.jar
+curl -o sit-rdg-core-1.0.0-beta.2.jar https://repo.maven.apache.org/maven2/io/sitoolkit/rdg/sit-rdg-core/1.0.0-beta.2/sit-rdg-core-1.0.0-beta.2.jar
 
-java -jar sit-rdg-core-1.0.0-beta.1.jar
+java -jar sit-rdg-core-1.0.0-beta.2.jar
 ```
 
 
@@ -76,7 +76,7 @@ Put pom.xml in your workspace and execute mvn command.
 
   <groupId>your-group-id</groupId>
   <artifactId>your-artifact-id</artifactId>
-  <version>1.0.0-beta.1</version>
+  <version>1.0.0-beta.2</version>
 
   <build>
 
@@ -86,7 +86,7 @@ Put pom.xml in your workspace and execute mvn command.
       <plugin>
         <groupId>io.sitoolkit.rdg</groupId>
         <artifactId>sit-rdg-maven-plugin</artifactId>
-        <version>1.0.0-beta.1</version>
+        <version>1.0.0-beta.2</version>
       </plugin>
     </plugins>
 
